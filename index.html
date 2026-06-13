@@ -1,135 +1,236 @@
 <!doctype html>
 <html lang="en">
-
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>Merge Studio</title>
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-    <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@500;700;800&family=Space+Grotesk:wght@600;700&display=swap" rel="stylesheet" />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Manrope:wght@500;700;800&family=Space+Grotesk:wght@600;700&display=swap"
+      rel="stylesheet"
+    />
     <link rel="stylesheet" href="styles.css" />
   </head>
 
-<body>
-  <input id="fileInput" class="sr-only" type="file" multiple accept=".pdf,application/pdf" />
+  <body>
+    <input
+      id="fileInput"
+      class="sr-only"
+      type="file"
+      multiple
+      accept=".pdf,application/pdf"
+    />
+    <button
+      id="themeToggle"
+      class="theme-toggle"
+      type="button"
+      aria-pressed="false"
+    >
+      <span class="theme-toggle-icon" aria-hidden="true"></span>
+      <span class="theme-toggle-text">Light</span>
+    </button>
 
-  <main id="landing" class="landing view active">
-    <section class="hero">
-      <p class="eyebrow">Merge Studio</p>
-      <h1>Combine PDFs without the clutter.</h1>
-      <div id="dropzone" class="dropzone" tabindex="0" role="button"
-        aria-label="Choose PDF files or drop PDF files here">
-        <div class="mark" aria-hidden="true">
-          <span></span>
-          <span></span>
-          <strong>PDF</strong>
+    <main id="landing" class="landing view active">
+      <section class="hero">
+        <nav class="site-nav" aria-label="Primary">
+          <a class="brand" href="#landing" aria-label="Merge Flow home"
+            >mergeFlow</a
+          >
+        </nav>
+
+        <div class="hero-content">
+          <p class="eyebrow">Private PDF Studio</p>
+          <h1>Merge PDFs</h1>
+          <p class="hero-copy">
+            Arrange, preview, and export in one polished flow.
+          </p>
         </div>
-        <button id="chooseBtn" class="choose-btn" type="button">
-          <span class="file-plus" aria-hidden="true"></span>
-          Choose PDF files
-        </button>
-        <p>Drop PDFs here to start organizing and previewing.</p>
-      </div>
-    </section>
-    <section class="intro">
-      <p>Upload multiple PDFs, reorder them, preview the active document, rotate or remove pages, then export a single
-        merged file.</p>
-      <ul>
-        <li>Real in-browser PDF preview</li>
-        <li>Drag to reorder before merging</li>
-        <li>No watermark or sign-in screen</li>
-      </ul>
-    </section>
-  </main>
 
-  <main id="workspace" class="studio view">
-    <header class="studio-top">
-      <button id="backBtn" class="ghost-btn" type="button">Back</button>
-      <div>
-        <p class="eyebrow">Organize</p>
-        <h2>Merge PDFs</h2>
-      </div>
-      <button id="finishBtn" class="primary-btn" type="button">Merge PDFs</button>
-    </header>
-
-    <section class="studio-layout">
-      <aside class="controls-panel">
-        <div class="tabs" role="tablist">
-          <button id="filesTab" class="tab active" type="button">Files</button>
-          <button id="pagesTab" class="tab" type="button">Pages</button>
-        </div>
-        <button id="addBtn" class="wide-btn" type="button">Add PDFs</button>
-        <div class="tool-grid">
-          <button id="rotateLeftBtn" class="tool-btn" type="button">Rotate left</button>
-          <button id="rotateRightBtn" class="tool-btn" type="button">Rotate right</button>
-          <button id="sortBtn" class="tool-btn" type="button">Sort A-Z</button>
-          <button id="deleteBtn" class="tool-btn danger disabled" type="button">Delete selected</button>
-        </div>
-        <label class="check-row"><input id="selectAll" type="checkbox" /> Select all</label>
-        <div class="view-toggle" aria-label="View mode">
-          <button id="gridBtn" class="mode-btn active" type="button">Grid</button>
-          <button id="listBtn" class="mode-btn" type="button">List</button>
-        </div>
-        <p class="hint">Click a card to preview it. Drag cards to change merge order.</p>
-      </aside>
-
-      <section class="file-area">
-        <div id="fileGrid" class="file-grid" aria-live="polite"></div>
-      </section>
-
-      <aside class="preview-panel">
-        <div class="preview-head">
-          <div>
-            <p class="eyebrow">Preview</p>
-            <h3 id="previewTitle">No PDF selected</h3>
+        <div
+          id="dropzone"
+          class="dropzone"
+          tabindex="0"
+          role="button"
+          aria-label="Choose PDF files or drop PDF files here"
+        >
+          <div class="upload-visual">
+            <div class="mark" aria-hidden="true">
+              <span></span>
+              <span></span>
+              <strong>PDF</strong>
+            </div>
+            <div>
+              <button id="chooseBtn" class="choose-btn" type="button">
+                <span class="file-plus" aria-hidden="true"></span>
+                Choose PDF files
+              </button>
+              <p>Drop PDFs here or choose files.</p>
+            </div>
           </div>
-          <span id="previewMeta">0 pages</span>
         </div>
-        <div id="previewEmpty" class="preview-empty">Select a PDF to view it here.</div>
-        <div id="pdfPreview" class="pdf-canvas-viewer"></div>
-      </aside>
-    </section>
-  </main>
+      </section>
+      <section class="intro">
+        <p>Built for clean document delivery.</p>
+        <ul>
+          <li>Preview every selected document</li>
+          <li>Drag files into the exact sequence</li>
+          <li>Export locally without watermarking</li>
+        </ul>
+      </section>
+    </main>
 
-  <main id="processing" class="processing view">
-    <section class="processing-card">
-      <div class="process-icon" aria-hidden="true"><span></span><span></span></div>
-      <h2>Creating your PDF</h2>
-      <div class="progress"><i id="progressBar"></i></div>
-      <p>Combining files locally in your browser.</p>
-    </section>
-  </main>
-
-  <main id="done" class="result view">
+    <main id="workspace" class="studio view">
       <header class="studio-top">
-        <button id="resultBackBtn" class="ghost-btn" type="button">Edit order</button>
-        <button id="clearBtn" class="ghost-btn" type="button">Start over</button>
+        <button id="backBtn" class="ghost-btn" type="button">Back</button>
+        <div>
+          <p class="eyebrow">Organize</p>
+          <!-- <h2>Merge PDFs</h2> -->
+        </div>
+        <button id="finishBtn" class="primary-btn" type="button">
+          Merge PDFs
+        </button>
+      </header>
+
+      <section class="studio-layout">
+        <aside class="controls-panel">
+          <div class="tabs" role="tablist">
+            <button id="filesTab" class="tab active" type="button">
+              Files
+            </button>
+            <button id="pagesTab" class="tab" type="button">Pages</button>
+          </div>
+          <button id="addBtn" class="wide-btn" type="button">Add PDFs</button>
+          <div class="tool-grid">
+            <button id="rotateLeftBtn" class="tool-btn" type="button">
+              Rotate left
+            </button>
+            <button id="rotateRightBtn" class="tool-btn" type="button">
+              Rotate right
+            </button>
+            <button id="sortBtn" class="tool-btn" type="button">
+              Sort A-Z
+            </button>
+            <button
+              id="deleteBtn"
+              class="tool-btn danger disabled"
+              type="button"
+            >
+              Delete selected
+            </button>
+          </div>
+          <label class="check-row"
+            ><input id="selectAll" type="checkbox" /> Select all</label
+          >
+          <div class="view-toggle" aria-label="View mode">
+            <button id="gridBtn" class="mode-btn active" type="button">
+              Grid
+            </button>
+            <button id="listBtn" class="mode-btn" type="button">List</button>
+          </div>
+          <p class="hint">
+            Click a card to preview it. Drag cards to change merge order.
+          </p>
+        </aside>
+
+        <section class="file-area">
+          <div id="fileGrid" class="file-grid" aria-live="polite"></div>
+        </section>
+
+        <aside class="preview-panel">
+          <div class="preview-head">
+            <div>
+              <p class="eyebrow">Preview</p>
+              <h3 id="previewTitle">No PDF selected</h3>
+            </div>
+            <span id="previewMeta">0 pages</span>
+          </div>
+          <div id="previewEmpty" class="preview-empty">
+            Select a PDF to view it here.
+          </div>
+          <div id="pdfPreview" class="pdf-canvas-viewer"></div>
+        </aside>
+      </section>
+    </main>
+
+    <main id="processing" class="processing view">
+      <section class="processing-card">
+        <div class="process-icon" aria-hidden="true">
+          <span></span><span></span>
+        </div>
+        <h2>Creating your PDF</h2>
+        <div class="progress"><i id="progressBar"></i></div>
+        <p>Combining files locally in your browser.</p>
+      </section>
+    </main>
+
+    <main id="done" class="result view">
+      <header class="studio-top">
+        <button id="resultBackBtn" class="ghost-btn" type="button">
+          Edit order
+        </button>
+        <button id="clearBtn" class="ghost-btn" type="button">
+          Start over
+        </button>
         <div class="result-title-block">
           <p class="eyebrow">Done</p>
           <h2>Export ready</h2>
           <p id="resultName" class="result-file-title">merged-document.pdf</p>
         </div>
       </header>
-    <section class="result-layout">
-      <div class="result-preview">
-        <div id="resultPreview" class="pdf-canvas-viewer"></div>
-      </div>
-      <aside class="result-panel">
-        <div class="success-badge">Ready</div>
-        <p id="resultMeta">0 MB - 0 pages</p>
-        <label class="rename-field">
-          <span>Rename merged file</span>
-          <input id="renameInput" type="text" value="merged-document.pdf" />
-        </label>
-        <button id="downloadBtn" class="wide-btn" type="button">Download merged PDF</button>
-      </aside>
-    </section>
-  </main>
-
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
-  <script src="https://unpkg.com/pdf-lib/dist/pdf-lib.min.js"></script>
-  <script src="script.js"></script>
-</body>
-
+      <section class="result-layout">
+        <div class="result-preview">
+          <div id="resultPreview" class="pdf-canvas-viewer"></div>
+        </div>
+        <aside class="result-panel">
+          <div class="success-badge">Ready</div>
+          <p id="resultMeta">0 MB - 0 pages</p>
+          <label class="rename-field">
+            <span>Rename merged file</span>
+            <input id="renameInput" type="text" value="merged-document.pdf" />
+          </label>
+          <button id="downloadBtn" class="wide-btn" type="button">
+            Download merged PDF
+          </button>
+        </aside>
+      </section>
+    </main>
+    <footer>
+      <p class="footer-text">
+        designed and developed by
+        <a
+          target="_blank"
+          rel="noopener noreferrer"
+          href="https://ratnexh.vercel.app/"
+          >Ratnesh Kumar</a
+        >
+      </p>
+      <p>
+        <a
+          target="_blank"
+          rel="noopener noreferrer"
+          href="https://www.linkedin.com/in/ratnexh"
+        >
+          <img
+            src="https://img.shields.io/badge/LinkedIn-0077B5?style=for-the-badge&logo=linkedin&logoColor=white"
+            alt="LinkedIn"
+          />
+        </a>
+        <a
+          target="_blank"
+          rel="noopener noreferrer"
+          href="https://github.com/ratnexh"
+        >
+          <img
+            src="https://img.shields.io/badge/GitHub-181717?style=for-the-badge&logo=github&logoColor=white"
+            alt="GitHub"
+          />
+        </a>
+      </p>
+      <p>© 2026 mergeFlow. All rights reserved.</p>
+    </footer>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
+    <script src="https://unpkg.com/pdf-lib/dist/pdf-lib.min.js"></script>
+    <script src="script.js"></script>
+  </body>
 </html>

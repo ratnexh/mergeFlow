@@ -24,6 +24,7 @@ const previewEmpty = document.getElementById("previewEmpty");
 const pdfPreview = document.getElementById("pdfPreview");
 const resultPreview = document.getElementById("resultPreview");
 const renameInput = document.getElementById("renameInput");
+const themeToggle = document.getElementById("themeToggle");
 let previewRenderToken = 0;
 let resultRenderToken = 0;
 
@@ -46,6 +47,9 @@ document.getElementById("rotateLeftBtn").addEventListener("click", () => rotateS
 document.getElementById("rotateRightBtn").addEventListener("click", () => rotateSelected(90));
 document.getElementById("filesTab").addEventListener("click", () => setTab("files"));
 document.getElementById("pagesTab").addEventListener("click", () => setTab("pages"));
+themeToggle.addEventListener("click", toggleTheme);
+
+applyTheme(localStorage.getItem("mergeStudioTheme") || "dark");
 
 fileInput.addEventListener("change", async (event) => {
   await addFiles([...event.target.files]);
@@ -118,7 +122,21 @@ async function estimatePages(file) {
 function showView(name) {
   [landing, workspace, processing, done].forEach((view) => view.classList.remove("active"));
   ({ landing, workspace, processing, done })[name].classList.add("active");
+  window.scrollTo({ top: 0, left: 0, behavior: "auto" });
   if (name === "workspace") updatePreview();
+}
+
+function toggleTheme() {
+  const nextTheme = document.body.classList.contains("theme-light") ? "dark" : "light";
+  applyTheme(nextTheme);
+  localStorage.setItem("mergeStudioTheme", nextTheme);
+}
+
+function applyTheme(theme) {
+  const light = theme === "light";
+  document.body.classList.toggle("theme-light", light);
+  themeToggle.setAttribute("aria-pressed", String(light));
+  themeToggle.querySelector(".theme-toggle-text").textContent = light ? "Dark" : "Light";
 }
 
 function renderFiles() {
