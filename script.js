@@ -25,6 +25,10 @@ const pdfPreview = document.getElementById("pdfPreview");
 const resultPreview = document.getElementById("resultPreview");
 const renameInput = document.getElementById("renameInput");
 const themeToggle = document.getElementById("themeToggle");
+const toggleControlsBtn = document.getElementById("toggleControlsBtn");
+const controlsPanel = document.getElementById("controlsPanel");
+const closePreviewBtn = document.getElementById("closePreviewBtn");
+const previewPanel = document.getElementById("previewPanel");
 let previewRenderToken = 0;
 let resultRenderToken = 0;
 
@@ -48,6 +52,19 @@ document.getElementById("rotateRightBtn").addEventListener("click", () => rotate
 document.getElementById("filesTab").addEventListener("click", () => setTab("files"));
 document.getElementById("pagesTab").addEventListener("click", () => setTab("pages"));
 themeToggle.addEventListener("click", toggleTheme);
+
+if (toggleControlsBtn && controlsPanel) {
+  toggleControlsBtn.addEventListener("click", () => {
+    const isOpen = controlsPanel.classList.toggle("open");
+    toggleControlsBtn.setAttribute("aria-expanded", String(isOpen));
+  });
+}
+
+if (closePreviewBtn && previewPanel) {
+  closePreviewBtn.addEventListener("click", () => {
+    previewPanel.classList.remove("mobile-active");
+  });
+}
 
 applyTheme(localStorage.getItem("mergeStudioTheme") || "dark");
 
@@ -166,6 +183,9 @@ function renderFiles() {
       if (event.target.closest("input")) return;
       state.activeId = item.id;
       renderFiles();
+      if (previewPanel) {
+        previewPanel.classList.add("mobile-active");
+      }
     });
 
     card.querySelector("input").addEventListener("change", (event) => {
@@ -205,6 +225,9 @@ function updatePreview() {
     previewEmpty.style.display = "grid";
     pdfPreview.classList.remove("active");
     pdfPreview.innerHTML = "";
+    if (previewPanel) {
+      previewPanel.classList.remove("mobile-active");
+    }
     return;
   }
 

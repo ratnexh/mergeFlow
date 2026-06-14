@@ -1239,6 +1239,12 @@ footer {
   }
 }
 
+/* General Desktop Styles for responsive components */
+.toggle-controls-btn,
+.close-preview-btn {
+  display: none;
+}
+
 @media (max-width: 1120px) {
   .studio-layout {
     grid-template-columns: 260px minmax(0, 1fr);
@@ -1306,24 +1312,9 @@ footer {
     grid-template-columns: 1fr;
   }
 
-  .studio-top {
-    align-items: stretch;
-    flex-wrap: wrap;
-  }
-
-  .studio-top .primary-btn {
-    width: 100%;
-    margin-left: 0;
-  }
-
   .controls-panel,
-  .preview-panel,
   .result-panel {
     position: static;
-  }
-
-  .file-grid {
-    grid-template-columns: 1fr;
   }
 
   .result .studio-top {
@@ -1341,5 +1332,305 @@ footer {
   .result .ghost-btn {
     flex: 1;
     min-width: 0;
+  }
+
+  /* --- Mobile-Specific Premium Responsive Overrides --- */
+
+  /* Theme Toggle Repositioning */
+  .theme-toggle {
+    position: fixed !important;
+    right: 14px !important;
+    top: 14px !important;
+    bottom: auto !important;
+    z-index: 100 !important;
+    min-height: 36px !important;
+    padding: 0 12px !important;
+  }
+
+  /* Collapsible Controls Panel & Content */
+  .controls-panel {
+    position: sticky !important;
+    top: 10px;
+    z-index: 50;
+    width: 100%;
+    padding: 12px 14px !important;
+  }
+
+  .controls-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    width: 100%;
+  }
+
+  .toggle-controls-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    min-height: 36px;
+    padding: 0 14px;
+    border-radius: var(--radius);
+    border: 1px solid rgba(248, 244, 235, 0.16);
+    background: rgba(248, 244, 235, 0.08);
+    color: #f8f4eb;
+    font-size: 13px;
+    font-weight: 850;
+    cursor: pointer;
+    transition: background-color 0.16s ease, border-color 0.16s ease;
+  }
+
+  body.theme-light .toggle-controls-btn {
+    background: rgba(16, 22, 36, 0.05);
+    color: #101624;
+    border-color: rgba(16, 22, 36, 0.12);
+  }
+
+  .toggle-controls-btn::after {
+    content: "";
+    width: 0;
+    height: 0;
+    border-left: 4px solid transparent;
+    border-right: 4px solid transparent;
+    border-top: 5px solid currentColor;
+    transition: transform 0.2s ease;
+  }
+
+  .controls-panel.open .toggle-controls-btn::after {
+    transform: rotate(180deg);
+  }
+
+  .controls-content {
+    max-height: 0;
+    opacity: 0;
+    overflow: hidden;
+    margin-top: 0;
+    transition: max-height 0.3s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.25s ease, margin-top 0.3s ease;
+  }
+
+  .controls-panel.open .controls-content {
+    max-height: 520px;
+    opacity: 1;
+    margin-top: 14px;
+    overflow: visible;
+  }
+
+  /* File Grid & File Cards Optimization */
+  .file-grid {
+    grid-template-columns: repeat(2, 1fr) !important;
+    gap: 12px !important;
+  }
+
+  .file-grid.list {
+    grid-template-columns: 1fr !important;
+    display: flex;
+    flex-direction: column;
+  }
+
+  .file-card {
+    padding: 10px !important;
+    border-radius: var(--radius) !important;
+  }
+
+  .file-card:hover,
+  .file-card.active {
+    transform: translateY(-1px);
+  }
+
+  .page-thumb {
+    height: clamp(90px, 26vw, 120px) !important;
+    margin-bottom: 8px !important;
+  }
+
+  .file-name {
+    font-size: 13px !important;
+    font-weight: 700 !important;
+  }
+
+  .page-count {
+    font-size: 11px !important;
+    margin-top: 2px !important;
+  }
+
+  .card-check {
+    left: 14px !important;
+    top: 14px !important;
+  }
+
+  .add-card {
+    min-height: 155px !important;
+    font-size: 13px !important;
+  }
+
+  /* Full Screen Slide-up Preview Sheet */
+  .preview-panel {
+    position: fixed !important;
+    inset: auto 0 0 0 !important;
+    height: 82vh !important;
+    width: 100vw !important;
+    border-radius: 20px 20px 0 0 !important;
+    border-bottom: none !important;
+    border-left: none !important;
+    border-right: none !important;
+    z-index: 1000 !important;
+    background: rgba(13, 18, 27, 0.96) !important;
+    backdrop-filter: blur(20px) !important;
+    box-shadow: 0 -10px 40px rgba(0, 0, 0, 0.45) !important;
+    display: flex !important;
+    flex-direction: column !important;
+    padding: 20px 18px 84px !important; /* extra bottom padding so bottom dock doesn't obscure content */
+    
+    transform: translateY(100%);
+    transition: transform 0.35s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.3s ease;
+    opacity: 0;
+    pointer-events: none;
+  }
+
+  body.theme-light .preview-panel {
+    background: rgba(243, 240, 234, 0.96) !important;
+  }
+
+  .preview-panel.mobile-active {
+    transform: translateY(0);
+    opacity: 1;
+    pointer-events: auto;
+  }
+
+  .preview-head {
+    margin-bottom: 16px !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: space-between !important;
+    width: 100% !important;
+  }
+
+  .preview-head h3 {
+    max-width: 180px !important;
+    font-size: 16px !important;
+  }
+
+  .preview-actions {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+
+  .close-preview-btn {
+    display: inline-flex !important;
+    align-items: center;
+    justify-content: center;
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    border: 1px solid rgba(248, 244, 235, 0.16);
+    background: rgba(248, 244, 235, 0.08);
+    color: #f8f4eb;
+    font-size: 20px;
+    line-height: 1;
+    cursor: pointer;
+    transition: background-color 0.15s ease, border-color 0.15s ease;
+  }
+
+  body.theme-light .close-preview-btn {
+    border-color: rgba(16, 22, 36, 0.12);
+    background: rgba(16, 22, 36, 0.05);
+    color: #101624;
+  }
+
+  .close-preview-btn:hover {
+    background: rgba(248, 244, 235, 0.15);
+  }
+
+  .pdf-canvas-viewer {
+    min-height: 0 !important;
+    height: 100% !important;
+    flex: 1 !important;
+    padding: 8px !important;
+    margin-bottom: 10px !important;
+  }
+
+  /* Done / Export Page Layout Adjustments */
+  .result-layout {
+    display: flex !important;
+    flex-direction: column !important;
+    gap: 16px !important;
+    padding: 14px !important;
+  }
+
+  .result-panel {
+    order: -1 !important;
+    width: 100% !important;
+    margin-bottom: 12px !important;
+    padding: 16px !important;
+  }
+
+  .result-preview {
+    width: 100% !important;
+    min-height: 340px !important;
+    padding: 10px !important;
+  }
+
+  .result-preview .pdf-canvas-viewer {
+    min-height: 300px !important;
+  }
+
+  /* Floating Bottom Dock Sizing & Layout */
+  .studio-top {
+    position: fixed !important;
+    bottom: 12px !important;
+    left: 12px !important;
+    right: 12px !important;
+    width: calc(100vw - 24px) !important;
+    max-width: none !important;
+    transform: none !important;
+    border-radius: 16px !important;
+    padding: 10px 14px !important;
+    min-height: 64px !important;
+    gap: 12px !important;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.32) !important;
+    border-color: rgba(248, 244, 235, 0.2) !important;
+    background: rgba(13, 18, 27, 0.82) !important;
+  }
+
+  body.theme-light .studio-top {
+    background: rgba(243, 240, 234, 0.9) !important;
+    border-color: rgba(16, 22, 36, 0.12) !important;
+  }
+
+  .studio-top h2 {
+    font-size: 20px !important;
+  }
+
+  .studio-top .primary-btn {
+    min-width: 130px !important;
+    min-height: 40px !important;
+    padding: 0 14px !important;
+    font-size: 14px !important;
+  }
+
+  .studio-top .ghost-btn {
+    min-height: 40px !important;
+    padding: 0 14px !important;
+    font-size: 14px !important;
+  }
+
+  .result-title-block {
+    border-bottom: none !important;
+    padding: 2px 0 6px !important;
+  }
+
+  .result-title-block h2 {
+    font-size: 22px !important;
+  }
+
+  .result-file-title {
+    font-size: 13px !important;
+    padding: 2px 10px !important;
+    min-height: 24px !important;
+  }
+
+  .processing-card {
+    padding: 24px !important;
   }
 }
