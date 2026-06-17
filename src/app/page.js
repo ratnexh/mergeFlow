@@ -28,7 +28,7 @@ export default function Home() {
   const [inPagesMode, setInPagesMode] = useState(false);
   const [filesBackup, setFilesBackup] = useState(null);
   const [view, setView] = useState("landing"); // "landing" | "workspace" | "processing" | "done"
-  
+
   // Theme & Layout States
   const [theme, setTheme] = useState("dark");
   const [isControlsOpen, setIsControlsOpen] = useState(false);
@@ -416,9 +416,8 @@ export default function Home() {
     offsets.slice(1).forEach((offset) => {
       pdf += `${String(offset).padStart(10, "0")} 00000 n \n`;
     });
-    pdf += `trailer << /Size ${
-      objects.length + 1
-    } /Root 1 0 R >>\nstartxref\n${xref}\n%%EOF`;
+    pdf += `trailer << /Size ${objects.length + 1
+      } /Root 1 0 R >>\nstartxref\n${xref}\n%%EOF`;
     return new Blob([pdf], { type: "application/pdf" });
   };
 
@@ -526,7 +525,7 @@ export default function Home() {
         <main id="landing" className="landing view active">
           <section className="hero">
             <nav className={`site-nav${isScrolled ? " scrolled" : ""}`} aria-label="Primary">
-              <a className="brand" href="/" aria-label="Merge Flow home">
+              <a className="brand" href="/mergeFlow" aria-label="Merge Flow home">
                 <span className="brand-logo-container">
                   <svg
                     className="brand-logo-icon"
@@ -854,8 +853,8 @@ export default function Home() {
                       setActiveId(item.id);
                       setIsPreviewMobileActive(true);
                     }}
-                    onDragStart={() => {}}
-                    onDragEnd={() => {}}
+                    onDragStart={() => { }}
+                    onDragEnd={() => { }}
                     onDropItem={moveFile}
                   />
                 ))}
