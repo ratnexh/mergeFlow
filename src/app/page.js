@@ -1,10 +1,12 @@
 "use client";
 
 import React, { useState, useEffect, useRef } from "react";
-import Script from "next/script";
+import Link from "next/link";
 import FileCard from "../components/FileCard";
 import PreviewPanel from "../components/PreviewPanel";
 import InfoModal from "../components/InfoModal";
+import Header from "../components/Header";
+import Footer from "../components/Footer";
 
 const palette = [
   "#2867e8",
@@ -484,16 +486,6 @@ export default function Home() {
 
   return (
     <>
-      {/* Script tag CDN dependencies */}
-      <Script
-        src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"
-        strategy="beforeInteractive"
-      />
-      <Script
-        src="https://unpkg.com/pdf-lib/dist/pdf-lib.min.js"
-        strategy="beforeInteractive"
-      />
-
       <input
         id="fileInput"
         className="sr-only"
@@ -507,140 +499,22 @@ export default function Home() {
         }}
       />
 
-      <button
-        id="themeToggle"
-        className="theme-toggle"
-        type="button"
-        aria-pressed={theme === "light"}
-        onClick={toggleTheme}
-      >
-        <span className="theme-toggle-icon" aria-hidden="true"></span>
-        <span className="theme-toggle-text">
-          {theme === "light" ? "Dark" : "Light"}
-        </span>
+      <Header
+        isScrolled={isScrolled}
+        isToolsOpen={isToolsOpen}
+        setIsToolsOpen={setIsToolsOpen}
+        handleDropdownItemClick={handleDropdownItemClick}
+      />
+
+      <button id="themeToggle" className="theme-toggle" type="button" aria-pressed={theme === "light"} onClick={toggleTheme}>
+        <span className="theme-toggle-icon" aria-hidden="true" />
+        <span className="theme-toggle-text">{theme === "light" ? "Dark" : "Light"}</span>
       </button>
 
       {/* 1. Landing / Upload Page View */}
       {view === "landing" && (
         <main id="landing" className="landing view active">
           <section className="hero">
-            <nav className={`site-nav${isScrolled ? " scrolled" : ""}`} aria-label="Primary">
-              <a className="brand" href="/mergeFlow" aria-label="Merge Flow home">
-                <span className="brand-logo-container">
-                  <svg
-                    className="brand-logo-icon"
-                    viewBox="0 0 32 32"
-                    fill="none"
-                    xmlns="http://www.w3.org/2000/svg"
-                  >
-                    <defs>
-                      <linearGradient id="logoGrad" x1="0%" y1="0%" x2="100%" y2="100%">
-                        <stop offset="0%" stopColor="#b88a43" />
-                        <stop offset="100%" stopColor="#0f8176" />
-                      </linearGradient>
-                    </defs>
-                    <rect
-                      x="4"
-                      y="6"
-                      width="16"
-                      height="20"
-                      rx="3"
-                      stroke="url(#logoGrad)"
-                      strokeWidth="2.5"
-                      strokeLinejoin="round"
-                      className="rect-back"
-                    />
-                    <rect
-                      x="12"
-                      y="10"
-                      width="16"
-                      height="20"
-                      rx="3"
-                      fill="#0d121b"
-                      stroke="url(#logoGrad)"
-                      strokeWidth="2.5"
-                      strokeLinejoin="round"
-                      className="rect-front"
-                    />
-                    <path
-                      d="M17 15H23"
-                      stroke="url(#logoGrad)"
-                      strokeWidth="2"
-                      strokeLinecap="round"
-                    />
-                    <path
-                      d="M17 19H23"
-                      stroke="url(#logoGrad)"
-                      strokeWidth="2"
-                      strokeLinecap="round"
-                    />
-                  </svg>
-                  <span className="brand-text">
-                    merge<span className="brand-highlight">Flow</span>
-                  </span>
-                </span>
-              </a>
-
-              <div className={`dropdown${isToolsOpen ? " open" : ""}`} id="toolsDropdown">
-                <button
-                  className="dropdown-trigger"
-                  id="toolsBtn"
-                  aria-haspopup="true"
-                  aria-expanded={isToolsOpen}
-                  type="button"
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    setIsToolsOpen(!isToolsOpen);
-                  }}
-                >
-                  <svg
-                    className="tools-icon"
-                    viewBox="0 0 24 24"
-                    fill="none"
-                    stroke="currentColor"
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                  >
-                    <path d="M12 20h9"></path>
-                    <path d="M16.5 3.5a2.12 2.12 0 0 1 3 3L7 19l-4 1 1-4Z"></path>
-                  </svg>
-                  <span>Tools</span>
-                  <svg
-                    className="chevron-icon"
-                    viewBox="0 0 24 24"
-                    fill="none"
-                    stroke="currentColor"
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                  >
-                    <path d="m6 9 6 6 6-6" />
-                  </svg>
-                </button>
-                <ul className="dropdown-menu" id="toolsList" role="menu">
-                  <li role="none">
-                    <a id="toolCompress" role="menuitem" onClick={() => handleDropdownItemClick("Compress PDF")}>
-                      Compress PDF
-                    </a>
-                  </li>
-                  <li role="none">
-                    <a id="toolToImage" role="menuitem" onClick={() => handleDropdownItemClick("PDF to Image")}>
-                      PDF to Image
-                    </a>
-                  </li>
-                  <li role="none">
-                    <a id="toolFromImage" role="menuitem" onClick={() => handleDropdownItemClick("Image to PDF")}>
-                      Image to PDF
-                    </a>
-                  </li>
-                  <li role="none">
-                    <a id="toolProtect" role="menuitem" onClick={() => handleDropdownItemClick("Protect PDF")}>
-                      Protect PDF
-                    </a>
-                  </li>
-                </ul>
-              </div>
-            </nav>
-
             <div className="hero-content">
               <p className="eyebrow">Private PDF Studio</p>
               <h1>Merge PDFs</h1>
@@ -705,6 +579,7 @@ export default function Home() {
           </section>
         </main>
       )}
+
 
       {/* 2. Workspace / Studio View */}
       {view === "workspace" && (
@@ -960,18 +835,10 @@ export default function Home() {
         </main>
       )}
 
+
+
       {/* Landing view Footer */}
-      {view === "landing" && (
-        <footer>
-          <p className="footer-text">
-            designed and developed by{" "}
-            <a target="_blank" rel="noopener noreferrer" href="https://www.linkedin.com/in/ratnexh">
-              Ratnesh Kumar
-            </a>
-          </p>
-          <p>© 2026 mergeFlow. All rights reserved.</p>
-        </footer>
-      )}
+      {view === "landing" && <Footer />}
 
       <InfoModal
         isOpen={modal.isOpen}

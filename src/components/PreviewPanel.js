@@ -97,6 +97,31 @@ export default function PreviewPanel({
     };
   }, [url, pageIndex, target]);
 
+  if (target === "simple") {
+    return (
+      <div className="simple-preview" style={{ width: "100%" }}>
+        {status && <div className="render-note">{status}</div>}
+        <div 
+          ref={containerRef} 
+          className="pdf-canvas-viewer active" 
+          style={{ 
+            height: "auto", 
+            overflow: "visible", 
+            display: "flex", 
+            flexDirection: "column", 
+            alignItems: "center", 
+            gap: "12px",
+            background: "transparent",
+            border: "none",
+            padding: 0,
+            minHeight: "auto",
+            boxShadow: "none"
+          }}
+        ></div>
+      </div>
+    );
+  }
+
   if (target === "result") {
     return (
       <div className="result-preview active">

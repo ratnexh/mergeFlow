@@ -1,3 +1,4 @@
+import Script from "next/script";
 import "./globals.css";
 
 export const metadata = {
@@ -45,7 +46,17 @@ export default function RootLayout({ children }) {
           href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32' fill='none'%3E%3Cdefs%3E%3ClinearGradient id='logoGrad' x1='0%25' y1='0%25' x2='100%25' y2='100%25'%3E%3Cstop offset='0%25' stop-color='%23b88a43'/%3E%3Cstop offset='100%25' stop-color='%230f8176'/%3E%3C/linearGradient%3E%3C/defs%3E%3Crect x='4' y='6' width='16' height='20' rx='3' stroke='url(%23logoGrad)' stroke-width='2.5' stroke-linejoin='round'/%3E%3Crect x='12' y='10' width='16' height='20' rx='3' fill='%230d121b' stroke='url(%23logoGrad)' stroke-width='2.5' stroke-linejoin='round'/%3E%3Cpath d='M17 15H23' stroke='url(%23logoGrad)' stroke-width='2' stroke-linecap='round'/%3E%3Cpath d='M17 19H23' stroke='url(%23logoGrad)' stroke-width='2' stroke-linecap='round'/%3E%3C/svg%3E"
         />
       </head>
-      <body>{children}</body>
+      <body>
+        <Script
+          src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"
+          strategy="beforeInteractive"
+        />
+        <Script
+          src="https://unpkg.com/pdf-lib/dist/pdf-lib.min.js"
+          strategy="beforeInteractive"
+        />
+        {children}
+      </body>
     </html>
   );
 }
