@@ -55,6 +55,17 @@ export default function CompressPage() {
     document.body.classList.toggle("theme-light", savedTheme === "light");
   }, [theme]);
 
+  // Check for shared file from merge page (in-memory transition)
+  useEffect(() => {
+    if (typeof window !== "undefined" && window.sharedPdfFile) {
+      const file = window.sharedPdfFile;
+      window.sharedPdfFile = null; // Clear to prevent double processing
+      setCompressFile(file);
+      setOriginalSize(file.size);
+      setCompressView("settings");
+    }
+  }, []);
+
   // Scroll Shrink Nav Hook
   useEffect(() => {
     const handleScroll = () => {
@@ -252,6 +263,8 @@ export default function CompressPage() {
         isToolsOpen={isToolsOpen}
         setIsToolsOpen={setIsToolsOpen}
         handleDropdownItemClick={handleDropdownItemClick}
+        theme={theme}
+        toggleTheme={toggleTheme}
       />
 
       <button id="themeToggle" className="theme-toggle" type="button" aria-pressed={theme === "light"} onClick={toggleTheme}>
@@ -276,8 +289,20 @@ export default function CompressPage() {
 
         {/* Hero Section — full layout matching homepage */}
         <section className="hero">
-          <div className="hero-content" style={{ textAlign: "center" }}>
-            <p className="eyebrow">Tool</p>
+          <div className="hero-content">
+            <Link className="ghost-btn-back" href="/">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                <line x1="19" y1="12" x2="5" y2="12" /><polyline points="12 19 5 12 12 5" />
+              </svg>
+              <span>Back to Tools</span>
+            </Link>
+
+            <p className="eyebrow">
+              <svg className="shield-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
+                <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" />
+              </svg>
+              Private PDF Studio
+            </p>
             <h1>Compress PDF</h1>
             <p className="hero-copy">
               Reduce PDF file size by optimizing embedded images — all processed locally in your browser.
@@ -307,18 +332,25 @@ export default function CompressPage() {
                 }
               }}
             >
-              <div className="upload-visual">
-                <div className="mark" aria-hidden="true">
-                  <span></span>
-                  <span></span>
-                  <strong>PDF</strong>
+              <div className="dropzone-inner">
+                <div className="dropzone-cards" aria-hidden="true">
+                  <div className="pdf-card-shadow card-left"></div>
+                  <div className="pdf-card-shadow card-right"></div>
+                  <div className="pdf-card-front">PDF</div>
                 </div>
-                <div>
-                  <button className="choose-btn" type="button">
-                    <span className="file-plus" aria-hidden="true"></span>
-                    Select PDF file
-                  </button>
-                  <p>Drop a PDF here or choose a file.</p>
+                <button id="chooseBtn" className="choose-btn-gold" type="button">
+                  <svg className="plus-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                    <path d="M12 5v14M5 12h14" />
+                  </svg>
+                  Choose PDF file
+                </button>
+                <p className="dropzone-text">or drag and drop PDF here</p>
+                <div className="dropzone-security">
+                  <svg className="lock-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
+                    <rect x="3" y="11" width="18" height="11" rx="2" ry="2" />
+                    <path d="M7 11V7a5 5 0 0 1 10 0v4" />
+                  </svg>
+                  <span>Files are processed locally. Your data stays private.</span>
                 </div>
               </div>
             </div>
@@ -495,6 +527,119 @@ export default function CompressPage() {
             </div>
           )}
         </section>
+
+        {compressView === "upload" && (
+          <>
+            <section className="features-section">
+              <div className="section-header">
+                <p className="eyebrow-small">Built for</p>
+                <h2>Clean document delivery</h2>
+              </div>
+              <div className="features-grid">
+                <div className="feature-card">
+                  <div className="feature-icon-wrapper">
+                    <svg className="feature-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round">
+                      <rect x="3" y="3" width="18" height="18" rx="2" ry="2" />
+                      <circle cx="8.5" cy="8.5" r="1.5" />
+                      <polyline points="21 15 16 10 5 21" />
+                    </svg>
+                  </div>
+                  <h3>Optimize image sizes</h3>
+                  <p>Compresses embedded images using canvas scaling and quality rules.</p>
+                </div>
+
+                <div className="feature-card">
+                  <div className="feature-icon-wrapper">
+                    <svg className="feature-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round">
+                      <path d="M12 2v20M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6" />
+                    </svg>
+                  </div>
+                  <h3>Select quality level</h3>
+                  <p>Choose between Recommended, Less Compression, or Extreme settings.</p>
+                </div>
+
+                <div className="feature-card">
+                  <div className="feature-icon-wrapper">
+                    <svg className="feature-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round">
+                      <rect x="3" y="11" width="18" height="11" rx="2" ry="2" />
+                      <path d="M7 11V7a5 5 0 0 1 10 0v4" />
+                    </svg>
+                  </div>
+                  <h3>100% Offline</h3>
+                  <p>Files are compressed locally in your browser. Safe and secure.</p>
+                </div>
+              </div>
+            </section>
+
+            <section className="how-it-works-section">
+              <p className="eyebrow-small">How it works</p>
+              <div className="how-it-works-container">
+                <div className="how-it-works-grid">
+
+                  <div className="step-card">
+                    <div className="step-icon-container">
+                      <div className="step-icon-wrapper">
+                        <svg className="step-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round">
+                          <path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z" />
+                        </svg>
+                        <span className="step-number">1</span>
+                      </div>
+                      <div className="step-connector"></div>
+                    </div>
+                    <h4>Upload PDF</h4>
+                    <p>Choose a PDF file from your device.</p>
+                  </div>
+
+                  <div className="step-card">
+                    <div className="step-icon-container">
+                      <div className="step-icon-wrapper">
+                        <svg className="step-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round">
+                          <circle cx="12" cy="12" r="3" />
+                          <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z" />
+                        </svg>
+                        <span className="step-number">2</span>
+                      </div>
+                      <div className="step-connector"></div>
+                    </div>
+                    <h4>Select level</h4>
+                    <p>Pick a level of compression that fits your needs.</p>
+                  </div>
+
+                  <div className="step-card">
+                    <div className="step-icon-container">
+                      <div className="step-icon-wrapper">
+                        <svg className="step-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round">
+                          <polygon points="12 2 2 7 12 12 22 7 12 2" />
+                          <polyline points="2 17 12 22 22 17" />
+                          <polyline points="2 12 12 17 22 12" />
+                        </svg>
+                        <span className="step-number">3</span>
+                      </div>
+                      <div className="step-connector"></div>
+                    </div>
+                    <h4>Optimize</h4>
+                    <p>Optimizes all images inside the PDF locally.</p>
+                  </div>
+
+                  <div className="step-card">
+                    <div className="step-icon-container">
+                      <div className="step-icon-wrapper">
+                        <svg className="step-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round">
+                          <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14" />
+                          <polyline points="22 4 12 14.01 9 11.01" />
+                        </svg>
+                        <span className="step-number">4</span>
+                      </div>
+                    </div>
+                    <h4>Download</h4>
+                    <p>Save your optimized PDF instantly.</p>
+                  </div>
+
+                </div>
+              </div>
+            </section>
+          </>
+        )}
       </main>
 
 

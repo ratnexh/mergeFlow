@@ -123,6 +123,8 @@ export default function PrivacyPage() {
         isToolsOpen={isToolsOpen}
         setIsToolsOpen={setIsToolsOpen}
         handleDropdownItemClick={() => setIsToolsOpen(false)}
+        theme={theme}
+        toggleTheme={toggleTheme}
       />
 
       <button id="themeToggle" className="theme-toggle" type="button" aria-pressed={theme === "light"} onClick={toggleTheme}>

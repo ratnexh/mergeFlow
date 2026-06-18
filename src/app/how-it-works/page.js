@@ -120,6 +120,8 @@ export default function HowItWorksPage() {
         isToolsOpen={isToolsOpen}
         setIsToolsOpen={setIsToolsOpen}
         handleDropdownItemClick={handleDropdownItemClick}
+        theme={theme}
+        toggleTheme={toggleTheme}
       />
 
       <button id="themeToggle" className="theme-toggle" type="button" aria-pressed={theme === "light"} onClick={toggleTheme}>
