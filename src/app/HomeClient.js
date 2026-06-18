@@ -179,17 +179,19 @@ export default function Home() {
             </div>
 
             {/* Tool 6: Protect PDF */}
-            <div className="portal-card disabled" onClick={() => handleDropdownItemClick("Protect PDF")}>
-              <div className="portal-card-icon coming-soon-icon">
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2">
-                  <rect x="3" y="11" width="18" height="11" rx="2" ry="2" />
-                  <path d="M7 11V7a5 5 0 0 1 10 0v4" />
-                </svg>
+            <Link href="/protect" style={{ textDecoration: "none" }}>
+              <div className="portal-card">
+                <div className="portal-card-icon protect-icon-color">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2">
+                    <rect x="3" y="11" width="18" height="11" rx="2" ry="2" />
+                    <path d="M7 11V7a5 5 0 0 1 10 0v4" />
+                  </svg>
+                </div>
+                <h3>Protect PDF</h3>
+                <p>Add strong password encryption to secure your PDFs against unauthorized viewing or copying.</p>
+                <span className="portal-card-btn">Launch Tool →</span>
               </div>
-              <h3>Protect PDF</h3>
-              <p>Add strong password encryption to secure your PDFs against unauthorized viewing or copying.</p>
-              <span className="portal-card-badge">Coming Soon</span>
-            </div>
+            </Link>
           </div>
         </section>
       </main>

@@ -113,6 +113,42 @@ export default function HowItWorksPage() {
     },
   ];
 
+  const protectSteps = [
+    {
+      number: "01",
+      title: "Upload your PDF",
+      desc: "Drag and drop a PDF file onto the Protect page. The file stays inside browser memory, fully offline.",
+      icon: (
+        <svg viewBox="0 0 48 48" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+          <path d="M24 32V16m0 0l-6 6m6-6l6 6" />
+          <rect x="8" y="36" width="32" height="4" rx="2" />
+        </svg>
+      ),
+    },
+    {
+      number: "02",
+      title: "Choose password",
+      desc: "Input a strong, secure key password to lock the document and confirm it to prevent typos.",
+      icon: (
+        <svg viewBox="0 0 48 48" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+          <rect x="12" y="22" width="24" height="18" rx="4" />
+          <path d="M18 22v-6a6 6 0 0 1 12 0v6" />
+        </svg>
+      ),
+    },
+    {
+      number: "03",
+      title: "Lock & Download",
+      desc: "Web Crypto cryptographically locks the PDF using AES-256 standards directly in your browser. Download your secure document instantly.",
+      icon: (
+        <svg viewBox="0 0 48 48" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+          <path d="M24 16v16m0 0l-6-6m6 6l6-6" />
+          <path d="M8 38h32" />
+        </svg>
+      ),
+    },
+  ];
+
   return (
     <>
       <Header
@@ -212,6 +248,47 @@ export default function HowItWorksPage() {
             <div style={{ textAlign: "center", marginTop: "48px" }}>
               <Link href="/compress" className="wide-btn" style={{ display: "inline-flex", alignItems: "center", gap: "8px", textDecoration: "none", padding: "0 32px" }}>
                 Start Compressing
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M5 12h14M12 5l7 7-7 7" /></svg>
+              </Link>
+            </div>
+          </div>
+        </section>
+
+        {/* Divider */}
+        <div style={{ height: "1px", background: "linear-gradient(90deg, transparent, rgba(255,255,255,0.1), transparent)", margin: "0 clamp(18px, 5vw, 76px)" }} />
+
+        {/* Protect section */}
+        <section style={{ padding: "clamp(48px, 8vw, 96px) clamp(18px, 5vw, 76px)" }}>
+          <div style={{ maxWidth: "900px", margin: "0 auto" }}>
+            <div style={{ display: "flex", alignItems: "center", gap: "14px", marginBottom: "48px" }}>
+              <span style={{
+                display: "inline-flex", alignItems: "center", justifyContent: "center",
+                width: "36px", height: "36px", borderRadius: "10px",
+                background: "linear-gradient(135deg, #b88a43, #714c14)",
+                flexShrink: 0
+              }}>
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#fff" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
+                  <rect x="3" y="11" width="18" height="11" rx="2" ry="2" />
+                  <path d="M7 11V7a5 5 0 0 1 10 0v4" />
+                </svg>
+              </span>
+              <h2 style={{ margin: 0, fontSize: "clamp(22px, 3vw, 30px)" }}>Protect PDF</h2>
+            </div>
+
+            <div className="hiw-steps">
+              {protectSteps.map((step) => (
+                <div key={step.number} className="hiw-card">
+                  <div className="hiw-number">{step.number}</div>
+                  <div className="hiw-icon">{step.icon}</div>
+                  <h3 className="hiw-title">{step.title}</h3>
+                  <p className="hiw-desc">{step.desc}</p>
+                </div>
+              ))}
+            </div>
+
+            <div style={{ textAlign: "center", marginTop: "48px" }}>
+              <Link href="/protect" className="wide-btn" style={{ display: "inline-flex", alignItems: "center", gap: "8px", textDecoration: "none", padding: "0 32px" }}>
+                Start Protecting
                 <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M5 12h14M12 5l7 7-7 7" /></svg>
               </Link>
             </div>

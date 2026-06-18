@@ -8,7 +8,7 @@ const sections = [
   {
     id: "local-processing",
     title: "Your files never leave your device",
-    body: "All PDF processing — merging, splitting, rotating, and compressing — happens entirely inside your browser using Web APIs. No file is ever uploaded to any server. Your documents stay completely private.",
+    body: "All PDF processing — merging, splitting, rotating, compressing, and protecting — happens entirely inside your browser using Web APIs. No file is ever uploaded to any server. Your documents stay completely private.",
     icon: (
       <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round">
         <rect x="3" y="11" width="14" height="8" rx="2" />

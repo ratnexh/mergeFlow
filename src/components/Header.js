@@ -84,7 +84,7 @@ export default function Header({
             <li role="none"><Link id="toolCompress" role="menuitem" href="/compress" className={pathname === "/compress" ? "active" : ""} onClick={() => setIsToolsOpen(false)}>Compress PDF</Link></li>
             <li role="none"><a id="toolToImage" role="menuitem" onClick={() => handleDropdownItemClick("PDF to Image")}>PDF to Image</a></li>
             <li role="none"><a id="toolFromImage" role="menuitem" onClick={() => handleDropdownItemClick("Image to PDF")}>Image to PDF</a></li>
-            <li role="none"><a id="toolProtect" role="menuitem" onClick={() => handleDropdownItemClick("Protect PDF")}>Protect PDF</a></li>
+            <li role="none"><Link id="toolProtect" role="menuitem" href="/protect" className={pathname === "/protect" ? "active" : ""} onClick={() => setIsToolsOpen(false)}>Protect PDF</Link></li>
           </ul>
         </div>
       </div>
