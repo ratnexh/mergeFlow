@@ -9,6 +9,18 @@ export default function HowItWorksPage() {
   const [theme, setTheme] = useState("dark");
   const [isScrolled, setIsScrolled] = useState(false);
   const [isToolsOpen, setIsToolsOpen] = useState(false);
+  const [activeId, setActiveId] = useState("merge");
+
+  const hiwSections = [
+    { id: "merge", label: "Merge PDFs" },
+    { id: "split", label: "Split PDF" },
+    { id: "compress", label: "Compress PDF" },
+    { id: "protect", label: "Protect PDF" },
+    { id: "edit", label: "Edit PDF" },
+    { id: "pdf-to-image", label: "PDF to Image" },
+    { id: "image-to-pdf", label: "Image to PDF" },
+    { id: "ocr", label: "OCR PDF" },
+  ];
 
   useEffect(() => {
     const saved = localStorage.getItem("mergeStudioTheme") || "dark";
@@ -17,7 +29,16 @@ export default function HowItWorksPage() {
   }, []);
 
   useEffect(() => {
-    const onScroll = () => setIsScrolled(window.scrollY > 20);
+    const onScroll = () => {
+      setIsScrolled(window.scrollY > 20);
+      for (const s of [...hiwSections].reverse()) {
+        const el = document.getElementById(s.id);
+        if (el && el.getBoundingClientRect().top <= 120) {
+          setActiveId(s.id);
+          break;
+        }
+      }
+    };
     window.addEventListener("scroll", onScroll, { passive: true });
     return () => window.removeEventListener("scroll", onScroll);
   }, []);
@@ -103,7 +124,7 @@ export default function HowItWorksPage() {
     {
       number: "03",
       title: "Download optimized file",
-      desc: "mergeFlow re-renders every page as an optimised JPEG and rebuilds the PDF using pdf-lib — entirely in your browser. Review the before/after size, rename, and save.",
+      desc: "rawPDF re-renders every page as an optimised JPEG and rebuilds the PDF using pdf-lib — entirely in your browser. Review the before/after size, rename, and save.",
       icon: (
         <svg viewBox="0 0 48 48" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
           <path d="M24 16v16m0 0l-6-6m6 6l6-6" />
@@ -149,6 +170,188 @@ export default function HowItWorksPage() {
     },
   ];
 
+  const splitSteps = [
+    {
+      number: "01",
+      title: "Upload your PDF",
+      desc: "Drag and drop or select your PDF file. The page count is resolved instantly in memory on your browser.",
+      icon: (
+        <svg viewBox="0 0 48 48" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+          <rect x="8" y="6" width="32" height="36" rx="4" />
+          <path d="M16 14h16M16 22h16" />
+        </svg>
+      ),
+    },
+    {
+      number: "02",
+      title: "Select, Reorder & Rotate",
+      desc: "Drag pages to sort the output layout. Select cards to rotate pages clockwise or delete unwanted pages in the list.",
+      icon: (
+        <svg viewBox="0 0 48 48" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+          <path d="M12 24a12 12 0 1 1 12 12M12 24v-6h6" />
+        </svg>
+      ),
+    },
+    {
+      number: "03",
+      title: "Split and Export",
+      desc: "Click Split PDF. The customized pages are extracted and packaged into a clean, watermark-free PDF document 100% locally.",
+      icon: (
+        <svg viewBox="0 0 48 48" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+          <line x1="24" y1="8" x2="24" y2="40" />
+          <rect x="6" y="12" width="12" height="24" rx="2" />
+          <rect x="30" y="12" width="12" height="24" rx="2" />
+        </svg>
+      ),
+    },
+  ];
+
+  const editSteps = [
+    {
+      number: "01",
+      title: "Select a PDF",
+      desc: "Drop a PDF file onto the editor page. All page layouts are loaded as high-resolution rendering templates offline.",
+      icon: (
+        <svg viewBox="0 0 48 48" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+          <rect x="10" y="6" width="28" height="36" rx="4" />
+          <path d="M18 16h12M18 24h12" />
+        </svg>
+      ),
+    },
+    {
+      number: "02",
+      title: "Apply custom edits",
+      desc: "Place text boxes, highlight content, draw shape overlays, or embed custom images directly onto any page on the canvas.",
+      icon: (
+        <svg viewBox="0 0 48 48" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+          <path d="M30 6l12 12-24 24-12 4 4-12z" />
+        </svg>
+      ),
+    },
+    {
+      number: "03",
+      title: "Export losslessly",
+      desc: "Click Download PDF. Edits are layered and exported losslessly, preserving the original document content perfectly.",
+      icon: (
+        <svg viewBox="0 0 48 48" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+          <path d="M24 16v16m0 0l-6-6m6 6l6-6" />
+          <path d="M8 38h32" />
+        </svg>
+      ),
+    },
+  ];
+
+  const toPdfSteps = [
+    {
+      number: "01",
+      title: "Select your images",
+      desc: "Drag and drop or click to upload JPG, PNG, WEBP, or GIF images. You can add multiple images at once — no quantity limit.",
+      icon: (
+        <svg viewBox="0 0 48 48" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+          <rect x="8" y="8" width="32" height="32" rx="4" />
+          <circle cx="19" cy="19" r="3" />
+          <polyline points="40 30 30 20 18 32" />
+        </svg>
+      ),
+    },
+    {
+      number: "02",
+      title: "Arrange & customize",
+      desc: "Drag to reorder images. Choose a page size (A4, Letter, or fit-to-image), set orientation, and optionally add a background color to every page.",
+      icon: (
+        <svg viewBox="0 0 48 48" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+          <path d="M8 16h32M8 24h32M8 32h32" />
+          <path d="M4 12l4-4 4 4M4 36l4 4 4-4" />
+        </svg>
+      ),
+    },
+    {
+      number: "03",
+      title: "Convert & download PDF",
+      desc: "Click Convert to PDF. Each image is embedded into its own page and packed into a clean PDF — 100% client-side using pdf-lib. Download instantly.",
+      icon: (
+        <svg viewBox="0 0 48 48" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+          <rect x="8" y="6" width="32" height="36" rx="4" />
+          <path d="M16 14h16M16 22h16M16 30h10" />
+          <path d="M24 16v16m0 0l-6-6m6 6l6-6" />
+        </svg>
+      ),
+    },
+  ];
+
+  const toImageSteps = [
+    {
+      number: "01",
+      title: "Upload your PDF",
+      desc: "Drag and drop or select your PDF document. The pages are loaded instantly and rendered fully client-side.",
+      icon: (
+        <svg viewBox="0 0 48 48" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+          <rect x="10" y="6" width="28" height="36" rx="4" />
+          <path d="M18 16h12M18 24h12" />
+        </svg>
+      ),
+    },
+    {
+      number: "02",
+      title: "Choose format & quality",
+      desc: "Select output format (PNG or JPEG) and choose target resolution scale (1x, 2x, or 3x). Toggle selection of pages to convert.",
+      icon: (
+        <svg viewBox="0 0 48 48" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+          <rect x="8" y="8" width="32" height="32" rx="4" />
+          <circle cx="20" cy="20" r="4" />
+          <polyline points="40 30 30 20 18 32" />
+        </svg>
+      ),
+    },
+    {
+      number: "03",
+      title: "Convert & download ZIP",
+      desc: "Every selected page is rendered to high-quality images locally in your browser. Download all as a single ZIP archive.",
+      icon: (
+        <svg viewBox="0 0 48 48" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+          <path d="M24 16v16m0 0l-6-6m6 6l6-6" />
+          <path d="M8 38h32" />
+        </svg>
+      ),
+    },
+  ];
+
+  const ocrSteps = [
+    {
+      number: "01",
+      title: "Upload scanned PDF",
+      desc: "Drag and drop or select your scanned PDF file. The document is read in-memory in your browser, keeping your data entirely local.",
+      icon: (
+        <svg viewBox="0 0 48 48" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+          <rect x="10" y="6" width="28" height="36" rx="4" />
+          <path d="M18 16h12M18 24h12" />
+        </svg>
+      ),
+    },
+    {
+      number: "02",
+      title: "Local Wasm OCR",
+      desc: "rawPDF spawns a local Tesseract.js worker running inside WebAssembly. It renders each PDF page to canvas and performs OCR text recognition offline.",
+      icon: (
+        <svg viewBox="0 0 48 48" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+          <circle cx="24" cy="24" r="18" />
+          <path d="M24 16v16M16 24h16" />
+        </svg>
+      ),
+    },
+    {
+      number: "03",
+      title: "Edit & Download",
+      desc: "View the side-by-side extracted text, search through it, copy specific pages, or download the full text as a clean .TXT document.",
+      icon: (
+        <svg viewBox="0 0 48 48" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+          <path d="M24 16v16m0 0l-6-6m6 6l6-6" />
+          <path d="M8 38h32" />
+        </svg>
+      ),
+    },
+  ];
+
   return (
     <>
       <Header
@@ -177,121 +380,275 @@ export default function HowItWorksPage() {
           </div>
         </section>
 
-        {/* Merge section */}
-        <section style={{ padding: "clamp(48px, 8vw, 96px) clamp(18px, 5vw, 76px)" }}>
-          <div style={{ maxWidth: "900px", margin: "0 auto" }}>
-            <div style={{ display: "flex", alignItems: "center", gap: "14px", marginBottom: "48px" }}>
-              <span style={{
-                display: "inline-flex", alignItems: "center", justifyContent: "center",
-                width: "36px", height: "36px", borderRadius: "10px",
-                background: "linear-gradient(135deg, #b88a43, #0f8176)",
-                flexShrink: 0
-              }}>
-                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#fff" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
-                  <path d="M12 20h9" /><path d="M16.5 3.5a2.12 2.12 0 0 1 3 3L7 19l-4 1 1-4Z" />
-                </svg>
-              </span>
-              <h2 style={{ margin: 0, fontSize: "clamp(22px, 3vw, 30px)" }}>Merge PDFs</h2>
-            </div>
+        {/* Two-column layout: sticky TOC + content */}
+        <section className="hiw-layout">
 
-            <div className="hiw-steps">
-              {mergeSteps.map((step) => (
-                <div key={step.number} className="hiw-card">
-                  <div className="hiw-number">{step.number}</div>
-                  <div className="hiw-icon">{step.icon}</div>
-                  <h3 className="hiw-title">{step.title}</h3>
-                  <p className="hiw-desc">{step.desc}</p>
-                </div>
+          {/* Sticky sidebar */}
+          <aside className="privacy-toc">
+            <p className="privacy-toc-label">On this page</p>
+            <nav>
+              {hiwSections.map((s) => (
+                <a
+                  key={s.id}
+                  href={`#${s.id}`}
+                  className={`privacy-toc-link${activeId === s.id ? " active" : ""}`}
+                  onClick={() => setActiveId(s.id)}
+                >
+                  {s.label}
+                </a>
               ))}
-            </div>
+            </nav>
+          </aside>
 
-            <div style={{ textAlign: "center", marginTop: "48px" }}>
-              <Link href="/" className="wide-btn" style={{ display: "inline-flex", alignItems: "center", gap: "8px", textDecoration: "none", padding: "0 32px" }}>
-                Start Merging
-                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M5 12h14M12 5l7 7-7 7" /></svg>
-              </Link>
-            </div>
-          </div>
-        </section>
+          {/* Main content */}
+          <div className="hiw-content">
 
-        {/* Divider */}
-        <div style={{ height: "1px", background: "linear-gradient(90deg, transparent, rgba(255,255,255,0.1), transparent)", margin: "0 clamp(18px, 5vw, 76px)" }} />
-
-        {/* Compress section */}
-        <section style={{ padding: "clamp(48px, 8vw, 96px) clamp(18px, 5vw, 76px)" }}>
-          <div style={{ maxWidth: "900px", margin: "0 auto" }}>
-            <div style={{ display: "flex", alignItems: "center", gap: "14px", marginBottom: "48px" }}>
-              <span style={{
-                display: "inline-flex", alignItems: "center", justifyContent: "center",
-                width: "36px", height: "36px", borderRadius: "10px",
-                background: "linear-gradient(135deg, #0f8176, #2867e8)",
-                flexShrink: 0
-              }}>
-                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#fff" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
-                  <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" /><polyline points="7 10 12 15 17 10" /><line x1="12" y1="15" x2="12" y2="3" />
-                </svg>
-              </span>
-              <h2 style={{ margin: 0, fontSize: "clamp(22px, 3vw, 30px)" }}>Compress PDF</h2>
-            </div>
-
-            <div className="hiw-steps">
-              {compressSteps.map((step) => (
-                <div key={step.number} className="hiw-card">
-                  <div className="hiw-number">{step.number}</div>
-                  <div className="hiw-icon">{step.icon}</div>
-                  <h3 className="hiw-title">{step.title}</h3>
-                  <p className="hiw-desc">{step.desc}</p>
+            {/* Merge */}
+            <div id="merge" className="hiw-section">
+              <div className="hiw-section-header">
+                <span className="hiw-section-icon" style={{ background: "linear-gradient(135deg, #b88a43, #0f8176)" }}>
+                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#fff" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
+                    <path d="M12 20h9" /><path d="M16.5 3.5a2.12 2.12 0 0 1 3 3L7 19l-4 1 1-4Z" />
+                  </svg>
+                </span>
+                <h2 className="hiw-section-title">Merge PDFs</h2>
+              </div>
+              <div className="hiw-steps">
+                {mergeSteps.map((step) => (
+                  <div key={step.number} className="hiw-card">
+                    <div className="hiw-number">{step.number}</div>
+                    <div className="hiw-icon">{step.icon}</div>
+                    <h3 className="hiw-title">{step.title}</h3>
+                    <p className="hiw-desc">{step.desc}</p>
+                  </div>
+                ))}
+                <div className="hiw-card hiw-cta-card">
+                  <h3 className="hiw-cta-title">Ready to start?</h3>
+                  <Link href="/merge" className="wide-btn" style={{ display: "inline-flex", alignItems: "center", gap: "8px", textDecoration: "none", padding: "0 32px" }}>
+                    Start Merging <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M5 12h14M12 5l7 7-7 7" /></svg>
+                  </Link>
                 </div>
-              ))}
+              </div>
             </div>
 
-            <div style={{ textAlign: "center", marginTop: "48px" }}>
-              <Link href="/compress" className="wide-btn" style={{ display: "inline-flex", alignItems: "center", gap: "8px", textDecoration: "none", padding: "0 32px" }}>
-                Start Compressing
-                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M5 12h14M12 5l7 7-7 7" /></svg>
-              </Link>
-            </div>
-          </div>
-        </section>
+            <div className="hiw-divider" />
 
-        {/* Divider */}
-        <div style={{ height: "1px", background: "linear-gradient(90deg, transparent, rgba(255,255,255,0.1), transparent)", margin: "0 clamp(18px, 5vw, 76px)" }} />
-
-        {/* Protect section */}
-        <section style={{ padding: "clamp(48px, 8vw, 96px) clamp(18px, 5vw, 76px)" }}>
-          <div style={{ maxWidth: "900px", margin: "0 auto" }}>
-            <div style={{ display: "flex", alignItems: "center", gap: "14px", marginBottom: "48px" }}>
-              <span style={{
-                display: "inline-flex", alignItems: "center", justifyContent: "center",
-                width: "36px", height: "36px", borderRadius: "10px",
-                background: "linear-gradient(135deg, #b88a43, #714c14)",
-                flexShrink: 0
-              }}>
-                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#fff" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
-                  <rect x="3" y="11" width="18" height="11" rx="2" ry="2" />
-                  <path d="M7 11V7a5 5 0 0 1 10 0v4" />
-                </svg>
-              </span>
-              <h2 style={{ margin: 0, fontSize: "clamp(22px, 3vw, 30px)" }}>Protect PDF</h2>
-            </div>
-
-            <div className="hiw-steps">
-              {protectSteps.map((step) => (
-                <div key={step.number} className="hiw-card">
-                  <div className="hiw-number">{step.number}</div>
-                  <div className="hiw-icon">{step.icon}</div>
-                  <h3 className="hiw-title">{step.title}</h3>
-                  <p className="hiw-desc">{step.desc}</p>
+            {/* Split */}
+            <div id="split" className="hiw-section">
+              <div className="hiw-section-header">
+                <span className="hiw-section-icon" style={{ background: "linear-gradient(135deg, #0f8176, #b88a43)" }}>
+                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#fff" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
+                    <line x1="12" y1="3" x2="12" y2="21" />
+                    <rect x="2" y="4" width="8" height="16" rx="2" />
+                    <rect x="14" y="4" width="8" height="16" rx="2" />
+                  </svg>
+                </span>
+                <h2 className="hiw-section-title">Split PDF</h2>
+              </div>
+              <div className="hiw-steps">
+                {splitSteps.map((step) => (
+                  <div key={step.number} className="hiw-card">
+                    <div className="hiw-number">{step.number}</div>
+                    <div className="hiw-icon">{step.icon}</div>
+                    <h3 className="hiw-title">{step.title}</h3>
+                    <p className="hiw-desc">{step.desc}</p>
+                  </div>
+                ))}
+                <div className="hiw-card hiw-cta-card">
+                  <h3 className="hiw-cta-title">Ready to start?</h3>
+                  <Link href="/split" className="wide-btn" style={{ display: "inline-flex", alignItems: "center", gap: "8px", textDecoration: "none", padding: "0 32px" }}>
+                    Start Splitting <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M5 12h14M12 5l7 7-7 7" /></svg>
+                  </Link>
                 </div>
-              ))}
+              </div>
             </div>
 
-            <div style={{ textAlign: "center", marginTop: "48px" }}>
-              <Link href="/protect" className="wide-btn" style={{ display: "inline-flex", alignItems: "center", gap: "8px", textDecoration: "none", padding: "0 32px" }}>
-                Start Protecting
-                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M5 12h14M12 5l7 7-7 7" /></svg>
-              </Link>
+            <div className="hiw-divider" />
+
+            {/* Compress */}
+            <div id="compress" className="hiw-section">
+              <div className="hiw-section-header">
+                <span className="hiw-section-icon" style={{ background: "linear-gradient(135deg, #0f8176, #2867e8)" }}>
+                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#fff" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
+                    <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" /><polyline points="7 10 12 15 17 10" /><line x1="12" y1="15" x2="12" y2="3" />
+                  </svg>
+                </span>
+                <h2 className="hiw-section-title">Compress PDF</h2>
+              </div>
+              <div className="hiw-steps">
+                {compressSteps.map((step) => (
+                  <div key={step.number} className="hiw-card">
+                    <div className="hiw-number">{step.number}</div>
+                    <div className="hiw-icon">{step.icon}</div>
+                    <h3 className="hiw-title">{step.title}</h3>
+                    <p className="hiw-desc">{step.desc}</p>
+                  </div>
+                ))}
+                <div className="hiw-card hiw-cta-card">
+                  <h3 className="hiw-cta-title">Ready to start?</h3>
+                  <Link href="/compress" className="wide-btn" style={{ display: "inline-flex", alignItems: "center", gap: "8px", textDecoration: "none", padding: "0 32px" }}>
+                    Start Compressing <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M5 12h14M12 5l7 7-7 7" /></svg>
+                  </Link>
+                </div>
+              </div>
             </div>
+
+            <div className="hiw-divider" />
+
+            {/* Protect */}
+            <div id="protect" className="hiw-section">
+              <div className="hiw-section-header">
+                <span className="hiw-section-icon" style={{ background: "linear-gradient(135deg, #b88a43, #714c14)" }}>
+                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#fff" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
+                    <rect x="3" y="11" width="18" height="11" rx="2" ry="2" />
+                    <path d="M7 11V7a5 5 0 0 1 10 0v4" />
+                  </svg>
+                </span>
+                <h2 className="hiw-section-title">Protect PDF</h2>
+              </div>
+              <div className="hiw-steps">
+                {protectSteps.map((step) => (
+                  <div key={step.number} className="hiw-card">
+                    <div className="hiw-number">{step.number}</div>
+                    <div className="hiw-icon">{step.icon}</div>
+                    <h3 className="hiw-title">{step.title}</h3>
+                    <p className="hiw-desc">{step.desc}</p>
+                  </div>
+                ))}
+                <div className="hiw-card hiw-cta-card">
+                  <h3 className="hiw-cta-title">Ready to start?</h3>
+                  <Link href="/protect" className="wide-btn" style={{ display: "inline-flex", alignItems: "center", gap: "8px", textDecoration: "none", padding: "0 32px" }}>
+                    Start Protecting <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M5 12h14M12 5l7 7-7 7" /></svg>
+                  </Link>
+                </div>
+              </div>
+            </div>
+
+            <div className="hiw-divider" />
+
+            {/* Edit */}
+            <div id="edit" className="hiw-section">
+              <div className="hiw-section-header">
+                <span className="hiw-section-icon" style={{ background: "linear-gradient(135deg, #e11d48, #b88a43)" }}>
+                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#fff" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
+                    <path d="M12 20h9" />
+                    <path d="M16.5 3.5a2.12 2.12 0 0 1 3 3L7 19l-4 1 1-4Z" />
+                  </svg>
+                </span>
+                <h2 className="hiw-section-title">Edit PDF <span className="beta-badge" style={{ fontSize: "11px", padding: "2px 8px", marginLeft: "8px", top: "-3px" }}>Beta</span></h2>
+              </div>
+              <div className="hiw-steps">
+                {editSteps.map((step) => (
+                  <div key={step.number} className="hiw-card">
+                    <div className="hiw-number">{step.number}</div>
+                    <div className="hiw-icon">{step.icon}</div>
+                    <h3 className="hiw-title">{step.title}</h3>
+                    <p className="hiw-desc">{step.desc}</p>
+                  </div>
+                ))}
+                <div className="hiw-card hiw-cta-card">
+                  <h3 className="hiw-cta-title">Ready to start?</h3>
+                  <Link href="/edit" className="wide-btn" style={{ display: "inline-flex", alignItems: "center", gap: "8px", textDecoration: "none", padding: "0 32px" }}>
+                    Start Editing <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M5 12h14M12 5l7 7-7 7" /></svg>
+                  </Link>
+                </div>
+              </div>
+            </div>
+
+            <div className="hiw-divider" />
+
+            {/* PDF to Image */}
+            <div id="pdf-to-image" className="hiw-section">
+              <div className="hiw-section-header">
+                <span className="hiw-section-icon" style={{ background: "linear-gradient(135deg, #f97316, #b88a43)" }}>
+                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#fff" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
+                    <rect x="3" y="3" width="18" height="18" rx="2" ry="2" />
+                    <circle cx="8.5" cy="8.5" r="1.5" />
+                    <polyline points="21 15 16 10 5 21" />
+                  </svg>
+                </span>
+                <h2 className="hiw-section-title">Convert PDF to Image</h2>
+              </div>
+              <div className="hiw-steps">
+                {toImageSteps.map((step) => (
+                  <div key={step.number} className="hiw-card">
+                    <div className="hiw-number">{step.number}</div>
+                    <div className="hiw-icon">{step.icon}</div>
+                    <h3 className="hiw-title">{step.title}</h3>
+                    <p className="hiw-desc">{step.desc}</p>
+                  </div>
+                ))}
+                <div className="hiw-card hiw-cta-card">
+                  <h3 className="hiw-cta-title">Ready to start?</h3>
+                  <Link href="/pdf-to-image" className="wide-btn" style={{ display: "inline-flex", alignItems: "center", gap: "8px", textDecoration: "none", padding: "0 32px" }}>
+                    Start Converting <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M5 12h14M12 5l7 7-7 7" /></svg>
+                  </Link>
+                </div>
+              </div>
+            </div>
+
+            <div className="hiw-divider" />
+
+            {/* Image to PDF */}
+            <div id="image-to-pdf" className="hiw-section">
+              <div className="hiw-section-header">
+                <span className="hiw-section-icon" style={{ background: "linear-gradient(135deg, #8b5cf6, #0f8176)" }}>
+                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#fff" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
+                    <rect x="3" y="3" width="18" height="18" rx="2" ry="2" />
+                    <circle cx="8.5" cy="8.5" r="1.5" />
+                    <polyline points="21 15 16 10 5 21" />
+                  </svg>
+                </span>
+                <h2 className="hiw-section-title">Image to PDF</h2>
+              </div>
+              <div className="hiw-steps">
+                {toPdfSteps.map((step) => (
+                  <div key={step.number} className="hiw-card">
+                    <div className="hiw-number">{step.number}</div>
+                    <div className="hiw-icon">{step.icon}</div>
+                    <h3 className="hiw-title">{step.title}</h3>
+                    <p className="hiw-desc">{step.desc}</p>
+                  </div>
+                ))}
+                <div className="hiw-card hiw-cta-card">
+                  <h3 className="hiw-cta-title">Ready to start?</h3>
+                  <Link href="/image-to-pdf" className="wide-btn" style={{ display: "inline-flex", alignItems: "center", gap: "8px", textDecoration: "none", padding: "0 32px" }}>
+                    Start Converting <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M5 12h14M12 5l7 7-7 7" /></svg>
+                  </Link>
+                </div>
+              </div>
+            </div>
+
+            <div className="hiw-divider" />
+
+            {/* OCR PDF */}
+            <div id="ocr" className="hiw-section">
+              <div className="hiw-section-header">
+                <span className="hiw-section-icon" style={{ background: "linear-gradient(135deg, #10b981, #0f8176)" }}>
+                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#fff" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
+                    <path d="M12 2v20M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6" />
+                  </svg>
+                </span>
+                <h2 className="hiw-section-title">OCR PDF Text Extraction</h2>
+              </div>
+              <div className="hiw-steps">
+                {ocrSteps.map((step) => (
+                  <div key={step.number} className="hiw-card">
+                    <div className="hiw-number">{step.number}</div>
+                    <div className="hiw-icon">{step.icon}</div>
+                    <h3 className="hiw-title">{step.title}</h3>
+                    <p className="hiw-desc">{step.desc}</p>
+                  </div>
+                ))}
+                <div className="hiw-card hiw-cta-card">
+                  <h3 className="hiw-cta-title">Ready to start?</h3>
+                  <Link href="/ocr" className="wide-btn" style={{ display: "inline-flex", alignItems: "center", gap: "8px", textDecoration: "none", padding: "0 32px" }}>
+                    Start Extracting <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M5 12h14M12 5l7 7-7 7" /></svg>
+                  </Link>
+                </div>
+              </div>
+            </div>
+
           </div>
         </section>
       </main>
@@ -300,3 +657,4 @@ export default function HowItWorksPage() {
     </>
   );
 }
+

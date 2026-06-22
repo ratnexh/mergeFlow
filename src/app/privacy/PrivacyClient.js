@@ -8,7 +8,7 @@ const sections = [
   {
     id: "local-processing",
     title: "Your files never leave your device",
-    body: "All PDF processing — merging, splitting, rotating, compressing, and protecting — happens entirely inside your browser using Web APIs. No file is ever uploaded to any server. Your documents stay completely private.",
+    body: "All PDF processing — merging, splitting, rotating, compressing, protecting, converting PDF to images, and converting images to PDF — happens entirely inside your browser using Web APIs. No file is ever uploaded to any server. Your documents and images stay completely private.",
     icon: (
       <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round">
         <rect x="3" y="11" width="14" height="8" rx="2" />
@@ -20,11 +20,22 @@ const sections = [
   {
     id: "no-tracking",
     title: "No accounts, no tracking",
-    body: "mergeFlow requires no sign-up and collects no personal data. There are no analytics scripts, no advertising trackers, and no third-party cookies. The only data stored is your theme preference (dark/light), saved in your browser's localStorage.",
+    body: "rawPDF requires no sign-up and collects no personal data. There are no analytics scripts, no advertising trackers, and no third-party cookies. The only data stored is your theme preference (dark/light), saved in your browser's localStorage.",
     icon: (
       <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round">
         <circle cx="10" cy="10" r="7" />
         <path d="M4 4l12 12" />
+      </svg>
+    ),
+  },
+  {
+    id: "cookies",
+    title: "Cookies and local storage",
+    body: "rawPDF is a cookie-free application. We do not set, retrieve, or transmit any tracking cookies. The only client-side storage used is your browser's localStorage, which is used solely to store your light/dark theme preference and dismiss the privacy banner.",
+    icon: (
+      <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round">
+        <circle cx="10" cy="10" r="8" />
+        <path d="M12 7a1 1 0 1 1-2 0 1 1 0 0 1 2 0zM8 10a1 1 0 1 1-2 0 1 1 0 0 1 2 0zM14 12a1 1 0 1 1-2 0 1 1 0 0 1 2 0zM9 14a1 1 0 1 1-2 0 1 1 0 0 1 2 0z" />
       </svg>
     ),
   },
@@ -41,7 +52,7 @@ const sections = [
   {
     id: "network",
     title: "Network requests",
-    body: "mergeFlow loads static assets from its hosting provider and loads pdf-lib and PDF.js from cdnjs.cloudflare.com on first use. After that, everything runs offline-capable. No document data is ever sent over the network.",
+    body: "rawPDF loads static assets from its hosting provider and loads pdf-lib and PDF.js from cdnjs.cloudflare.com on first use. After that, everything runs offline-capable. No document data is ever sent over the network.",
     icon: (
       <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round">
         <circle cx="10" cy="10" r="7" />
@@ -176,7 +187,7 @@ export default function PrivacyPage() {
                     <p className="privacy-block-text">{s.body}</p>
                   ) : (
                     <p className="privacy-block-text">
-                      If you have any questions or concerns about how mergeFlow handles your data, reach out directly —
+                      If you have any questions or concerns about how rawPDF handles your data, reach out directly —
                       I&apos;m happy to help.
                       <span className="privacy-contact-links">
                         <a href="mailto:rkmaurya0709@gmail.com" className="privacy-contact-link">

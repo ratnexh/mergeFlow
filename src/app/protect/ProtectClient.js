@@ -23,12 +23,20 @@ export default function ProtectClient() {
   const [confirmPassword, setConfirmPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
   const [passwordError, setPasswordError] = useState("");
+  const [encryptionAlgorithm, setEncryptionAlgorithm] = useState("AES-256"); // "AES-256" | "RC4"
   const [protectView, setProtectView] = useState("upload"); // "upload" | "settings" | "processing" | "done"
   const [protectedBlob, setProtectedBlob] = useState(null);
   const [protectedUrl, setProtectedUrl] = useState(null);
   const [protectedName, setProtectedName] = useState("");
   const [originalSize, setOriginalSize] = useState(0);
   const [processingProgress, setProcessingProgress] = useState(0);
+
+  // Cleanup Object URLs on unmount and change
+  useEffect(() => {
+    return () => {
+      if (protectedUrl) URL.revokeObjectURL(protectedUrl);
+    };
+  }, [protectedUrl]);
 
   const protectInputRef = useRef(null);
 
@@ -107,6 +115,15 @@ export default function ProtectClient() {
   };
 
   const handleProtectFileSelect = (filesList) => {
+    const tooLarge = filesList.find((file) => file.size > 104857600);
+    if (tooLarge) {
+      setModal({
+        isOpen: true,
+        title: "File Too Large",
+        body: `The file "${tooLarge.name}" exceeds the maximum size limit of 100MB. Please select a smaller file.`,
+      });
+      return;
+    }
     const usable = filesList.filter((file) => {
       const name = file.name.toLowerCase();
       return file.size > 0 && (file.type === "application/pdf" || name.endsWith(".pdf"));
@@ -136,7 +153,7 @@ export default function ProtectClient() {
       setProcessingProgress(40);
 
       // Perform encryption
-      const encryptedBytes = await encryptPDF(new Uint8Array(arrayBuffer), password, { algorithm: "RC4" });
+      const encryptedBytes = await encryptPDF(new Uint8Array(arrayBuffer), password, { algorithm: encryptionAlgorithm });
       setProcessingProgress(85);
 
       const resBlob = new Blob([encryptedBytes], { type: "application/pdf" });
@@ -191,21 +208,155 @@ export default function ProtectClient() {
 
   return (
     <>
-      <Header
-        isScrolled={isScrolled}
-        isToolsOpen={isToolsOpen}
-        setIsToolsOpen={setIsToolsOpen}
-        handleDropdownItemClick={handleDropdownItemClick}
-        theme={theme}
-        toggleTheme={toggleTheme}
-      />
+      {protectView !== "settings" && (
+        <>
+          <Header
+            isScrolled={isScrolled}
+            isToolsOpen={isToolsOpen}
+            setIsToolsOpen={setIsToolsOpen}
+            handleDropdownItemClick={handleDropdownItemClick}
+            theme={theme}
+            toggleTheme={toggleTheme}
+          />
 
-      <button id="themeToggle" className="theme-toggle" type="button" aria-pressed={theme === "light"} onClick={toggleTheme}>
-        <span className="theme-toggle-icon" aria-hidden="true" />
-        <span className="theme-toggle-text">{theme === "light" ? "Dark" : "Light"}</span>
-      </button>
+          <button id="themeToggle" className="theme-toggle" type="button" aria-pressed={theme === "light"} onClick={toggleTheme}>
+            <span className="theme-toggle-icon" aria-hidden="true" />
+            <span className="theme-toggle-text">{theme === "light" ? "Dark" : "Light"}</span>
+          </button>
+        </>
+      )}
 
-      <main id="protect" className="landing view active">
+      {protectView === "settings" && protectFile && (
+        <main id="workspace" className="studio view active" style={{ minHeight: "100vh", display: "flex", flexDirection: "column" }}>
+          {/* Workspace top navigation bar */}
+          <div className="workspace-header">
+            <button className="ghost-btn workspace-back" onClick={() => {
+              setProtectView("upload");
+              setProtectFile(null);
+            }}>
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                <path d="M19 12H5M12 19l-7-7 7-7" />
+              </svg>
+              <span>Back</span>
+            </button>
+            <div className="workspace-title-area">
+              <h3 className="workspace-title">Protect PDF</h3>
+              <p className="workspace-subtitle">{protectFile.name}</p>
+            </div>
+            <div className="workspace-actions" />
+          </div>
+
+          <div style={{ flex: 1, display: "flex", alignItems: "center", justifyContent: "center", padding: "40px 20px" }}>
+            <div className="compress-card" style={{ maxWidth: "480px", width: "100%", margin: "0 auto" }}>
+              <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", borderBottom: "1px solid rgba(248, 244, 235, 0.12)", paddingBottom: "16px", marginBottom: "24px" }}>
+                <div>
+                  <h3 style={{ margin: "0 0 4px", fontSize: "18px" }} title={protectFile.name}>
+                    {protectFile.name.length > 30 ? `${protectFile.name.slice(0, 27)}...` : protectFile.name}
+                  </h3>
+                  <p style={{ margin: 0, color: "var(--subtle)", fontSize: "14px" }}>Original Size: {formatMb(protectFile.size)} MB</p>
+                </div>
+                <button className="ghost-btn" style={{ minHeight: "36px", padding: "0 12px" }} onClick={() => {
+                  setProtectView("upload");
+                  setProtectFile(null);
+                }}>
+                  Change File
+                </button>
+              </div>
+
+              <div style={{ marginBottom: "24px" }}>
+                <h4 style={{ margin: "0 0 20px", fontSize: "16px", textAlign: "left" }}>Set Document Password</h4>
+
+                <label className="rename-field" style={{ marginBottom: "20px" }}>
+                  <span>Encryption Standard</span>
+                  <select
+                    value={encryptionAlgorithm}
+                    onChange={(e) => setEncryptionAlgorithm(e.target.value)}
+                    style={{
+                      width: "100%",
+                      padding: "10px",
+                      borderRadius: "8px",
+                      background: theme === "light" ? "rgba(16, 22, 36, 0.05)" : "rgba(13,18,27,0.5)",
+                      border: theme === "light" ? "1px solid rgba(16, 22, 36, 0.12)" : "1px solid rgba(248, 244, 235, 0.15)",
+                      color: theme === "light" ? "#101624" : "#f8f4eb",
+                      fontSize: "14px",
+                      outline: "none",
+                      cursor: "pointer",
+                      fontFamily: "inherit"
+                    }}
+                  >
+                    <option value="AES-256">AES-256 - Strong (Recommended)</option>
+                    <option value="RC4">RC4 - Legacy Compatibility</option>
+                  </select>
+                </label>
+
+                <label className="rename-field" style={{ marginBottom: "16px" }}>
+                  <span>Enter Password</span>
+                  <div style={{ position: "relative", width: "100%" }}>
+                    <input
+                      type={showPassword ? "text" : "password"}
+                      value={password}
+                      onChange={(e) => setPassword(e.target.value)}
+                      placeholder="Choose a strong password"
+                      style={{ paddingRight: "48px" }}
+                    />
+                    <button
+                      type="button"
+                      onClick={() => setShowPassword(!showPassword)}
+                      style={{
+                        position: "absolute",
+                        right: "12px",
+                        top: "50%",
+                        transform: "translateY(-50%)",
+                        background: "transparent",
+                        border: "none",
+                        color: "var(--subtle)",
+                        cursor: "pointer",
+                        display: "flex",
+                        alignItems: "center"
+                      }}
+                    >
+                      {showPassword ? (
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={{ width: "20px", height: "20px" }}>
+                          <path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24" />
+                          <line x1="1" y1="1" x2="23" y2="23" />
+                        </svg>
+                      ) : (
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={{ width: "20px", height: "20px" }}>
+                          <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z" />
+                          <circle cx="12" cy="12" r="3" />
+                        </svg>
+                      )}
+                    </button>
+                  </div>
+                </label>
+
+                <label className="rename-field" style={{ marginBottom: "12px" }}>
+                  <span>Confirm Password</span>
+                  <input
+                    type={showPassword ? "text" : "password"}
+                    value={confirmPassword}
+                    onChange={(e) => setConfirmPassword(e.target.value)}
+                    placeholder="Confirm password"
+                  />
+                </label>
+
+                {passwordError && (
+                  <p style={{ margin: "10px 0 0", color: "var(--danger)", fontSize: "14px", textAlign: "left" }}>
+                    ⚠️ {passwordError}
+                  </p>
+                )}
+              </div>
+
+              <button className="wide-btn" style={{ width: "100%", minHeight: "52px" }} onClick={handleProtect}>
+                Protect PDF
+              </button>
+            </div>
+          </div>
+        </main>
+      )}
+
+      {protectView !== "settings" && (
+        <main id="protect" className="landing view active">
         <input
           id="protectInput"
           className="sr-only"
@@ -303,6 +454,29 @@ export default function ProtectClient() {
 
               <div style={{ marginBottom: "24px" }}>
                 <h4 style={{ margin: "0 0 20px", fontSize: "16px", textAlign: "left" }}>Set Document Password</h4>
+
+                <label className="rename-field" style={{ marginBottom: "20px" }}>
+                  <span>Encryption Standard</span>
+                  <select
+                    value={encryptionAlgorithm}
+                    onChange={(e) => setEncryptionAlgorithm(e.target.value)}
+                    style={{
+                      width: "100%",
+                      padding: "10px",
+                      borderRadius: "8px",
+                      background: theme === "light" ? "rgba(16, 22, 36, 0.05)" : "rgba(13,18,27,0.5)",
+                      border: theme === "light" ? "1px solid rgba(16, 22, 36, 0.12)" : "1px solid rgba(248, 244, 235, 0.15)",
+                      color: theme === "light" ? "#101624" : "#f8f4eb",
+                      fontSize: "14px",
+                      outline: "none",
+                      cursor: "pointer",
+                      fontFamily: "inherit"
+                    }}
+                  >
+                    <option value="AES-256">AES-256 - Strong (Recommended)</option>
+                    <option value="RC4">RC4 - Legacy Compatibility</option>
+                  </select>
+                </label>
 
                 <label className="rename-field" style={{ marginBottom: "16px" }}>
                   <span>Enter Password</span>
@@ -570,8 +744,9 @@ export default function ProtectClient() {
           </>
         )}
       </main>
+      )}
 
-      <Footer />
+      {protectView !== "settings" && <Footer />}
 
       <InfoModal
         isOpen={modal.isOpen}

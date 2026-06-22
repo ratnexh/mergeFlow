@@ -12,17 +12,27 @@ function CardThumbnail({ url, pageIndex }) {
     }
 
     const renderThumb = async () => {
+      let pdf = null;
       try {
         const loadingTask = window.pdfjsLib.getDocument(url);
-        const pdf = await loadingTask.promise;
-        if (!active) return;
+        pdf = await loadingTask.promise;
+        if (!active) {
+          pdf.destroy();
+          return;
+        }
 
         const targetPage = Number.isInteger(pageIndex) ? pageIndex + 1 : 1;
         const page = await pdf.getPage(targetPage);
-        if (!active) return;
+        if (!active) {
+          pdf.destroy();
+          return;
+        }
 
         const canvas = canvasRef.current;
-        if (!canvas) return;
+        if (!canvas) {
+          pdf.destroy();
+          return;
+        }
 
         const context = canvas.getContext("2d");
         
@@ -46,6 +56,10 @@ function CardThumbnail({ url, pageIndex }) {
       } catch (err) {
         console.error("Failed to render card thumbnail:", err);
         if (active) setLoading(false);
+      } finally {
+        if (pdf) {
+          pdf.destroy();
+        }
       }
     };
 

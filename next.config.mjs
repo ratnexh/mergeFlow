@@ -3,7 +3,7 @@ const isGithubActions = process.env.GITHUB_ACTIONS === "true";
 
 const nextConfig = {
   output: "export",
-  basePath: isGithubActions ? "/mergeFlow" : "",
+  basePath: isGithubActions ? "/rawPDF" : "",
   images: {
     unoptimized: true,
   },

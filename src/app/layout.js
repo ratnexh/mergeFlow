@@ -1,10 +1,11 @@
 import Script from "next/script";
 import "./globals.css";
+import CookieBanner from "../components/CookieBanner";
 
 export const metadata = {
-  title: "mergeFlow - Private client-side PDF Studio",
-  description: "mergeFlow - A secure, private, client-side PDF studio. Arrange, rotate, preview, split, and merge PDF files directly in your browser without uploading to any external servers.",
-  keywords: "pdf merger, merge pdf, split pdf, combine pdfs, rotate pdf, client-side pdf tool, private pdf tools, local pdf merger",
+  title: "rawPDF - Private client-side PDF Studio",
+  description: "rawPDF - A secure, private, client-side PDF studio. Arrange, rotate, preview, split, and merge PDF files directly in your browser without uploading to any external servers.",
+  keywords: "pdf merger, merge pdf, split pdf, combine pdfs, rotate pdf, client-side pdf tool, private pdf tools, local pdf merger, rawpdf",
   authors: [{ name: "Ratnesh Kumar" }],
   robots: {
     index: true,
@@ -12,21 +13,21 @@ export const metadata = {
   },
   openGraph: {
     type: "website",
-    url: "https://ratnexh.github.io/mergeFlow/",
-    title: "mergeFlow - Private client-side PDF Studio",
+    url: "https://ratnexh.github.io/rawPDF/",
+    title: "rawPDF - Private client-side PDF Studio",
     description: "Combine, split, rotate, and preview PDF files completely locally in your browser. 100% private, secure, and lightning-fast.",
     images: [
       {
-        url: "https://ratnexh.github.io/mergeFlow/assets/premium-documents.png",
+        url: "https://ratnexh.github.io/rawPDF/assets/premium-documents.png",
       },
     ],
   },
   twitter: {
     card: "summary_large_image",
-    url: "https://ratnexh.github.io/mergeFlow/",
-    title: "mergeFlow - Private client-side PDF Studio",
+    url: "https://ratnexh.github.io/rawPDF/",
+    title: "rawPDF - Private client-side PDF Studio",
     description: "Combine, split, rotate, and preview PDF files completely locally in your browser. 100% private and secure.",
-    images: ["https://ratnexh.github.io/mergeFlow/assets/premium-documents.png"],
+    images: ["https://ratnexh.github.io/rawPDF/assets/premium-documents.png"],
   },
 };
 
@@ -52,10 +53,15 @@ export default function RootLayout({ children }) {
           strategy="beforeInteractive"
         />
         <Script
+          src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"
+          strategy="beforeInteractive"
+        />
+        <Script
           src="https://unpkg.com/pdf-lib/dist/pdf-lib.min.js"
           strategy="beforeInteractive"
         />
         {children}
+        <CookieBanner />
       </body>
     </html>
   );

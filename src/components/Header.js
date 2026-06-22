@@ -15,7 +15,7 @@ export default function Header({
 
   return (
     <nav className={`site-nav${isScrolled ? " scrolled" : ""}`} aria-label="Primary">
-      <Link className="brand" href="/" aria-label="Merge Flow home">
+      <Link className="brand" href="/" aria-label="raw pdf home">
         <span className="brand-logo-container">
           <svg className="brand-logo-icon" viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg">
             <defs>
@@ -30,13 +30,14 @@ export default function Header({
             <path d="M17 19H23" stroke="url(#logoGrad)" strokeWidth="2" strokeLinecap="round" />
           </svg>
           <span className="brand-text">
-            merge<span className="brand-highlight">Flow</span>
+            raw<span className="brand-highlight">PDF</span>
           </span>
         </span>
       </Link>
 
       <div className="nav-links">
         <Link className={`nav-link${pathname === "/how-it-works" ? " active" : ""}`} href="/how-it-works">How it works</Link>
+        <Link className={`nav-link${pathname === "/faq" ? " active" : ""}`} href="/faq">FAQ</Link>
         <Link className={`nav-link${pathname === "/privacy" ? " active" : ""}`} href="/privacy">Privacy</Link>
       </div>
 
@@ -82,9 +83,11 @@ export default function Header({
             <li role="none"><Link id="toolMerge" role="menuitem" href="/merge" className={pathname === "/merge" ? "active" : ""} onClick={() => setIsToolsOpen(false)}>Merge PDFs</Link></li>
             <li role="none"><Link id="toolSplit" role="menuitem" href="/split" className={pathname === "/split" ? "active" : ""} onClick={() => setIsToolsOpen(false)}>Split PDF</Link></li>
             <li role="none"><Link id="toolCompress" role="menuitem" href="/compress" className={pathname === "/compress" ? "active" : ""} onClick={() => setIsToolsOpen(false)}>Compress PDF</Link></li>
-            <li role="none"><a id="toolToImage" role="menuitem" onClick={() => handleDropdownItemClick("PDF to Image")}>PDF to Image</a></li>
-            <li role="none"><a id="toolFromImage" role="menuitem" onClick={() => handleDropdownItemClick("Image to PDF")}>Image to PDF</a></li>
+            <li role="none"><Link id="toolToImage" role="menuitem" href="/pdf-to-image" className={pathname === "/pdf-to-image" ? "active" : ""} onClick={() => setIsToolsOpen(false)}>PDF to Image</Link></li>
+            <li role="none"><Link id="toolFromImage" role="menuitem" href="/image-to-pdf" className={pathname === "/image-to-pdf" ? "active" : ""} onClick={() => setIsToolsOpen(false)}>Image to PDF</Link></li>
             <li role="none"><Link id="toolProtect" role="menuitem" href="/protect" className={pathname === "/protect" ? "active" : ""} onClick={() => setIsToolsOpen(false)}>Protect PDF</Link></li>
+            <li role="none"><Link id="toolEdit" role="menuitem" href="/edit" className={pathname === "/edit" ? "active" : ""} onClick={() => setIsToolsOpen(false)}>Edit PDF</Link></li>
+            <li role="none"><Link id="toolOcr" role="menuitem" href="/ocr" className={pathname === "/ocr" ? "active" : ""} onClick={() => setIsToolsOpen(false)}>OCR PDF</Link></li>
           </ul>
         </div>
       </div>

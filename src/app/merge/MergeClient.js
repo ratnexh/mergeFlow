@@ -38,6 +38,7 @@ export default function MergePage() {
   const [isScrolled, setIsScrolled] = useState(false);
   const [progressBarWidth, setProgressBarWidth] = useState("0%");
   const [isDragOverDropzone, setIsDragOverDropzone] = useState(false);
+  const [isMobile, setIsMobile] = useState(false);
 
   // Modal State
   const [modal, setModal] = useState({ isOpen: false, title: "", body: "" });
@@ -69,6 +70,15 @@ export default function MergePage() {
     return () => window.removeEventListener("scroll", handleScroll);
   }, []);
 
+  // Screen resize hook for mobile layouts
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+    const checkMobile = () => setIsMobile(window.innerWidth < 768);
+    checkMobile();
+    window.addEventListener("resize", checkMobile);
+    return () => window.removeEventListener("resize", checkMobile);
+  }, []);
+
   // Dropdown close-on-click-outside
   useEffect(() => {
     const handleOutsideClick = (e) => {
@@ -92,6 +102,22 @@ export default function MergePage() {
     return () => window.removeEventListener("keydown", handleKeyDown);
   }, [modal]);
 
+  const activeUrlsRef = useRef([]);
+  useEffect(() => {
+    activeUrlsRef.current = [
+      ...files.map((f) => f.url),
+      mergedUrl
+    ].filter(Boolean);
+  }, [files, mergedUrl]);
+
+  useEffect(() => {
+    return () => {
+      activeUrlsRef.current.forEach((url) => {
+        URL.revokeObjectURL(url);
+      });
+    };
+  }, []);
+
   // Core PDF Processing logic helpers
   const getPdfPageCount = async (file) => {
     if (window.pdfjsLib) {
@@ -101,7 +127,9 @@ export default function MergePage() {
           data: new Uint8Array(arrayBuffer),
         });
         const pdf = await loadingTask.promise;
-        return pdf.numPages;
+        const count = pdf.numPages;
+        pdf.destroy();
+        return count;
       } catch (e) {
         console.warn(
           "Failed to get PDF page count using pdfjsLib, falling back to estimation:",
@@ -123,6 +151,15 @@ export default function MergePage() {
   };
 
   const addFiles = async (rawFiles) => {
+    const tooLarge = rawFiles.find((file) => file.size > 104857600);
+    if (tooLarge) {
+      setModal({
+        isOpen: true,
+        title: "File Too Large",
+        body: `The file "${tooLarge.name}" exceeds the maximum size limit of 100MB. Please select a smaller file.`,
+      });
+      return;
+    }
     const usable = rawFiles.filter((file) => {
       const name = file.name.toLowerCase();
       return (
@@ -164,6 +201,11 @@ export default function MergePage() {
 
   const deleteSelected = () => {
     if (selected.size === 0) return;
+    files.forEach((file) => {
+      if (selected.has(file.id)) {
+        URL.revokeObjectURL(file.url);
+      }
+    });
     const nextFiles = files.filter((file) => !selected.has(file.id));
     setFiles(nextFiles);
     setSelected(new Set());
@@ -392,19 +434,23 @@ export default function MergePage() {
         }}
       />
 
-      <Header
-        isScrolled={isScrolled}
-        isToolsOpen={isToolsOpen}
-        setIsToolsOpen={setIsToolsOpen}
-        handleDropdownItemClick={handleDropdownItemClick}
-        theme={theme}
-        toggleTheme={toggleTheme}
-      />
+      {view !== "workspace" && (
+        <>
+          <Header
+            isScrolled={isScrolled}
+            isToolsOpen={isToolsOpen}
+            setIsToolsOpen={setIsToolsOpen}
+            handleDropdownItemClick={handleDropdownItemClick}
+            theme={theme}
+            toggleTheme={toggleTheme}
+          />
 
-      <button id="themeToggle" className="theme-toggle" type="button" aria-pressed={theme === "light"} onClick={toggleTheme}>
-        <span className="theme-toggle-icon" aria-hidden="true" />
-        <span className="theme-toggle-text">{theme === "light" ? "Dark" : "Light"}</span>
-      </button>
+          <button id="themeToggle" className="theme-toggle" type="button" aria-pressed={theme === "light"} onClick={toggleTheme}>
+            <span className="theme-toggle-icon" aria-hidden="true" />
+            <span className="theme-toggle-text">{theme === "light" ? "Dark" : "Light"}</span>
+          </button>
+        </>
+      )}
 
       {/* 1. Landing / Upload Page View */}
       {view === "landing" && (
@@ -604,20 +650,34 @@ export default function MergePage() {
               </div>
             </div>
           </section>
-          <Footer />
         </main>
       )}
 
       {/* 2. Workspace / Studio View */}
       {view === "workspace" && (
-        <main id="workspace" className="studio view active">
+        <main id="workspace" className="studio view active" style={{ minHeight: "100vh", display: "flex", flexDirection: "column" }}>
           <div
             id="previewBackdrop"
             className="preview-backdrop"
             onClick={() => setIsPreviewMobileActive(false)}
           ></div>
 
-          <section className="studio-layout">
+          {/* Workspace top navigation bar */}
+          <div className="workspace-header">
+            <button className="ghost-btn workspace-back" onClick={() => setIsConfirmOpen(true)}>
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                <path d="M19 12H5M12 19l-7-7 7-7" />
+              </svg>
+              <span>Back</span>
+            </button>
+            <div className="workspace-title-area">
+              <h3 className="workspace-title">Merge PDFs</h3>
+              <p className="workspace-subtitle">{files.length} {files.length === 1 ? "file" : "files"} added</p>
+            </div>
+            <div className="workspace-actions" />
+          </div>
+
+          <section className="studio-layout" style={{ flex: 1 }}>
             <aside id="controlsPanel" className={`controls-panel${isControlsOpen ? " open" : ""}`}>
               <div className="controls-header">
                 <div className="tabs single-tab" role="tablist">
@@ -855,8 +915,6 @@ export default function MergePage() {
               onClose={() => setIsPreviewMobileActive(false)}
             />
           </section>
-
-          <Footer />
         </main>
       )}
 
@@ -975,6 +1033,8 @@ export default function MergePage() {
         }}
         onCancel={() => setIsConfirmOpen(false)}
       />
+
+      {view !== "workspace" && <Footer />}
     </>
   );
 }

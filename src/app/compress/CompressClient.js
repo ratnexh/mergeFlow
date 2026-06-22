@@ -98,6 +98,13 @@ export default function CompressPage() {
     return () => window.removeEventListener("keydown", handleKeyDown);
   }, [modal]);
 
+  // Cleanup Object URL on unmount and change
+  useEffect(() => {
+    return () => {
+      if (compressedUrl) URL.revokeObjectURL(compressedUrl);
+    };
+  }, [compressedUrl]);
+
   const toggleTheme = () => {
     const nextTheme = theme === "light" ? "dark" : "light";
     setTheme(nextTheme);
@@ -132,6 +139,15 @@ export default function CompressPage() {
   };
 
   const handleCompressFileSelect = (filesList) => {
+    const tooLarge = filesList.find((file) => file.size > 104857600);
+    if (tooLarge) {
+      setModal({
+        isOpen: true,
+        title: "File Too Large",
+        body: `The file "${tooLarge.name}" exceeds the maximum size limit of 100MB. Please select a smaller file.`,
+      });
+      return;
+    }
     const usable = filesList.filter((file) => {
       const name = file.name.toLowerCase();
       return file.size > 0 && (file.type === "application/pdf" || name.endsWith(".pdf"));
@@ -155,69 +171,76 @@ export default function CompressPage() {
         throw new Error("PDF libraries not loaded. Please check your network connection.");
       }
 
-      const pdfjsDoc = await window.pdfjsLib.getDocument({ data: new Uint8Array(arrayBuffer) }).promise;
-      const totalPages = pdfjsDoc.numPages;
-      const mergedPdf = await window.PDFLib.PDFDocument.create();
+      let pdfjsDoc = null;
+      try {
+        pdfjsDoc = await window.pdfjsLib.getDocument({ data: new Uint8Array(arrayBuffer) }).promise;
+        const totalPages = pdfjsDoc.numPages;
+        const mergedPdf = await window.PDFLib.PDFDocument.create();
 
-      // Determine quality & scale based on compressionLevel
-      let quality = 0.82;
-      let scale = 1.8;
-      if (level === "high") {
-        quality = 0.62;
-        scale = 1.3;
-      } else if (level === "low") {
-        quality = 0.92;
-        scale = 2.4;
+        // Determine quality & scale based on compressionLevel
+        let quality = 0.82;
+        let scale = 1.8;
+        if (level === "high") {
+          quality = 0.62;
+          scale = 1.3;
+        } else if (level === "low") {
+          quality = 0.92;
+          scale = 2.4;
+        }
+
+        for (let i = 1; i <= totalPages; i++) {
+          const page = await pdfjsDoc.getPage(i);
+          const viewport = page.getViewport({ scale });
+
+          const canvas = document.createElement("canvas");
+          const context = canvas.getContext("2d");
+          canvas.width = viewport.width;
+          canvas.height = viewport.height;
+
+          await page.render({ canvasContext: context, viewport }).promise;
+
+          const jpegBlob = await new Promise((resolve, reject) => {
+            canvas.toBlob((blob) => {
+              if (blob) resolve(blob);
+              else reject(new Error("Canvas export failed"));
+            }, "image/jpeg", quality);
+          });
+
+          const jpegBytes = await jpegBlob.arrayBuffer();
+          const embeddedImage = await mergedPdf.embedJpg(jpegBytes);
+
+          const newPage = mergedPdf.addPage([viewport.width, viewport.height]);
+          newPage.drawImage(embeddedImage, {
+            x: 0,
+            y: 0,
+            width: viewport.width,
+            height: viewport.height,
+          });
+
+          setCompressionProgress(Math.min(98, Math.round((i / totalPages) * 100)));
+        }
+
+        const compressedBytes = await mergedPdf.save();
+        const resBlob = new Blob([compressedBytes], { type: "application/pdf" });
+
+        setCompressedBlob(resBlob);
+        setCompressedSize(resBlob.size);
+
+        const resName = targetFile.name.replace(/\.pdf$/i, "") + "-compressed.pdf";
+        setCompressedName(resName);
+
+        if (compressedUrl) URL.revokeObjectURL(compressedUrl);
+        const resUrl = URL.createObjectURL(resBlob);
+        setCompressedUrl(resUrl);
+
+        setCompressionProgress(100);
+        await wait(350);
+        setCompressView("done");
+      } finally {
+        if (pdfjsDoc) {
+          pdfjsDoc.destroy();
+        }
       }
-
-      for (let i = 1; i <= totalPages; i++) {
-        const page = await pdfjsDoc.getPage(i);
-        const viewport = page.getViewport({ scale });
-
-        const canvas = document.createElement("canvas");
-        const context = canvas.getContext("2d");
-        canvas.width = viewport.width;
-        canvas.height = viewport.height;
-
-        await page.render({ canvasContext: context, viewport }).promise;
-
-        const jpegBlob = await new Promise((resolve, reject) => {
-          canvas.toBlob((blob) => {
-            if (blob) resolve(blob);
-            else reject(new Error("Canvas export failed"));
-          }, "image/jpeg", quality);
-        });
-
-        const jpegBytes = await jpegBlob.arrayBuffer();
-        const embeddedImage = await mergedPdf.embedJpg(jpegBytes);
-
-        const newPage = mergedPdf.addPage([viewport.width, viewport.height]);
-        newPage.drawImage(embeddedImage, {
-          x: 0,
-          y: 0,
-          width: viewport.width,
-          height: viewport.height,
-        });
-
-        setCompressionProgress(Math.min(98, Math.round((i / totalPages) * 100)));
-      }
-
-      const compressedBytes = await mergedPdf.save();
-      const resBlob = new Blob([compressedBytes], { type: "application/pdf" });
-
-      setCompressedBlob(resBlob);
-      setCompressedSize(resBlob.size);
-
-      const resName = targetFile.name.replace(/\.pdf$/i, "") + "-compressed.pdf";
-      setCompressedName(resName);
-
-      if (compressedUrl) URL.revokeObjectURL(compressedUrl);
-      const resUrl = URL.createObjectURL(resBlob);
-      setCompressedUrl(resUrl);
-
-      setCompressionProgress(100);
-      await wait(350);
-      setCompressView("done");
     } catch (err) {
       console.error("Compression failed:", err);
       setModal({
@@ -258,22 +281,104 @@ export default function CompressPage() {
   return (
     <>
 
-      <Header
-        isScrolled={isScrolled}
-        isToolsOpen={isToolsOpen}
-        setIsToolsOpen={setIsToolsOpen}
-        handleDropdownItemClick={handleDropdownItemClick}
-        theme={theme}
-        toggleTheme={toggleTheme}
-      />
+      {compressView !== "settings" && (
+        <>
+          <Header
+            isScrolled={isScrolled}
+            isToolsOpen={isToolsOpen}
+            setIsToolsOpen={setIsToolsOpen}
+            handleDropdownItemClick={handleDropdownItemClick}
+            theme={theme}
+            toggleTheme={toggleTheme}
+          />
 
-      <button id="themeToggle" className="theme-toggle" type="button" aria-pressed={theme === "light"} onClick={toggleTheme}>
-        <span className="theme-toggle-icon" aria-hidden="true" />
-        <span className="theme-toggle-text">{theme === "light" ? "Dark" : "Light"}</span>
-      </button>
+          <button id="themeToggle" className="theme-toggle" type="button" aria-pressed={theme === "light"} onClick={toggleTheme}>
+            <span className="theme-toggle-icon" aria-hidden="true" />
+            <span className="theme-toggle-text">{theme === "light" ? "Dark" : "Light"}</span>
+          </button>
+        </>
+      )}
 
 
-      <main id="compress" className="landing view active">
+      {compressView === "settings" && compressFile && (
+        <main id="workspace" className="studio view active" style={{ minHeight: "100vh", display: "flex", flexDirection: "column" }}>
+          {/* Workspace top navigation bar */}
+          <div className="workspace-header">
+            <button className="ghost-btn workspace-back" onClick={() => {
+              setCompressView("upload");
+              setCompressFile(null);
+            }}>
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                <path d="M19 12H5M12 19l-7-7 7-7" />
+              </svg>
+              <span>Back</span>
+            </button>
+            <div className="workspace-title-area">
+              <h3 className="workspace-title">Compress PDF</h3>
+              <p className="workspace-subtitle">{compressFile.name}</p>
+            </div>
+            <div className="workspace-actions" />
+          </div>
+
+          <div style={{ flex: 1, display: "flex", alignItems: "center", justifyContent: "center", padding: "40px 20px" }}>
+            <div className="compress-card" style={{ maxWidth: "520px", width: "100%", margin: "0 auto" }}>
+              <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", borderBottom: "1px solid rgba(248, 244, 235, 0.12)", paddingBottom: "16px", marginBottom: "24px" }}>
+                <div>
+                  <h3 style={{ margin: "0 0 4px", fontSize: "18px" }} title={compressFile.name}>
+                    {compressFile.name.length > 30 ? `${compressFile.name.slice(0, 27)}...` : compressFile.name}
+                  </h3>
+                  <p style={{ margin: 0, color: "var(--subtle)", fontSize: "14px" }}>Original Size: {formatMb(compressFile.size)} MB</p>
+                </div>
+                <button className="ghost-btn" style={{ minHeight: "36px", padding: "0 12px" }} onClick={() => {
+                  setCompressView("upload");
+                  setCompressFile(null);
+                }}>
+                  Change File
+                </button>
+              </div>
+
+              <div style={{ marginBottom: "32px" }}>
+                <h4 style={{ margin: "0 0 16px", fontSize: "16px", textAlign: "left" }}>Select Compression Level</h4>
+                <div className="compression-levels">
+                  <div
+                    className={`level-card${compressionLevel === "low" ? " active" : ""}`}
+                    onClick={() => setCompressionLevel("low")}
+                  >
+                    <h5>Less Compression</h5>
+                    <p>High image quality, larger file size</p>
+                    <div className="est-size">Est. Size: ~{formatMb(compressFile.size * 0.7)} MB</div>
+                  </div>
+
+                  <div
+                    className={`level-card${compressionLevel === "medium" ? " active" : ""}`}
+                    onClick={() => setCompressionLevel("medium")}
+                  >
+                    <h5>Recommended</h5>
+                    <p>Balanced quality and resolution</p>
+                    <div className="est-size">Est. Size: ~{formatMb(compressFile.size * 0.45)} MB</div>
+                  </div>
+
+                  <div
+                    className={`level-card${compressionLevel === "high" ? " active" : ""}`}
+                    onClick={() => setCompressionLevel("high")}
+                  >
+                    <h5>Extreme Compression</h5>
+                    <p>Low image quality, smallest file size</p>
+                    <div className="est-size">Est. Size: ~{formatMb(compressFile.size * 0.2)} MB</div>
+                  </div>
+                </div>
+              </div>
+
+              <button className="wide-btn" style={{ width: "100%", minHeight: "52px" }} onClick={() => compressPdf()}>
+                Compress PDF
+              </button>
+            </div>
+          </div>
+        </main>
+      )}
+
+      {compressView !== "settings" && (
+        <main id="compress" className="landing view active">
 
         <input
           id="compressInput"
@@ -641,9 +746,9 @@ export default function CompressPage() {
           </>
         )}
       </main>
+      )}
 
-
-      <Footer />
+      {compressView !== "settings" && <Footer />}
 
       <InfoModal
         isOpen={modal.isOpen}

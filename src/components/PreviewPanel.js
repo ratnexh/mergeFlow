@@ -85,7 +85,10 @@ export default function PreviewPanel({
       try {
         const loadingTask = window.pdfjsLib.getDocument(url);
         const doc = await loadingTask.promise;
-        if (!active) return;
+        if (!active) {
+          doc.destroy();
+          return;
+        }
         setPdfDoc(doc);
         setStatus("");
       } catch (err) {
@@ -102,6 +105,15 @@ export default function PreviewPanel({
       active = false;
     };
   }, [url, pageIndex, isSplitPage]);
+
+  // Clean up PDF.js document on change or unmount
+  useEffect(() => {
+    return () => {
+      if (pdfDoc) {
+        pdfDoc.destroy();
+      }
+    };
+  }, [pdfDoc]);
 
   // Adjust page index when pageIndex changes on card selection
   useEffect(() => {

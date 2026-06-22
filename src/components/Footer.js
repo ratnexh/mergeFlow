@@ -7,7 +7,7 @@ export default function Footer() {
       <div className="footer-container">
         
         <div className="footer-brand-col">
-          <Link className="brand" href="/" aria-label="Merge Flow home">
+          <Link className="brand" href="/" aria-label="raw pdf home">
             <span className="brand-logo-container">
               <svg className="brand-logo-icon" viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg">
                 <defs>
@@ -22,7 +22,7 @@ export default function Footer() {
                 <path d="M17 19H23" stroke="url(#footerLogoGrad)" strokeWidth="2" strokeLinecap="round" />
               </svg>
               <span className="brand-text">
-                merge<span className="brand-highlight">Flow</span>
+                raw<span className="brand-highlight">PDF</span>
               </span>
             </span>
           </Link>
@@ -34,10 +34,12 @@ export default function Footer() {
         <div className="footer-center-col">
           <div className="footer-nav-links">
             <Link href="/how-it-works" className="footer-link">How it works</Link>
+            <Link href="/faq" className="footer-link">FAQ</Link>
             <Link href="/privacy" className="footer-link">Privacy</Link>
             <Link href="/" className="footer-link">Tools</Link>
+            <a href="mailto:rkmaurya0709@gmail.com?subject=rawPDF - Feature Request / Suggestion" className="footer-link">Request Feature</a>
           </div>
-          <p className="copyright-text">© 2026 mergeFlow. All rights reserved.</p>
+          <p className="copyright-text">© 2026 rawPDF. All rights reserved.</p>
         </div>
 
         <div className="footer-author-col">
