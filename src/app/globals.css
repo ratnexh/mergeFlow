@@ -4764,27 +4764,35 @@ body.theme-light .tabs .tab:hover:not(.active) {
 }
 
 /* Card Category Glow Variables - Local CSS Variable System */
-.portal-card.card-merge, .portal-card.card-split {
+.portal-card.card-merge,
+.portal-card.card-split {
   --card-glow-color: rgba(85, 135, 245, 0.08);
   --card-hover-border: rgba(85, 135, 245, 0.35);
   --card-hover-shadow: rgba(85, 135, 245, 0.12);
 }
-.portal-card.card-compress, .portal-card.card-ocr {
+
+.portal-card.card-compress,
+.portal-card.card-ocr {
   --card-glow-color: rgba(20, 184, 166, 0.08);
   --card-hover-border: rgba(20, 184, 166, 0.35);
   --card-hover-shadow: rgba(20, 184, 166, 0.12);
 }
-.portal-card.card-pdf-to-image, .portal-card.card-image-to-pdf {
+
+.portal-card.card-pdf-to-image,
+.portal-card.card-image-to-pdf {
   --card-glow-color: rgba(249, 115, 22, 0.08);
   --card-hover-border: rgba(249, 115, 22, 0.35);
   --card-hover-shadow: rgba(249, 115, 22, 0.12);
 }
+
 .portal-card.card-protect {
   --card-glow-color: rgba(184, 138, 67, 0.08);
   --card-hover-border: rgba(184, 138, 67, 0.35);
   --card-hover-shadow: rgba(184, 138, 67, 0.12);
 }
-.portal-card.card-edit, .portal-card.card-text-editor {
+
+.portal-card.card-edit,
+.portal-card.card-text-editor {
   --card-glow-color: rgba(15, 129, 118, 0.08);
   --card-hover-border: rgba(15, 129, 118, 0.35);
   --card-hover-shadow: rgba(15, 129, 118, 0.12);
@@ -4980,27 +4988,35 @@ body.theme-light .portal-card {
   border-color: rgba(16, 22, 36, 0.08);
 }
 
-body.theme-light .portal-card.card-merge, body.theme-light .portal-card.card-split {
+body.theme-light .portal-card.card-merge,
+body.theme-light .portal-card.card-split {
   --card-glow-color: rgba(40, 103, 232, 0.05);
   --card-hover-border: rgba(40, 103, 232, 0.35);
   --card-hover-shadow: rgba(40, 103, 232, 0.06);
 }
-body.theme-light .portal-card.card-compress, body.theme-light .portal-card.card-ocr {
+
+body.theme-light .portal-card.card-compress,
+body.theme-light .portal-card.card-ocr {
   --card-glow-color: rgba(20, 184, 166, 0.05);
   --card-hover-border: rgba(20, 184, 166, 0.35);
   --card-hover-shadow: rgba(20, 184, 166, 0.06);
 }
-body.theme-light .portal-card.card-pdf-to-image, body.theme-light .portal-card.card-image-to-pdf {
+
+body.theme-light .portal-card.card-pdf-to-image,
+body.theme-light .portal-card.card-image-to-pdf {
   --card-glow-color: rgba(249, 115, 22, 0.05);
   --card-hover-border: rgba(249, 115, 22, 0.35);
   --card-hover-shadow: rgba(249, 115, 22, 0.06);
 }
+
 body.theme-light .portal-card.card-protect {
   --card-glow-color: rgba(184, 138, 67, 0.05);
   --card-hover-border: rgba(184, 138, 67, 0.35);
   --card-hover-shadow: rgba(184, 138, 67, 0.06);
 }
-body.theme-light .portal-card.card-edit, body.theme-light .portal-card.card-text-editor {
+
+body.theme-light .portal-card.card-edit,
+body.theme-light .portal-card.card-text-editor {
   --card-glow-color: rgba(15, 129, 118, 0.05);
   --card-hover-border: rgba(15, 129, 118, 0.35);
   --card-hover-shadow: rgba(15, 129, 118, 0.06);
@@ -8182,11 +8198,13 @@ body.theme-light .stats-dot {
     flex-direction: column;
     align-items: stretch;
   }
+
   .editor-stats {
     justify-content: center;
     border-top: 1px solid rgba(248, 244, 235, 0.05);
     padding-top: 12px;
   }
+
   body.theme-light .editor-stats {
     border-color: rgba(16, 22, 36, 0.05);
   }
@@ -8212,10 +8230,12 @@ textarea:focus-visible,
 .trust-section {
   transition: background-color 0.3s ease;
 }
+
 body.theme-light .trust-section {
   background: rgba(16, 22, 36, 0.01) !important;
   border-color: rgba(16, 22, 36, 0.06) !important;
 }
+
 body.theme-light .trust-card {
   background: #ffffff !important;
   border-color: rgba(16, 22, 36, 0.06) !important;
@@ -8225,9 +8245,11 @@ body.theme-light .trust-card {
 .step-card-brief {
   transition: transform 0.2s ease;
 }
+
 .step-card-brief:hover {
   transform: translateY(-2px);
 }
+
 body.theme-light .how-it-works-brief {
   border-color: rgba(16, 22, 36, 0.06) !important;
 }
@@ -8236,20 +8258,25 @@ body.theme-light .how-it-works-brief {
 .comparison-table th {
   border-bottom: 2px solid rgba(248, 244, 235, 0.12);
 }
+
 .comparison-table td {
   border-bottom: 1px solid rgba(248, 244, 235, 0.06);
 }
+
 body.theme-light .comparison-section {
   border-color: rgba(16, 22, 36, 0.06) !important;
 }
+
 body.theme-light .comparison-table th {
   border-color: rgba(16, 22, 36, 0.12) !important;
   color: #101624 !important;
 }
+
 body.theme-light .comparison-table td {
   border-color: rgba(16, 22, 36, 0.06) !important;
   color: rgba(16, 22, 36, 0.8) !important;
 }
+
 body.theme-light .comparison-table tbody tr:hover {
   background: rgba(16, 22, 36, 0.01);
 }
@@ -8259,6 +8286,7 @@ body.theme-light .social-proof-section {
   border-color: rgba(16, 22, 36, 0.06) !important;
   background: rgba(16, 22, 36, 0.003) !important;
 }
+
 body.theme-light .proof-card {
   background: #ffffff !important;
   border-color: rgba(16, 22, 36, 0.06) !important;
@@ -8271,6 +8299,7 @@ body.theme-light .proof-card {
   border-top: 1px solid rgba(248, 244, 235, 0.06);
   background: rgba(255, 255, 255, 0.005);
 }
+
 body.theme-light .seo-faq-section {
   border-color: rgba(16, 22, 36, 0.06) !important;
   background: rgba(16, 22, 36, 0.003) !important;
@@ -8290,6 +8319,7 @@ body.theme-light .seo-faq-section {
   margin-bottom: 12px;
   color: var(--gold);
 }
+
 body.theme-light .seo-faq-item h4 {
   color: #b88a43 !important;
 }
@@ -8306,6 +8336,7 @@ body.theme-light .seo-faq-item h4 {
   padding: 40px 20px;
   border-top: 1px solid rgba(248, 244, 235, 0.06);
 }
+
 body.theme-light .related-tools-section {
   border-color: rgba(16, 22, 36, 0.06) !important;
 }
@@ -8426,6 +8457,8 @@ body.theme-light .related-tool-card-icon {
   flex-wrap: wrap;
   gap: 8px;
   margin-bottom: 40px;
+  margin-left: auto;
+  margin-right: auto;
   padding: 6px;
   background: rgba(248, 244, 235, 0.02);
   border: 1px solid rgba(248, 244, 235, 0.06);
@@ -8489,10 +8522,11 @@ body.theme-light .filter-tab-btn.active {
     gap: 8px;
     padding: 8px;
   }
+
   .filter-tab-btn {
     padding: 8px 16px;
     font-size: 13px;
     flex-grow: 1;
     text-align: center;
   }
-}
+}
