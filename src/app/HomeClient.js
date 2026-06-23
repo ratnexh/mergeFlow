@@ -16,6 +16,7 @@ export default function Home() {
   const [isToolsOpen, setIsToolsOpen] = useState(false);
   const [isScrolled, setIsScrolled] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
+  const [activeCategory, setActiveCategory] = useState("All");
 
   // Modal State
   const [modal, setModal] = useState({ isOpen: false, title: "", body: "" });
@@ -217,9 +218,10 @@ export default function Home() {
   // Tool Categorization & Filtering
   const filteredTools = tools.filter(
     (t) =>
-      t.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      t.desc.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      t.category.toLowerCase().includes(searchQuery.toLowerCase())
+      (activeCategory === "All" || t.category === activeCategory) &&
+      (t.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+       t.desc.toLowerCase().includes(searchQuery.toLowerCase()) ||
+       t.category.toLowerCase().includes(searchQuery.toLowerCase()))
   );
 
   const categories = ["Organize PDFs", "Convert PDFs", "Optimize PDFs", "Security", "Editing"];
@@ -450,54 +452,61 @@ export default function Home() {
               </div>
             </div>
 
+            {/* Filter Tabs Pills */}
+            <div className="filter-tabs-container">
+              {["All", ...categories].map((cat) => (
+                <button
+                  key={cat}
+                  className={`filter-tab-btn${activeCategory === cat ? " active" : ""}`}
+                  onClick={() => setActiveCategory(cat)}
+                >
+                  {cat === "All" ? "All Tools" : cat}
+                </button>
+              ))}
+            </div>
+
             {/* Filtered Grid Output */}
             {filteredTools.length === 0 ? (
               <div style={{ padding: "60px 20px", textAlign: "center", border: "1.5px dashed rgba(248, 244, 235, 0.08)", borderRadius: "16px" }}>
                 <p style={{ color: "var(--subtle)", margin: "0 0 12px" }}>No tools matching "{searchQuery}" found.</p>
-                <button className="ghost-btn" onClick={() => setSearchQuery("")}>Reset search query</button>
+                <button className="ghost-btn" onClick={() => { setSearchQuery(""); setActiveCategory("All"); }}>Reset search query</button>
               </div>
             ) : (
-              categories.map((cat) => {
-                const catTools = filteredTools.filter((t) => t.category === cat);
-                if (catTools.length === 0) return null;
-                return (
-                  <div key={cat} style={{ marginBottom: "54px" }}>
-                    <h3 style={{ fontSize: "16px", color: "var(--gold)", textTransform: "uppercase", letterSpacing: "1px", borderBottom: "1px solid rgba(248, 244, 235, 0.06)", paddingBottom: "12px", marginBottom: "24px", fontFamily: "'Space Grotesk', sans-serif" }}>
-                      {cat}
-                    </h3>
-                    <div className="portal-grid" style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(320px, 1fr))", gap: "24px" }}>
-                      {catTools.map((t) => (
-                        <div
-                          key={t.id}
-                          className="portal-card"
-                          role="button"
-                          tabIndex="0"
-                          onClick={() => router.push(t.path)}
-                          onKeyDown={(e) => { if (e.key === "Enter" || e.key === " ") router.push(t.path); }}
-                          aria-label={`Launch ${t.name}`}
-                        >
-                          <div className={`portal-card-icon ${t.iconClass}`}>
-                            {t.svg}
-                          </div>
-                          <h3>{t.name}</h3>
-                          <p>{t.desc}</p>
-                          <div className="portal-card-actions">
-                            <span className="portal-card-btn">Launch Tool →</span>
-                            <Link href={`/how-it-works#${t.id}`} className="portal-card-sec-link" onClick={(e) => e.stopPropagation()}>
-                              How it works
-                              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" style={{ width: 10, height: 10 }} aria-hidden="true">
-                                <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6" />
-                                <polyline points="15 3 21 3 21 9" />
-                                <line x1="10" y1="14" x2="21" y2="3" />
-                              </svg>
-                            </Link>
-                          </div>
-                        </div>
-                      ))}
+              <div className="portal-grid" style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(320px, 1fr))", gap: "24px" }}>
+                {filteredTools.map((t) => (
+                  <div
+                    key={t.id}
+                    className={`portal-card card-${t.id}`}
+                    role="button"
+                    tabIndex="0"
+                    onClick={() => router.push(t.path)}
+                    onKeyDown={(e) => { if (e.key === "Enter" || e.key === " ") router.push(t.path); }}
+                    aria-label={`Launch ${t.name}`}
+                  >
+                    <div className="portal-card-header-row" style={{ display: "flex", justifyContent: "space-between", alignItems: "center", width: "100%", marginBottom: "16px" }}>
+                      <div className={`portal-card-icon ${t.iconClass}`} style={{ marginBottom: 0 }}>
+                        {t.svg}
+                      </div>
+                      <span style={{ fontSize: "11px", textTransform: "uppercase", letterSpacing: "1px", color: "var(--gold)", fontWeight: 600 }}>
+                        {t.category}
+                      </span>
+                    </div>
+                    <h3>{t.name}</h3>
+                    <p>{t.desc}</p>
+                    <div className="portal-card-actions">
+                      <span className="portal-card-btn">Launch Tool →</span>
+                      <Link href={`/how-it-works#${t.id}`} className="portal-card-sec-link" onClick={(e) => e.stopPropagation()}>
+                        How it works
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" style={{ width: 10, height: 10 }} aria-hidden="true">
+                          <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6" />
+                          <polyline points="15 3 21 3 21 9" />
+                          <line x1="10" y1="14" x2="21" y2="3" />
+                        </svg>
+                      </Link>
                     </div>
                   </div>
-                );
-              })
+                ))}
+              </div>
             )}
           </div>
         </section>
