@@ -6,6 +6,8 @@ import Header from "../../components/Header";
 import Footer from "../../components/Footer";
 import InfoModal from "../../components/InfoModal";
 import ConfirmModal from "../../components/ConfirmModal";
+import Script from "next/script";
+import { loadScript } from "../../utils/lazyLoad";
 
 function cleanOcrText(text) {
   if (!text) return "";
@@ -120,6 +122,12 @@ export default function OcrClient() {
 
   const fileInputRef = useRef(null);
   const [historyStack, setHistoryStack] = useState([]);
+  const [ocrLogs, setOcrLogs] = useState([]);
+
+  const addLog = (text, type = "system") => {
+    const timestamp = new Date().toLocaleTimeString([], { hour: "2-digit", minute: "2-digit", second: "2-digit", hour12: false });
+    setOcrLogs((prev) => [...prev, { text, type, timestamp }].slice(-4));
+  };
 
   useEffect(() => {
     if (!toastMessage) return;
@@ -158,33 +166,25 @@ export default function OcrClient() {
     return () => document.removeEventListener("click", handleOutsideClick);
   }, []);
 
-  // Dynamic Tesseract.js loading
+  // Dynamic library loading
   useEffect(() => {
-    if (typeof window === "undefined") return;
-    if (window.Tesseract) {
+    Promise.all([
+      loadScript("https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"),
+      loadScript("https://cdnjs.cloudflare.com/ajax/libs/tesseract.js/4.1.1/tesseract.min.js")
+    ]).then(() => {
+      if (window.pdfjsLib) {
+        window.pdfjsLib.GlobalWorkerOptions.workerSrc =
+          "https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js";
+      }
       setIsLibLoaded(true);
-      return;
-    }
-    const script = document.createElement("script");
-    script.src = "https://cdnjs.cloudflare.com/ajax/libs/tesseract.js/4.1.1/tesseract.min.js";
-    script.async = true;
-    script.onload = () => setIsLibLoaded(true);
-    script.onerror = () => {
+    }).catch(err => {
+      console.error("Failed to load OCR libraries dynamically:", err);
       setModal({
         isOpen: true,
         title: "Load Error",
         body: "Failed to load OCR libraries. Please check your network connection and reload the page.",
       });
-    };
-    document.body.appendChild(script);
-  }, []);
-
-  // Check for PDF worker configuration
-  useEffect(() => {
-    if (typeof window !== "undefined" && window.pdfjsLib) {
-      window.pdfjsLib.GlobalWorkerOptions.workerSrc =
-        "https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js";
-    }
+    });
   }, []);
 
   const handleFileSelect = (files) => {
@@ -218,17 +218,22 @@ export default function OcrClient() {
   const startOcr = async (file) => {
     setView("processing");
     setProgress(0);
+    setOcrLogs([]);
     setStatusText("Initializing PDF.js reader...");
+    addLog(`Loading document: ${file.name}`, "system");
 
     try {
       const buffer = await file.arrayBuffer();
+      addLog("Parsing PDF file structure...", "system");
       const pdfDoc = await window.pdfjsLib.getDocument({ data: new Uint8Array(buffer) }).promise;
       const totalPages = pdfDoc.numPages;
+      addLog(`Loaded: ${totalPages} pages found.`, "success");
 
       let worker = null;
       const getWorker = async () => {
         if (worker) return worker;
         setStatusText("Spawning local WebAssembly OCR worker...");
+        addLog("Spawning WebAssembly OCR worker...", "worker");
         worker = await window.Tesseract.createWorker({
           logger: (m) => {
             if (m.status === "recognizing text") {
@@ -239,8 +244,10 @@ export default function OcrClient() {
             }
           }
         });
+        addLog("Initializing Tesseract language library...", "worker");
         await worker.loadLanguage("eng");
         await worker.initialize("eng");
+        addLog("OCR worker ready.", "success");
         return worker;
       };
 
@@ -250,6 +257,7 @@ export default function OcrClient() {
       for (let i = 1; i <= totalPages; i++) {
         currentPageNum = i;
         setStatusText(`Analyzing page ${i} of ${totalPages}...`);
+        addLog(`Analyzing page ${i} of ${totalPages}...`, "system");
 
         const page = await pdfDoc.getPage(i);
         
@@ -260,6 +268,7 @@ export default function OcrClient() {
         
         if (pageText.replace(/\s+/g, "").length > 30) {
           isDigital = true;
+          addLog(`Page ${i}: Found embedded digital text stream.`, "success");
           // Sort items by coordinate: y descending (top to bottom), x ascending (left to right)
           const sortedItems = [...textContent.items].sort((a, b) => {
             const yA = a.transform[5];
@@ -302,9 +311,11 @@ export default function OcrClient() {
 
         if (!isDigital) {
           setStatusText(`Extracting text from page ${i} of ${totalPages} via OCR...`);
+          addLog(`Page ${i}: No text layer. Spawning WebAssembly OCR...`, "worker");
           const activeWorker = await getWorker();
           const { data: { text } } = await activeWorker.recognize(canvas);
           pageText = text.trim() || "[No text detected on this page]";
+          addLog(`Page ${i}: OCR recognition complete.`, "success");
         }
 
         // Apply custom text cleaning filter
@@ -319,9 +330,11 @@ export default function OcrClient() {
 
       if (worker) {
         setStatusText("Cleaning up worker resources...");
+        addLog("Terminating WebAssembly worker sessions...", "system");
         await worker.terminate();
       }
 
+      addLog("Successfully extracted all pages.", "success");
       setExtractedPages(pagesData);
       setActivePageIndex(0);
       setView("workspace");
@@ -476,6 +489,58 @@ export default function OcrClient() {
     p.text.toLowerCase().includes(searchText.toLowerCase())
   );
 
+  const relatedTools = [
+    {
+      title: "Text Editor",
+      desc: "Format case and edit text offline.",
+      href: "/text-editor",
+      icon: (
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={{ width: 18, height: 18 }}>
+          <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" />
+          <polyline points="14 2 14 8 20 8" />
+          <line x1="16" y1="13" x2="8" y2="13" />
+          <line x1="16" y1="17" x2="8" y2="17" />
+          <polyline points="10 9 9 9 8 9" />
+        </svg>
+      )
+    },
+    {
+      title: "Merge PDF",
+      desc: "Combine multiple PDFs into one.",
+      href: "/merge",
+      icon: (
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={{ width: 18, height: 18 }}>
+          <rect x="4" y="4" width="16" height="16" rx="2" />
+          <rect x="9" y="9" width="11" height="11" rx="2" />
+        </svg>
+      )
+    },
+    {
+      title: "Split PDF",
+      desc: "Extract pages from your PDF.",
+      href: "/split",
+      icon: (
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={{ width: 18, height: 18 }}>
+          <line x1="12" y1="3" x2="12" y2="21" />
+          <rect x="2" y="4" width="8" height="16" rx="2" />
+          <rect x="14" y="4" width="8" height="16" rx="2" />
+        </svg>
+      )
+    },
+    {
+      title: "Compress PDF",
+      desc: "Reduce PDF file size offline.",
+      href: "/compress",
+      icon: (
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={{ width: 18, height: 18 }}>
+          <rect x="4" y="14" width="6" height="6" rx="1" />
+          <rect x="14" y="4" width="6" height="6" rx="1" />
+          <path d="M20 14l-6 6M4 10l6-6" />
+        </svg>
+      )
+    }
+  ];
+
   return (
     <>
       {view !== "workspace" && (
@@ -526,17 +591,19 @@ export default function OcrClient() {
               tabIndex="0"
               role="button"
               aria-label="Choose a scanned PDF file to extract text"
-              onClick={() => fileInputRef.current.click()}
+              onClick={() => {
+                if (isLibLoaded) fileInputRef.current.click();
+              }}
               onDragEnter={(e) => { e.preventDefault(); setIsDragOver(true); }}
               onDragOver={(e) => { e.preventDefault(); setIsDragOver(true); }}
               onDragLeave={(e) => { e.preventDefault(); setIsDragOver(false); }}
               onDrop={(e) => {
                 e.preventDefault();
                 setIsDragOver(false);
-                handleFileSelect([...e.dataTransfer.files]);
+                if (isLibLoaded) handleFileSelect([...e.dataTransfer.files]);
               }}
               onKeyDown={(e) => {
-                if (e.key === "Enter" || e.key === " ") {
+                if (isLibLoaded && (e.key === "Enter" || e.key === " ")) {
                   fileInputRef.current.click();
                 }
               }}
@@ -554,15 +621,24 @@ export default function OcrClient() {
                   <div className="pdf-card-shadow card-right"></div>
                   <div className="pdf-card-front">OCR</div>
                 </div>
-                <button id="chooseBtn" className="choose-btn-gold" type="button">
-                  <svg className="plus-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-                    <path d="M12 5v14M5 12h14" />
-                  </svg>
-                  Choose PDF file
-                </button>
-                <p className="dropzone-text">or drag and drop PDFs here</p>
+                {!isLibLoaded ? (
+                  <p className="dropzone-text" style={{ padding: "20px 0" }}>Loading secure OCR engine...</p>
+                ) : (
+                  <>
+                    <button id="chooseBtn" className="choose-btn-gold" type="button" aria-label="Open file picker">
+                      <svg className="plus-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+                        <path d="M12 5v14M5 12h14" />
+                      </svg>
+                      Choose PDF file
+                    </button>
+                    <p className="dropzone-text">or drag and drop PDFs here</p>
+                    <div style={{ fontSize: "13px", color: "var(--subtle)", marginTop: "8px" }}>
+                      Supported Format: <strong>PDF (.pdf)</strong> • Max Size: <strong>100MB per file</strong>
+                    </div>
+                  </>
+                )}
                 <div className="dropzone-security">
-                  <svg className="lock-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                  <svg className="lock-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
                     <rect x="3" y="11" width="18" height="11" rx="2" ry="2" />
                     <path d="M7 11V7a5 5 0 0 1 10 0v4" />
                   </svg>
@@ -682,22 +758,174 @@ export default function OcrClient() {
               </div>
             </div>
           </section>
+
+          {/* Related Tools Links */}
+          <section className="related-tools-section">
+            <h3 style={{ fontSize: "20px", textAlign: "center", fontFamily: "'Space Grotesk', sans-serif", fontWeight: 700 }}>
+              Related PDF Utilities
+            </h3>
+            <div className="related-tools-grid">
+              {relatedTools.map((t) => (
+                <Link key={t.href} href={t.href} className="related-tool-card">
+                  <div className="related-tool-card-icon">
+                    {t.icon}
+                  </div>
+                  <h4>{t.title}</h4>
+                  <p>{t.desc}</p>
+                  <span className="related-tool-card-cta">
+                    Launch Tool
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" style={{ width: 10, height: 10 }}>
+                      <line x1="5" y1="12" x2="19" y2="12" />
+                      <polyline points="12 5 19 12 12 19" />
+                    </svg>
+                  </span>
+                </Link>
+              ))}
+            </div>
+          </section>
+
+          {/* SEO Content & FAQ Section */}
+          <section className="seo-faq-section">
+            <div style={{ maxWidth: "800px", margin: "0 auto", textAlign: "left" }}>
+              <h2 style={{ fontSize: "24px", fontFamily: "'Space Grotesk', sans-serif", marginBottom: "16px", fontWeight: 700 }}>
+                Extract Text from PDF with Local OCR Securely
+              </h2>
+              <p style={{ fontSize: "14.5px", lineHeight: "1.6", color: "var(--subtle)", marginBottom: "24px" }}>
+                Extract text from scanned PDFs or images using Tesseract WebAssembly directly inside your browser. With RawPDF, OCR is processed entirely client-side, ensuring your business documents, receipts, invoices, or legal records remain 100% confidential. No data is sent to external servers or API end-points.
+              </p>
+
+              <h3 style={{ fontSize: "18px", fontFamily: "'Space Grotesk', sans-serif", marginBottom: "12px", fontWeight: 700 }}>
+                How to Run OCR on PDF Offline
+              </h3>
+              <ol style={{ fontSize: "14.5px", lineHeight: "1.8", color: "var(--subtle)", paddingLeft: "20px", marginBottom: "24px" }}>
+                <li>Drop your scanned PDF document in the gold-outlined area above.</li>
+                <li>Our client-side engine automatically parses the document. If it lacks an embedded text layer, it spawns a local Tesseract.js worker to transcribe it.</li>
+                <li>Track real-time progress on each page as WebAssembly transcribes it.</li>
+                <li>Compare the original page scans side-by-side with the extracted text. You can edit text case and structure inside the workspace.</li>
+                <li>Click <strong>Download Text</strong> to export it as a <code>.txt</code> file, or copy specific pages directly.</li>
+              </ol>
+
+              <h3 style={{ fontSize: "18px", fontFamily: "'Space Grotesk', sans-serif", marginBottom: "12px", fontWeight: 700 }}>
+                Key Benefits of Browser-Based OCR
+              </h3>
+              <ul style={{ fontSize: "14.5px", lineHeight: "1.8", color: "var(--subtle)", paddingLeft: "20px", marginBottom: "32px" }}>
+                <li><strong>Uncompromised Privacy:</strong> No remote servers analyze your pages. Scanned tax returns or contracts remain entirely local.</li>
+                <li><strong>Hybrid Engine:</strong> Digital text streams are loaded instantly, while scanned images are fallback-routed to a local Tesseract worker automatically.</li>
+                <li><strong>In-Browser Editor:</strong> Fix spacings, remove lines, swap capitalization, and copy or save files instantly with no internet required.</li>
+              </ul>
+
+              <h3 style={{ fontSize: "22px", fontFamily: "'Space Grotesk', sans-serif", marginBottom: "20px", fontWeight: 700, borderBottom: "1px solid rgba(248, 244, 235, 0.08)", paddingBottom: "8px" }}>
+                Frequently Asked Questions
+              </h3>
+              <div className="seo-faq-grid">
+                <div className="seo-faq-item">
+                  <h4>Is PDF OCR free?</h4>
+                  <p>Yes. RawPDF provides unlimited text extraction and local OCR completely free of cost.</p>
+                </div>
+                <div className="seo-faq-item">
+                  <h4>Are my files stored or uploaded?</h4>
+                  <p>No. Tesseract.js runs inside your browser sandbox via WebAssembly. Your documents never leave your local system.</p>
+                </div>
+                <div className="seo-faq-item">
+                  <h4>Which languages are supported?</h4>
+                  <p>RawPDF currently supports high-accuracy English text recognition, with more language models planned in future updates.</p>
+                </div>
+                <div className="seo-faq-item">
+                  <h4>Can I search inside extracted pages?</h4>
+                  <p>Yes. The RawPDF OCR workspace has an active text filter that highlights and searches pages containing matching keywords.</p>
+                </div>
+              </div>
+            </div>
+          </section>
+
+          {/* SoftwareApplication Schema Markup */}
+          <Script id="schema-ocr" type="application/ld+json" strategy="afterInteractive">
+            {JSON.stringify({
+              "@context": "https://schema.org",
+              "@type": "SoftwareApplication",
+              "name": "RawPDF OCR Tool",
+              "description": "Extract text from scanned PDFs locally in your browser using client-side OCR. 100% private, client-side, and free.",
+              "applicationCategory": "BusinessApplication",
+              "operatingSystem": "All",
+              "browserRequirements": "Requires HTML5 and WebAssembly support",
+              "offers": {
+                "@type": "Offer",
+                "price": "0.00",
+                "priceCurrency": "USD"
+              }
+            })}
+          </Script>
         </main>
       )}
 
       {view === "processing" && (
         <main className="landing view active">
-          <section className="processing-container" style={{ minHeight: "60svh", display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center" }}>
-            <div className="processing-card" style={{ maxWidth: "500px", width: "100%", textAlign: "center" }}>
-              <div className="spinner-wrap" style={{ marginBottom: "24px" }}>
-                <div className="spinner"></div>
+          <section className="processing-container" style={{ minHeight: "70svh", display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", padding: "100px 20px 40px" }}>
+            <div className="ocr-processing-card" style={{ maxWidth: "520px", width: "100%", textAlign: "center" }}>
+              
+              {/* Document Scanner Graphic */}
+              <div className="ocr-scanner-visual">
+                <div className="ocr-scanner-laser"></div>
+                <div className="ocr-scanner-line-doc" style={{ width: "85%" }}></div>
+                <div className="ocr-scanner-line-doc" style={{ width: "70%" }}></div>
+                <div className="ocr-scanner-line-doc" style={{ width: "90%" }}></div>
+                <div className="ocr-scanner-line-doc" style={{ width: "60%" }}></div>
               </div>
-              <h2 style={{ fontSize: "20px", marginBottom: "8px" }}>Extracting Text...</h2>
-              <p style={{ color: "var(--subtle)", fontSize: "14px", marginBottom: "20px" }}>{statusText}</p>
-              <div className="progress-bar-container">
-                <div className="progress-bar-fill" style={{ width: `${progress}%` }}></div>
+
+              <h2 style={{ fontSize: "22px", fontFamily: "'Space Grotesk', sans-serif", fontWeight: 700, marginBottom: "8px", color: "#f8f4eb" }}>
+                Extracting Text...
+              </h2>
+              
+              <p style={{ color: "var(--subtle)", fontSize: "13.5px", marginBottom: "28px", minHeight: "20px" }}>
+                {statusText}
+              </p>
+
+              {/* Circular Progress Ring */}
+              <div className="ocr-progress-ring-wrap">
+                <svg width="140" height="140">
+                  <circle
+                    stroke="rgba(248, 244, 235, 0.05)"
+                    fill="transparent"
+                    strokeWidth="8"
+                    cx="70"
+                    cy="70"
+                    r="58"
+                  />
+                  <circle
+                    className="ocr-progress-ring-circle"
+                    stroke="var(--gold)"
+                    fill="transparent"
+                    strokeWidth="8"
+                    strokeDasharray={`${2 * Math.PI * 58}`}
+                    strokeDashoffset={`${2 * Math.PI * 58 * (1 - progress / 100)}`}
+                    strokeLinecap="round"
+                    cx="70"
+                    cy="70"
+                    r="58"
+                  />
+                </svg>
+                <div className="ocr-progress-percent">
+                  {progress}%
+                  <span>Complete</span>
+                </div>
               </div>
-              <p style={{ fontSize: "12px", color: "var(--muted)", marginTop: "8px" }}>{progress}% Complete</p>
+
+              {/* Console logs */}
+              <div className="ocr-console-terminal">
+                {ocrLogs.map((log, index) => (
+                  <div key={index} className={`ocr-console-line ${log.type}`}>
+                    <span style={{ color: "var(--muted)", marginRight: 8 }}>{log.timestamp}</span>
+                    {log.text}
+                  </div>
+                ))}
+                {ocrLogs.length === 0 && (
+                  <div className="ocr-console-line system">
+                    <span style={{ color: "var(--muted)", marginRight: 8 }}>--:--:--</span>
+                    Starting extraction engine...
+                  </div>
+                )}
+              </div>
+
             </div>
           </section>
         </main>
@@ -773,11 +1001,6 @@ export default function OcrClient() {
                   <div className="ocr-text-panel">
                     <div className="ocr-panel-title-bar">
                       <span>Extracted Text</span>
-                      {extractedPages.length > 1 && (
-                        <button className="copy-page-btn" onClick={() => copyText(extractedPages[activePageIndex].text)}>
-                          Copy Page Text
-                        </button>
-                      )}
                     </div>
                     <div className="ocr-editor-toolbar">
                       <button className="editor-tool-btn undo-btn" onClick={handleUndo} disabled={historyStack.length === 0} title="Undo last formatting action">

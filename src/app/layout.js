@@ -48,18 +48,6 @@ export default function RootLayout({ children }) {
         />
       </head>
       <body>
-        <Script
-          src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"
-          strategy="beforeInteractive"
-        />
-        <Script
-          src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"
-          strategy="beforeInteractive"
-        />
-        <Script
-          src="https://unpkg.com/pdf-lib/dist/pdf-lib.min.js"
-          strategy="beforeInteractive"
-        />
         {children}
         <CookieBanner />
       </body>

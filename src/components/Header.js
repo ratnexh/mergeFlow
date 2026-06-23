@@ -88,6 +88,7 @@ export default function Header({
             <li role="none"><Link id="toolProtect" role="menuitem" href="/protect" className={pathname === "/protect" ? "active" : ""} onClick={() => setIsToolsOpen(false)}>Protect PDF</Link></li>
             <li role="none"><Link id="toolEdit" role="menuitem" href="/edit" className={pathname === "/edit" ? "active" : ""} onClick={() => setIsToolsOpen(false)}>Edit PDF</Link></li>
             <li role="none"><Link id="toolOcr" role="menuitem" href="/ocr" className={pathname === "/ocr" ? "active" : ""} onClick={() => setIsToolsOpen(false)}>OCR PDF</Link></li>
+            <li role="none"><Link id="toolTextEditor" role="menuitem" href="/text-editor" className={pathname === "/text-editor" ? "active" : ""} onClick={() => setIsToolsOpen(false)}>Text Editor</Link></li>
           </ul>
         </div>
       </div>

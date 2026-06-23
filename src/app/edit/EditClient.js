@@ -5,6 +5,8 @@ import Link from "next/link";
 import Header from "../../components/Header";
 import Footer from "../../components/Footer";
 import InfoModal from "../../components/InfoModal";
+import Script from "next/script";
+import { loadScript } from "../../utils/lazyLoad";
 
 const TOOLS = { SELECT: "select", TEXT: "text", HIGHLIGHT: "highlight", RECTANGLE: "rectangle", IMAGE: "image", WHITEOUT: "whiteout" };
 
@@ -21,6 +23,8 @@ export default function EditClient() {
   const [isToolsOpen, setIsToolsOpen] = useState(false);
   const [modal, setModal] = useState({ isOpen: false, title: "", body: "" });
   const [view, setView] = useState("upload"); // upload | editor | processing | done
+  const [libsLoaded, setLibsLoaded] = useState(false);
+  const [loadingError, setLoadingError] = useState(false);
   const [pdfFile, setPdfFile] = useState(null);
   const [isDragOver, setIsDragOver] = useState(false);
   const [pdfDoc, setPdfDoc] = useState(null);
@@ -114,10 +118,19 @@ export default function EditClient() {
   }, [resultUrl]);
 
   useEffect(() => {
-    if (typeof window !== "undefined" && window.pdfjsLib) {
-      window.pdfjsLib.GlobalWorkerOptions.workerSrc =
-        "https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js";
-    }
+    Promise.all([
+      loadScript("https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"),
+      loadScript("https://unpkg.com/pdf-lib/dist/pdf-lib.min.js")
+    ]).then(() => {
+      if (window.pdfjsLib) {
+        window.pdfjsLib.GlobalWorkerOptions.workerSrc =
+          "https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js";
+      }
+      setLibsLoaded(true);
+    }).catch(err => {
+      console.error("Failed to load PDF libraries dynamically:", err);
+      setLoadingError(true);
+    });
   }, []);
 
   const handleDropdownItemClick = (name) => {
@@ -429,8 +442,57 @@ export default function EditClient() {
     setView("upload");
   };
 
-  const selectedAnn = pageAnnotations.find((a) => a.id === selectedId) || null;
-  const overlayCursor = activeTool === TOOLS.TEXT ? "text" : activeTool === TOOLS.SELECT ? "default" : "crosshair";
+  const relatedTools = [
+    {
+      title: "Text Editor",
+      desc: "Format case and edit text offline.",
+      href: "/text-editor",
+      icon: (
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={{ width: 18, height: 18 }}>
+          <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2-2V8z" />
+          <polyline points="14 2 14 8 20 8" />
+          <line x1="16" y1="13" x2="8" y2="13" />
+          <line x1="16" y1="17" x2="8" y2="17" />
+          <polyline points="10 9 9 9 8 9" />
+        </svg>
+      )
+    },
+    {
+      title: "Merge PDF",
+      desc: "Combine multiple PDFs into one.",
+      href: "/merge",
+      icon: (
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={{ width: 18, height: 18 }}>
+          <rect x="4" y="4" width="16" height="16" rx="2" />
+          <rect x="9" y="9" width="11" height="11" rx="2" />
+        </svg>
+      )
+    },
+    {
+      title: "Split PDF",
+      desc: "Extract pages from your PDF.",
+      href: "/split",
+      icon: (
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={{ width: 18, height: 18 }}>
+          <line x1="12" y1="3" x2="12" y2="21" />
+          <rect x="2" y="4" width="8" height="16" rx="2" />
+          <rect x="14" y="4" width="8" height="16" rx="2" />
+        </svg>
+      )
+    },
+    {
+      title: "Compress PDF",
+      desc: "Reduce PDF file size offline.",
+      href: "/compress",
+      icon: (
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={{ width: 18, height: 18 }}>
+          <rect x="4" y="14" width="6" height="6" rx="1" />
+          <rect x="14" y="4" width="6" height="6" rx="1" />
+          <path d="M20 14l-6 6M4 10l6-6" />
+        </svg>
+      )
+    }
+  ];
 
   return (
     <>
@@ -738,139 +800,255 @@ export default function EditClient() {
       <main id="editPdf" className="landing view active" style={{ display: view === "editor" ? "none" : undefined }}>
         {/* Upload */}
         {view === "upload" && (
-          <section className="hero">
-            <div className="hero-content">
-              <Link className="ghost-btn-back" href="/">
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-                  <line x1="19" y1="12" x2="5" y2="12" /><polyline points="12 19 5 12 12 5" />
-                </svg>
-                <span>Back to Tools</span>
-              </Link>
-              <p className="eyebrow">
-                <svg className="shield-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
-                  <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" />
-                </svg>
-                Private PDF Studio
-              </p>
-              <h1>Edit PDF <span className="beta-badge">Beta</span></h1>
-              <p className="hero-copy">Add text, highlights, shapes, and images to any PDF page — all processed 100% locally in your browser.</p>
-            </div>
+          <>
+            <section className="hero">
+              <div className="hero-content">
+                <Link className="ghost-btn-back" href="/">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                    <line x1="19" y1="12" x2="5" y2="12" /><polyline points="12 19 5 12 12 5" />
+                  </svg>
+                  <span>Back to Tools</span>
+                </Link>
+                <p className="eyebrow" aria-label="Privacy protection guarantee">
+                  <svg className="shield-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+                    <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" />
+                  </svg>
+                  100% Local Editing
+                </p>
+                <h1>Edit PDF <span className="beta-badge">Beta</span></h1>
+                <p className="hero-copy">Add text, highlights, shapes, and images to any PDF page — all processed 100% locally in your browser.</p>
+              </div>
 
-            <div id="editDropzone" className={`dropzone${isDragOver ? " dragover" : ""}`}
-              tabIndex="0" role="button" aria-label="Choose a PDF file to edit"
-              onClick={() => fileInputRef.current.click()}
-              onDragEnter={(e) => { e.preventDefault(); setIsDragOver(true); }}
-              onDragOver={(e) => { e.preventDefault(); setIsDragOver(true); }}
-              onDragLeave={(e) => { e.preventDefault(); setIsDragOver(false); }}
-              onDrop={(e) => { e.preventDefault(); setIsDragOver(false); handleFileSelect([...e.dataTransfer.files]); }}
-              onKeyDown={(e) => { if (e.key === "Enter" || e.key === " ") fileInputRef.current.click(); }}>
-              <div className="dropzone-inner">
-                <div className="dropzone-cards" aria-hidden="true">
-                  <div className="pdf-card-shadow card-left" />
-                  <div className="pdf-card-shadow card-right" />
-                  <div className="pdf-card-front">PDF</div>
-                </div>
-                <button id="editChooseBtn" className="choose-btn-gold" type="button">
-                  <svg className="plus-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-                    <path d="M12 5v14M5 12h14" />
-                  </svg>
-                  Choose PDF file
-                </button>
-                <p className="dropzone-text">or drag and drop PDF here</p>
-                <div className="dropzone-security">
-                  <svg className="lock-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
-                    <rect x="3" y="11" width="18" height="11" rx="2" ry="2" /><path d="M7 11V7a5 5 0 0 1 10 0v4" />
-                  </svg>
-                  <span>Files are processed locally. Your data stays private.</span>
+              <div id="editDropzone" className={`dropzone${isDragOver ? " dragover" : ""}`}
+                tabIndex="0" role="button" aria-label="Choose a PDF file to edit"
+                onClick={() => {
+                  if (libsLoaded) fileInputRef.current.click();
+                }}
+                onDragEnter={(e) => { e.preventDefault(); setIsDragOver(true); }}
+                onDragOver={(e) => { e.preventDefault(); setIsDragOver(true); }}
+                onDragLeave={(e) => { e.preventDefault(); setIsDragOver(false); }}
+                onDrop={(e) => {
+                  e.preventDefault();
+                  setIsDragOver(false);
+                  if (libsLoaded) handleFileSelect([...e.dataTransfer.files]);
+                }}
+                onKeyDown={(e) => {
+                  if (libsLoaded && (e.key === "Enter" || e.key === " ")) {
+                    fileInputRef.current.click();
+                  }
+                }}>
+                <div className="dropzone-inner">
+                  <div className="dropzone-cards" aria-hidden="true">
+                    <div className="pdf-card-shadow card-left" />
+                    <div className="pdf-card-shadow card-right" />
+                    <div className="pdf-card-front">PDF</div>
+                  </div>
+                  {!libsLoaded ? (
+                    <p className="dropzone-text" style={{ padding: "20px 0" }}>Loading secure PDF engine...</p>
+                  ) : (
+                    <>
+                      <button id="editChooseBtn" className="choose-btn-gold" type="button" aria-label="Open file picker">
+                        <svg className="plus-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+                          <path d="M12 5v14M5 12h14" />
+                        </svg>
+                        Choose PDF file
+                      </button>
+                      <p className="dropzone-text">or drag and drop PDF here</p>
+                      <div style={{ fontSize: "13px", color: "var(--subtle)", marginTop: "8px" }}>
+                        Supported Format: <strong>PDF (.pdf)</strong> • Max Size: <strong>100MB per file</strong>
+                      </div>
+                    </>
+                  )}
+                  <div className="dropzone-security">
+                    <svg className="lock-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+                      <rect x="3" y="11" width="18" height="11" rx="2" ry="2" /><path d="M7 11V7a5 5 0 0 1 10 0v4" />
+                    </svg>
+                    <span>Files are processed locally. Your data stays private.</span>
+                  </div>
                 </div>
               </div>
-            </div>
-          </section>
-        )}
+            </section>
 
-        {view === "upload" && (
-          <section className="features-section">
-            <div className="section-header">
-              <p className="eyebrow-small">Built for</p>
-              <h2>Polished PDF Editing</h2>
-            </div>
-            <div className="features-grid">
-              {[
-                {
-                  icon: (
-                    <svg className="feature-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round">
-                      <polyline points="4 7 4 4 20 4 20 7" />
-                      <line x1="9" y1="20" x2="15" y2="20" />
-                      <line x1="12" y1="4" x2="12" y2="20" />
-                    </svg>
-                  ),
-                  title: "Add Text",
-                  desc: "Place text anywhere on any PDF page with full font, size, and color control."
-                },
-                {
-                  icon: (
-                    <svg className="feature-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round">
-                      <rect x="3" y="3" width="18" height="18" rx="2" />
-                      <circle cx="12" cy="12" r="4" />
-                    </svg>
-                  ),
-                  title: "Highlight & Shapes",
-                  desc: "Draw highlight rectangles and shape overlays to annotate important sections."
-                },
-                {
-                  icon: (
-                    <svg className="feature-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round">
-                      <rect x="3" y="3" width="18" height="18" rx="2" ry="2" />
-                      <circle cx="8.5" cy="8.5" r="1.5" />
-                      <polyline points="21 15 16 10 5 21" />
-                    </svg>
-                  ),
-                  title: "Insert Images",
-                  desc: "Embed PNG or JPEG images directly into your PDF pages at any position."
-                },
-                {
-                  icon: (
-                    <svg className="feature-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round">
-                      <rect x="3" y="11" width="18" height="11" rx="2" ry="2" />
-                      <path d="M7 11V7a5 5 0 0 1 10 0v4" />
-                    </svg>
-                  ),
-                  title: "100% Private",
-                  desc: "Everything runs in your browser. No files are ever uploaded to any server."
-                },
-                {
-                  icon: (
-                    <svg className="feature-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round">
-                      <path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z" />
-                      <polyline points="17 21 17 13 7 13 7 21" />
-                      <polyline points="7 3 7 8 15 8" />
-                    </svg>
-                  ),
-                  title: "Lossless Export",
-                  desc: "All original PDF content is fully preserved when writing your edits back."
-                },
-                {
-                  icon: (
-                    <svg className="feature-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round">
-                      <polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2" />
-                    </svg>
-                  ),
-                  title: "Instant Results",
-                  desc: "No waiting, no queues — edits are applied and downloaded in seconds."
-                },
-              ].map((f) => (
-                <div className="feature-card" key={f.title}>
-                  <div className="feature-icon-wrapper">
-                    {f.icon}
+            <section className="features-section">
+              <div className="section-header">
+                <p className="eyebrow-small">Built for</p>
+                <h2>Polished PDF Editing</h2>
+              </div>
+              <div className="features-grid">
+                {[
+                  {
+                    icon: (
+                      <svg className="feature-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round">
+                        <polyline points="4 7 4 4 20 4 20 7" />
+                        <line x1="9" y1="20" x2="15" y2="20" />
+                        <line x1="12" y1="4" x2="12" y2="20" />
+                      </svg>
+                    ),
+                    title: "Add Text",
+                    desc: "Place text anywhere on any PDF page with full font, size, and color control."
+                  },
+                  {
+                    icon: (
+                      <svg className="feature-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round">
+                        <rect x="3" y="3" width="18" height="18" rx="2" />
+                        <circle cx="12" cy="12" r="4" />
+                      </svg>
+                    ),
+                    title: "Highlight & Shapes",
+                    desc: "Draw highlight rectangles and shape overlays to annotate important sections."
+                  },
+                  {
+                    icon: (
+                      <svg className="feature-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round">
+                        <rect x="3" y="3" width="18" height="18" rx="2" ry="2" />
+                        <circle cx="8.5" cy="8.5" r="1.5" />
+                        <polyline points="21 15 16 10 5 21" />
+                      </svg>
+                    ),
+                    title: "Insert Images",
+                    desc: "Embed PNG or JPEG images directly into your PDF pages at any position."
+                  },
+                  {
+                    icon: (
+                      <svg className="feature-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round">
+                        <rect x="3" y="11" width="18" height="11" rx="2" ry="2" />
+                        <path d="M7 11V7a5 5 0 0 1 10 0v4" />
+                      </svg>
+                    ),
+                    title: "100% Private",
+                    desc: "Everything runs in your browser. No files are ever uploaded to any server."
+                  },
+                  {
+                    icon: (
+                      <svg className="feature-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round">
+                        <path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z" />
+                        <polyline points="17 21 17 13 7 13 7 21" />
+                        <polyline points="7 3 7 8 15 8" />
+                      </svg>
+                    ),
+                    title: "Lossless Export",
+                    desc: "All original PDF content is fully preserved when writing your edits back."
+                  },
+                  {
+                    icon: (
+                      <svg className="feature-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round">
+                        <polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2" />
+                      </svg>
+                    ),
+                    title: "Instant Results",
+                    desc: "No waiting, no queues — edits are applied and downloaded in seconds."
+                  },
+                ].map((f) => (
+                  <div className="feature-card" key={f.title}>
+                    <div className="feature-icon-wrapper">
+                      {f.icon}
+                    </div>
+                    <h3>{f.title}</h3>
+                    <p>{f.desc}</p>
                   </div>
-                  <h3>{f.title}</h3>
-                  <p>{f.desc}</p>
+                ))}
+              </div>
+            </section>
+
+            {/* Related Tools Links */}
+            <section className="related-tools-section">
+              <h3 style={{ fontSize: "20px", textAlign: "center", fontFamily: "'Space Grotesk', sans-serif", fontWeight: 700 }}>
+                Related PDF Utilities
+              </h3>
+              <div className="related-tools-grid">
+                {relatedTools.map((t) => (
+                  <Link key={t.href} href={t.href} className="related-tool-card">
+                    <div className="related-tool-card-icon">
+                      {t.icon}
+                    </div>
+                    <h4>{t.title}</h4>
+                    <p>{t.desc}</p>
+                    <span className="related-tool-card-cta">
+                      Launch Tool
+                      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" style={{ width: 10, height: 10 }}>
+                        <line x1="5" y1="12" x2="19" y2="12" />
+                        <polyline points="12 5 19 12 12 19" />
+                      </svg>
+                    </span>
+                  </Link>
+                ))}
+              </div>
+            </section>
+
+            {/* SEO Content & FAQ Section */}
+            <section className="seo-faq-section">
+              <div style={{ maxWidth: "800px", margin: "0 auto", textAlign: "left" }}>
+                <h2 style={{ fontSize: "24px", fontFamily: "'Space Grotesk', sans-serif", marginBottom: "16px", fontWeight: 700 }}>
+                  Edit PDF Files Online Free & Securely
+                </h2>
+                <p style={{ fontSize: "14.5px", lineHeight: "1.6", color: "var(--subtle)", marginBottom: "24px" }}>
+                  RawPDF offers a feature-rich, 100% client-side PDF Editor tool. You can annotate, write text, highlight sentences, add shape blocks, erase confidential information, or embed image signatures completely locally inside your browser sandbox. Your private legal agreements, financial files, and personal docs are never uploaded to any remote server.
+                </p>
+
+                <h3 style={{ fontSize: "18px", fontFamily: "'Space Grotesk', sans-serif", marginBottom: "12px", fontWeight: 700 }}>
+                  How to Edit PDF Documents Offline
+                </h3>
+                <ol style={{ fontSize: "14.5px", lineHeight: "1.8", color: "var(--subtle)", paddingLeft: "20px", marginBottom: "24px" }}>
+                  <li>Drop your PDF file into the secure box above, or click the gold button to choose from your device.</li>
+                  <li>Click anywhere on a page using the <strong>Add Text</strong> tool to input custom text lines.</li>
+                  <li>Select the <strong>Highlight</strong> tool to highlight sentences with yellow, green, or purple translucent colors.</li>
+                  <li>Use the <strong>Eraser</strong> tool to whiteout or blackbox sensitive, private details.</li>
+                  <li>Add custom image logos, scans, or handwritten signatures using the <strong>Add Image</strong> tool.</li>
+                  <li>Click <strong>Download PDF</strong> to export and save your edited document instantly.</li>
+                </ol>
+
+                <h3 style={{ fontSize: "18px", fontFamily: "'Space Grotesk', sans-serif", marginBottom: "12px", fontWeight: 700 }}>
+                  Key Benefits of Browser-Based PDF Editing
+                </h3>
+                <ul style={{ fontSize: "14.5px", lineHeight: "1.8", color: "var(--subtle)", paddingLeft: "20px", marginBottom: "32px" }}>
+                  <li><strong>Complete Privacy:</strong> All edits are rendered locally in browser memory. Perfect for signing contracts and redacting receipts securely.</li>
+                  <li><strong>No Network Delay:</strong> Changes are written into document structures immediately, with no upload wait times.</li>
+                  <li><strong>Preserved PDF Layouts:</strong> Editing annotations are saved directly into the PDF standard layer, maintaining perfect font and vector fidelity.</li>
+                </ul>
+
+                <h3 style={{ fontSize: "22px", fontFamily: "'Space Grotesk', sans-serif", marginBottom: "20px", fontWeight: 700, borderBottom: "1px solid rgba(248, 244, 235, 0.08)", paddingBottom: "8px" }}>
+                  Frequently Asked Questions
+                </h3>
+                <div className="seo-faq-grid">
+                  <div className="seo-faq-item">
+                    <h4>Is PDF editing completely free?</h4>
+                    <p>Yes. RawPDF's editor is 100% free with no monthly subscription, watermarks, or file export quotas.</p>
+                  </div>
+                  <div className="seo-faq-item">
+                    <h4>Are my documents stored on any server?</h4>
+                    <p>No. We do not use remote document-processing servers. The editing process is run entirely client-side on your computer.</p>
+                  </div>
+                  <div className="seo-faq-item">
+                    <h4>Can I add signatures or images?</h4>
+                    <p>Yes. Select the "Add Image" tool from the left sidebar inside the editor view to insert a PNG or JPEG file anywhere on the document.</p>
+                  </div>
+                  <div className="seo-faq-item">
+                    <h4>What is the maximum file size?</h4>
+                    <p>You can edit files up to 100MB, accommodating large text-heavy legal files, books, and booklets easily.</p>
+                  </div>
                 </div>
-              ))}
-            </div>
-          </section>
-        )
-      }
+              </div>
+            </section>
+
+            {/* SoftwareApplication Schema Markup */}
+            <Script id="schema-edit" type="application/ld+json" strategy="afterInteractive">
+              {JSON.stringify({
+                "@context": "https://schema.org",
+                "@type": "SoftwareApplication",
+                "name": "RawPDF Editor",
+                "description": "Add text, highlights, shapes, and images to any PDF page locally in your browser. 100% private, client-side, and free.",
+                "applicationCategory": "DesignApplication",
+                "operatingSystem": "All",
+                "browserRequirements": "Requires HTML5 and WebAssembly support",
+                "offers": {
+                  "@type": "Offer",
+                  "price": "0.00",
+                  "priceCurrency": "USD"
+                }
+              })}
+            </Script>
+          </>
+        )}
 
         {/* Processing */}
         {view === "processing" && (

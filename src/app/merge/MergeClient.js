@@ -8,6 +8,8 @@ import InfoModal from "../../components/InfoModal";
 import ConfirmModal from "../../components/ConfirmModal";
 import Header from "../../components/Header";
 import Footer from "../../components/Footer";
+import Script from "next/script";
+import { loadScript } from "../../utils/lazyLoad";
 
 const palette = [
   "#2867e8",
@@ -29,6 +31,8 @@ export default function MergePage() {
   const [mergedName, setMergedName] = useState("merged-document.pdf");
   const [mergedUrl, setMergedUrl] = useState(null);
   const [view, setView] = useState("landing"); // "landing" | "workspace" | "processing" | "done"
+  const [libsLoaded, setLibsLoaded] = useState(false);
+  const [loadingError, setLoadingError] = useState(false);
 
   // Theme & Layout States
   const [theme, setTheme] = useState("dark");
@@ -46,12 +50,21 @@ export default function MergePage() {
 
   const fileInputRef = useRef(null);
 
-  // Hook workers setup on load
+  // Hook workers setup on load (dynamic script loading)
   useEffect(() => {
-    if (typeof window !== "undefined" && window.pdfjsLib) {
-      window.pdfjsLib.GlobalWorkerOptions.workerSrc =
-        "https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js";
-    }
+    Promise.all([
+      loadScript("https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"),
+      loadScript("https://unpkg.com/pdf-lib/dist/pdf-lib.min.js")
+    ]).then(() => {
+      if (window.pdfjsLib) {
+        window.pdfjsLib.GlobalWorkerOptions.workerSrc =
+          "https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js";
+      }
+      setLibsLoaded(true);
+    }).catch(err => {
+      console.error("Failed to load PDF libraries dynamically:", err);
+      setLoadingError(true);
+    });
   }, []);
 
   // Theme Sync on load
@@ -417,6 +430,57 @@ export default function MergePage() {
     });
   };
 
+  const relatedTools = [
+    {
+      title: "Split PDF",
+      desc: "Extract pages from your PDF.",
+      href: "/split",
+      icon: (
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={{ width: 18, height: 18 }}>
+          <line x1="12" y1="3" x2="12" y2="21" />
+          <rect x="2" y="4" width="8" height="16" rx="2" />
+          <rect x="14" y="4" width="8" height="16" rx="2" />
+        </svg>
+      )
+    },
+    {
+      title: "Compress PDF",
+      desc: "Reduce PDF file size offline.",
+      href: "/compress",
+      icon: (
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={{ width: 18, height: 18 }}>
+          <rect x="4" y="14" width="6" height="6" rx="1" />
+          <rect x="14" y="4" width="6" height="6" rx="1" />
+          <path d="M20 14l-6 6M4 10l6-6" />
+        </svg>
+      )
+    },
+    {
+      title: "Protect PDF",
+      desc: "Lock PDF with secure password.",
+      href: "/protect",
+      icon: (
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" style={{ width: 18, height: 18 }}>
+          <rect x="3" y="11" width="18" height="11" rx="2" ry="2" />
+          <path d="M7 11V7a5 5 0 0 1 10 0v4" />
+        </svg>
+      )
+    },
+    {
+      title: "OCR PDF",
+      desc: "Extract text from scanned PDFs.",
+      href: "/ocr",
+      icon: (
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={{ width: 18, height: 18 }}>
+          <rect x="3" y="3" width="18" height="18" rx="2" ry="2" />
+          <line x1="9" y1="9" x2="15" y2="9" />
+          <line x1="9" y1="13" x2="15" y2="13" />
+          <line x1="9" y1="17" x2="13" y2="17" />
+        </svg>
+      )
+    }
+  ];
+
   const activeFile = files.find((f) => f.id === activeId) || files[0];
 
   return (
@@ -464,15 +528,15 @@ export default function MergePage() {
                 <span>Back to Tools</span>
               </Link>
 
-              <p className="eyebrow">
-                <svg className="shield-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
+              <p className="eyebrow" aria-label="Privacy protection guarantee">
+                <svg className="shield-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
                   <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" />
                 </svg>
-                Private PDF Studio
+                100% Client-Side Merging
               </p>
-              <h1>Merge PDFs</h1>
+              <h1>Merge PDF Online Free</h1>
               <p className="hero-copy">
-                Arrange, preview, and export in one polished flow.
+                Combine multiple PDF documents into a single file locally in your browser. No files are uploaded.
               </p>
             </div>
 
@@ -483,7 +547,7 @@ export default function MergePage() {
               role="button"
               aria-label="Choose PDF files or drop PDF files here"
               onClick={(e) => {
-                fileInputRef.current.click();
+                if (libsLoaded) fileInputRef.current.click();
               }}
               onDragEnter={(e) => {
                 e.preventDefault();
@@ -500,10 +564,10 @@ export default function MergePage() {
               onDrop={(e) => {
                 e.preventDefault();
                 setIsDragOverDropzone(false);
-                addFiles([...e.dataTransfer.files]);
+                if (libsLoaded) addFiles([...e.dataTransfer.files]);
               }}
               onKeyDown={(e) => {
-                if (e.key === "Enter" || e.key === " ") {
+                if (libsLoaded && (e.key === "Enter" || e.key === " ")) {
                   fileInputRef.current.click();
                 }
               }}
@@ -514,15 +578,24 @@ export default function MergePage() {
                   <div className="pdf-card-shadow card-right"></div>
                   <div className="pdf-card-front">PDF</div>
                 </div>
-                <button id="chooseBtn" className="choose-btn-gold" type="button">
-                  <svg className="plus-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-                    <path d="M12 5v14M5 12h14" />
-                  </svg>
-                  Choose PDF files
-                </button>
-                <p className="dropzone-text">or drag and drop PDFs here</p>
+                {!libsLoaded ? (
+                  <p className="dropzone-text" style={{ padding: "20px 0" }}>Loading secure PDF engine...</p>
+                ) : (
+                  <>
+                    <button id="chooseBtn" className="choose-btn-gold" type="button" aria-label="Open file picker">
+                      <svg className="plus-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+                        <path d="M12 5v14M5 12h14" />
+                      </svg>
+                      Choose PDF files
+                    </button>
+                    <p className="dropzone-text">or drag and drop PDFs here</p>
+                    <div style={{ fontSize: "13px", color: "var(--subtle)", marginTop: "8px" }}>
+                      Supported Format: <strong>PDF (.pdf)</strong> • Max Size: <strong>100MB per file</strong>
+                    </div>
+                  </>
+                )}
                 <div className="dropzone-security">
-                  <svg className="lock-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
+                  <svg className="lock-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
                     <rect x="3" y="11" width="18" height="11" rx="2" ry="2" />
                     <path d="M7 11V7a5 5 0 0 1 10 0v4" />
                   </svg>
@@ -650,6 +723,102 @@ export default function MergePage() {
               </div>
             </div>
           </section>
+
+          {/* Related Tools Links */}
+          <section className="related-tools-section">
+            <h3 style={{ fontSize: "20px", textAlign: "center", fontFamily: "'Space Grotesk', sans-serif", fontWeight: 700 }}>
+              Related PDF Utilities
+            </h3>
+            <div className="related-tools-grid">
+              {relatedTools.map((t) => (
+                <Link key={t.href} href={t.href} className="related-tool-card">
+                  <div className="related-tool-card-icon">
+                    {t.icon}
+                  </div>
+                  <h4>{t.title}</h4>
+                  <p>{t.desc}</p>
+                  <span className="related-tool-card-cta">
+                    Launch Tool
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" style={{ width: 10, height: 10 }}>
+                      <line x1="5" y1="12" x2="19" y2="12" />
+                      <polyline points="12 5 19 12 12 19" />
+                    </svg>
+                  </span>
+                </Link>
+              ))}
+            </div>
+          </section>
+
+          {/* SEO Content & FAQ Section */}
+          <section className="seo-faq-section">
+            <div style={{ maxWidth: "800px", margin: "0 auto", textAlign: "left" }}>
+              <h2 style={{ fontSize: "24px", fontFamily: "'Space Grotesk', sans-serif", marginBottom: "16px", fontWeight: 700 }}>
+                Merge PDF Online Locally & Securely
+              </h2>
+              <p style={{ fontSize: "14.5px", lineHeight: "1.6", color: "var(--subtle)", marginBottom: "24px" }}>
+                RawPDF offers a secure, offline alternative to third-party file converters. All operations run directly in browser memory using WebAssembly. Your documents are never uploaded to any remote server or stored anywhere, ensuring complete data privacy for legal documents, personal receipts, and business files.
+              </p>
+
+              <h3 style={{ fontSize: "18px", fontFamily: "'Space Grotesk', sans-serif", marginBottom: "12px", fontWeight: 700 }}>
+                How to Merge PDFs Offline
+              </h3>
+              <ol style={{ fontSize: "14.5px", lineHeight: "1.8", color: "var(--subtle)", paddingLeft: "20px", marginBottom: "24px" }}>
+                <li>Drop your PDF files inside the gold border drag-and-drop area above.</li>
+                <li>Arrange your files in the exact sequence you want to merge them by dragging or using move buttons.</li>
+                <li>Rotate individual pages or delete unwanted pages inside the workspace.</li>
+                <li>Click <strong>Merge PDFs</strong> to compile them and download your combined document instantly.</li>
+              </ol>
+
+              <h3 style={{ fontSize: "18px", fontFamily: "'Space Grotesk', sans-serif", marginBottom: "12px", fontWeight: 700 }}>
+                Key Benefits of Client-Side Merging
+              </h3>
+              <ul style={{ fontSize: "14.5px", lineHeight: "1.8", color: "var(--subtle)", paddingLeft: "20px", marginBottom: "32px" }}>
+                <li><strong>100% Secure:</strong> Document merging occurs inside browser sandboxed memory. Ideal for medical records and financial statements.</li>
+                <li><strong>No Network Delay:</strong> Since files do not upload to any remote api, merging completes instantly regardless of internet speed.</li>
+                <li><strong>Works Offline:</strong> Once the page is loaded, you can disconnect the internet and merge documents entirely offline.</li>
+              </ul>
+
+              <h3 style={{ fontSize: "22px", fontFamily: "'Space Grotesk', sans-serif", marginBottom: "20px", fontWeight: 700, borderBottom: "1px solid rgba(248, 244, 235, 0.08)", paddingBottom: "8px" }}>
+                Frequently Asked Questions
+              </h3>
+              <div className="seo-faq-grid">
+                <div className="seo-faq-item">
+                  <h4>Is Merge PDF free?</h4>
+                  <p>Yes. RawPDF is completely free, and there are no file count or page limits on merging.</p>
+                </div>
+                <div className="seo-faq-item">
+                  <h4>Are my files uploaded anywhere?</h4>
+                  <p>No. We do not run any back-end servers for document processing. All logic runs inside your local browser sandbox.</p>
+                </div>
+                <div className="seo-faq-item">
+                  <h4>What is the maximum file size?</h4>
+                  <p>Each file can be up to 100MB, which accommodates very large documents and books easily.</p>
+                </div>
+                <div className="seo-faq-item">
+                  <h4>Can I rotate and delete specific pages?</h4>
+                  <p>Yes. Once files are loaded, you enter the workspace where you can rotate specific pages, reorder them, or delete them before exporting.</p>
+                </div>
+              </div>
+            </div>
+          </section>
+
+          {/* SoftwareApplication Schema Markup */}
+          <Script id="schema-merge" type="application/ld+json" strategy="afterInteractive">
+            {JSON.stringify({
+              "@context": "https://schema.org",
+              "@type": "SoftwareApplication",
+              "name": "RawPDF Merge Tool",
+              "description": "Combine multiple PDF documents into a single file locally in your browser. 100% private, client-side, and free.",
+              "applicationCategory": "BusinessApplication",
+              "operatingSystem": "All",
+              "browserRequirements": "Requires HTML5 and WebAssembly support",
+              "offers": {
+                "@type": "Offer",
+                "price": "0.00",
+                "priceCurrency": "USD"
+              }
+            })}
+          </Script>
         </main>
       )}
 

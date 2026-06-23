@@ -6,6 +6,7 @@ import { encryptPDF } from "@pdfsmaller/pdf-encrypt";
 import InfoModal from "../../components/InfoModal";
 import Header from "../../components/Header";
 import Footer from "../../components/Footer";
+import Script from "next/script";
 
 export default function ProtectClient() {
   // Theme & Layout States
@@ -204,7 +205,54 @@ export default function ProtectClient() {
   const formatMb = (bytes) =>
     Math.max(0.1, bytes / 1024 / 1024).toFixed(bytes > 10000000 ? 0 : 1);
 
-  const wait = (ms) => new Promise((res) => setTimeout(res, ms));
+  const relatedTools = [
+    {
+      title: "Merge PDF",
+      desc: "Combine multiple PDFs into one.",
+      href: "/merge",
+      icon: (
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={{ width: 18, height: 18 }}>
+          <rect x="4" y="4" width="16" height="16" rx="2" />
+          <rect x="9" y="9" width="11" height="11" rx="2" />
+        </svg>
+      )
+    },
+    {
+      title: "Split PDF",
+      desc: "Extract pages from your PDF.",
+      href: "/split",
+      icon: (
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={{ width: 18, height: 18 }}>
+          <line x1="12" y1="3" x2="12" y2="21" />
+          <rect x="2" y="4" width="8" height="16" rx="2" />
+          <rect x="14" y="4" width="8" height="16" rx="2" />
+        </svg>
+      )
+    },
+    {
+      title: "Compress PDF",
+      desc: "Reduce PDF file size offline.",
+      href: "/compress",
+      icon: (
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={{ width: 18, height: 18 }}>
+          <rect x="4" y="14" width="6" height="6" rx="1" />
+          <rect x="14" y="4" width="6" height="6" rx="1" />
+          <path d="M20 14l-6 6M4 10l6-6" />
+        </svg>
+      )
+    },
+    {
+      title: "Edit PDF",
+      desc: "Add text, shapes & images to PDF.",
+      href: "/edit",
+      icon: (
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={{ width: 18, height: 18 }}>
+          <path d="M12 20h9" />
+          <path d="M16.5 3.5a2.12 2.12 0 0 1 3 3L7 19l-4 1 1-4Z" />
+        </svg>
+      )
+    }
+  ];
 
   return (
     <>
@@ -419,15 +467,18 @@ export default function ProtectClient() {
                   <div className="pdf-card-shadow card-right"></div>
                   <div className="pdf-card-front">PDF</div>
                 </div>
-                <button id="chooseBtn" className="choose-btn-gold" type="button">
-                  <svg className="plus-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                <button id="chooseBtn" className="choose-btn-gold" type="button" aria-label="Open file picker">
+                  <svg className="plus-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
                     <path d="M12 5v14M5 12h14" />
                   </svg>
                   Choose PDF file
                 </button>
                 <p className="dropzone-text">or drag and drop PDF here</p>
+                <div style={{ fontSize: "13px", color: "var(--subtle)", marginTop: "8px" }}>
+                  Supported Format: <strong>PDF (.pdf)</strong> • Max Size: <strong>100MB per file</strong>
+                </div>
                 <div className="dropzone-security">
-                  <svg className="lock-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
+                  <svg className="lock-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
                     <rect x="3" y="11" width="18" height="11" rx="2" ry="2" />
                     <path d="M7 11V7a5 5 0 0 1 10 0v4" />
                   </svg>
@@ -600,7 +651,7 @@ export default function ProtectClient() {
                 </div>
                 <h3 style={{ margin: "0 0 8px", fontSize: "20px" }}>Encrypted Securely</h3>
                 <p style={{ margin: 0, color: "var(--subtle)", fontSize: "14px", maxWidth: "260px" }}>
-                  This document is now locked and require the password to be opened or printed.
+                  This document is now locked and requires the password to be opened or printed.
                 </p>
               </div>
 
@@ -707,7 +758,7 @@ export default function ProtectClient() {
                       <div className="step-connector"></div>
                     </div>
                     <h4>Choose password</h4>
-                    <p>Input a strong security key to locks the file.</p>
+                    <p>Input a strong security key to lock the file.</p>
                   </div>
 
                   <div className="step-card">
@@ -741,6 +792,103 @@ export default function ProtectClient() {
                 </div>
               </div>
             </section>
+
+            {/* Related Tools Links */}
+            <section className="related-tools-section">
+              <h3 style={{ fontSize: "20px", textAlign: "center", fontFamily: "'Space Grotesk', sans-serif", fontWeight: 700 }}>
+                Related PDF Utilities
+              </h3>
+              <div className="related-tools-grid">
+                {relatedTools.map((t) => (
+                  <Link key={t.href} href={t.href} className="related-tool-card">
+                    <div className="related-tool-card-icon">
+                      {t.icon}
+                    </div>
+                    <h4>{t.title}</h4>
+                    <p>{t.desc}</p>
+                    <span className="related-tool-card-cta">
+                      Launch Tool
+                      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" style={{ width: 10, height: 10 }}>
+                        <line x1="5" y1="12" x2="19" y2="12" />
+                        <polyline points="12 5 19 12 12 19" />
+                      </svg>
+                    </span>
+                  </Link>
+                ))}
+              </div>
+            </section>
+
+            {/* SEO Content & FAQ Section */}
+            <section className="seo-faq-section">
+              <div style={{ maxWidth: "800px", margin: "0 auto", textAlign: "left" }}>
+                <h2 style={{ fontSize: "24px", fontFamily: "'Space Grotesk', sans-serif", marginBottom: "16px", fontWeight: 700 }}>
+                  Protect PDF Files Online Securely & Locally
+                </h2>
+                <p style={{ fontSize: "14.5px", lineHeight: "1.6", color: "var(--subtle)", marginBottom: "24px" }}>
+                  Protect PDF files from unauthorized viewing, printing, or copying by encrypting them with passwords. RawPDF provides 100% browser-based encryption, meaning your sensitive passwords and documents are processed locally in your browser sandbox using secure cryptographic logic. Files never leave your device.
+                </p>
+
+                <h3 style={{ fontSize: "18px", fontFamily: "'Space Grotesk', sans-serif", marginBottom: "12px", fontWeight: 700 }}>
+                  How to Password Protect a PDF Offline
+                </h3>
+                <ol style={{ fontSize: "14.5px", lineHeight: "1.8", color: "var(--subtle)", paddingLeft: "20px", marginBottom: "24px" }}>
+                  <li>Drop your PDF document inside the dropzone area above or choose it from your system folders.</li>
+                  <li>Select the encryption standard: <strong>AES-256</strong> (strongest, recommended) or <strong>RC4</strong> (legacy compatibility).</li>
+                  <li>Type your desired password and confirm it.</li>
+                  <li>Click <strong>Protect PDF</strong> to encrypt the document locally in browser memory.</li>
+                  <li>Download your newly password-locked PDF instantly.</li>
+                </ol>
+
+                <h3 style={{ fontSize: "18px", fontFamily: "'Space Grotesk', sans-serif", marginBottom: "12px", fontWeight: 700 }}>
+                  Key Benefits of Browser-Based Encryption
+                </h3>
+                <ul style={{ fontSize: "14.5px", lineHeight: "1.8", color: "var(--subtle)", paddingLeft: "20px", marginBottom: "32px" }}>
+                  <li><strong>Complete Password Confidentiality:</strong> Your passwords and documents are never transmitted to any third-party APIs.</li>
+                  <li><strong>Robust Encryption Standards:</strong> Use military-grade AES-256 encryption to guard against brute-force attacks.</li>
+                  <li><strong>Zero File Tracking:</strong> Our architecture runs entirely inside your browser sandbox. We do not track or save any data.</li>
+                </ul>
+
+                <h3 style={{ fontSize: "22px", fontFamily: "'Space Grotesk', sans-serif", marginBottom: "20px", fontWeight: 700, borderBottom: "1px solid rgba(248, 244, 235, 0.08)", paddingBottom: "8px" }}>
+                  Frequently Asked Questions
+                </h3>
+                <div className="seo-faq-grid">
+                  <div className="seo-faq-item">
+                    <h4>Is Protect PDF free?</h4>
+                    <p>Yes. RawPDF's encryption tool is completely free, with no file size limits or paywalls.</p>
+                  </div>
+                  <div className="seo-faq-item">
+                    <h4>Are my passwords sent to any server?</h4>
+                    <p>No. The password hashing and encryption algorithms run entirely in your local browser sandbox. We do not store or see your passwords.</p>
+                  </div>
+                  <div className="seo-faq-item">
+                    <h4>What is the difference between AES-256 and RC4?</h4>
+                    <p>AES-256 is the modern encryption standard offering top-tier security. RC4 is an older method used for compatibility with ancient PDF viewers but is less secure.</p>
+                  </div>
+                  <div className="seo-faq-item">
+                    <h4>Can I lock editing and printing?</h4>
+                    <p>Setting a password encrypts the entire PDF catalog. Any user trying to view, edit, print, or copy the file must enter the correct password.</p>
+                  </div>
+                </div>
+              </div>
+            </section>
+
+            {/* SoftwareApplication Schema Markup */}
+            <Script id="schema-protect" type="application/ld+json" strategy="afterInteractive">
+              {JSON.stringify({
+                "@context": "https://schema.org",
+                "@type": "SoftwareApplication",
+                "name": "RawPDF Protect Tool",
+                "description": "Lock PDF documents with secure passwords locally in your browser. 100% private, client-side, and free.",
+                "applicationCategory": "SecurityApplication",
+                "operatingSystem": "All",
+                "browserRequirements": "Requires HTML5 and WebAssembly support",
+                "offers": {
+                  "@type": "Offer",
+                  "price": "0.00",
+                  "priceCurrency": "USD"
+                }
+              })}
+            </Script>
           </>
         )}
       </main>

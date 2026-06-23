@@ -186,6 +186,29 @@ const faqData = [
     ],
   },
   {
+    category: "Text Editor",
+    icon: (
+      <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round">
+        <path d="M14 2H6a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h8a2 2 0 0 0 2-2V8z" />
+        <polyline points="14 2 14 6 18 6" />
+      </svg>
+    ),
+    items: [
+      {
+        q: "What does the Text Editor & Case Converter do?",
+        a: "It allows you to paste or compose text completely locally, and perform formatting actions like sentence casing, lowercasing, uppercasing, title casing, line merging, spacing cleaning, and find/replace replacements.",
+      },
+      {
+        q: "Is my text content kept private?",
+        a: "Yes. rawPDF processes all text content directly inside your browser memory. Your text never leaves your device and is never sent to any server.",
+      },
+      {
+        q: "How does the Find & Replace panel work?",
+        a: "You can expand the Find & Replace panel to replace all occurrences of a search string. It supports case matching options and regular expressions (Regex) for advanced pattern matching.",
+      },
+    ],
+  },
+  {
     category: "General",
     icon: (
       <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round">

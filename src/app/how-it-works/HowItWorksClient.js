@@ -20,6 +20,7 @@ export default function HowItWorksPage() {
     { id: "pdf-to-image", label: "PDF to Image" },
     { id: "image-to-pdf", label: "Image to PDF" },
     { id: "ocr", label: "OCR PDF" },
+    { id: "text-editor", label: "Text Editor" },
   ];
 
   useEffect(() => {
@@ -352,6 +353,43 @@ export default function HowItWorksPage() {
     },
   ];
 
+  const textEditorSteps = [
+    {
+      number: "01",
+      title: "Enter your text",
+      desc: "Type directly, paste copied content, or compose new text in the main workspace editor area. All entries stay inside browser memory.",
+      icon: (
+        <svg viewBox="0 0 48 48" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+          <path d="M12 36h24M16 28h16M20 20h8" />
+          <rect x="8" y="6" width="32" height="36" rx="4" />
+        </svg>
+      ),
+    },
+    {
+      number: "02",
+      title: "Format & Convert Cases",
+      desc: "Convert text instantly to sentence case, lowercase, uppercase, capitalized, or title case. Clean up space formatting, merge lines, or run Find & Replace queries.",
+      icon: (
+        <svg viewBox="0 0 48 48" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+          <circle cx="16" cy="16" r="6" />
+          <circle cx="32" cy="32" r="6" />
+          <line x1="20" y1="20" x2="28" y2="28" />
+        </svg>
+      ),
+    },
+    {
+      number: "03",
+      title: "Copy or Download",
+      desc: "Download your completed composition as a plain text (.TXT) file or copy it with a single click — all offline.",
+      icon: (
+        <svg viewBox="0 0 48 48" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+          <path d="M24 16v16m0 0l-6-6m6 6l6-6" />
+          <path d="M8 38h32" />
+        </svg>
+      ),
+    },
+  ];
+
   return (
     <>
       <Header
@@ -644,6 +682,37 @@ export default function HowItWorksPage() {
                   <h3 className="hiw-cta-title">Ready to start?</h3>
                   <Link href="/ocr" className="wide-btn" style={{ display: "inline-flex", alignItems: "center", gap: "8px", textDecoration: "none", padding: "0 32px" }}>
                     Start Extracting <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M5 12h14M12 5l7 7-7 7" /></svg>
+                  </Link>
+                </div>
+              </div>
+            </div>
+
+            <div className="hiw-divider" />
+
+            {/* Text Editor */}
+            <div id="text-editor" className="hiw-section">
+              <div className="hiw-section-header">
+                <span className="hiw-section-icon" style={{ background: "linear-gradient(135deg, #e5c07b, #c6a052)" }}>
+                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#fff" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
+                    <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" />
+                    <polyline points="14 2 14 8 20 8" />
+                  </svg>
+                </span>
+                <h2 className="hiw-section-title">Text Editor & Case Converter</h2>
+              </div>
+              <div className="hiw-steps">
+                {textEditorSteps.map((step) => (
+                  <div key={step.number} className="hiw-card">
+                    <div className="hiw-number">{step.number}</div>
+                    <div className="hiw-icon">{step.icon}</div>
+                    <h3 className="hiw-title">{step.title}</h3>
+                    <p className="hiw-desc">{step.desc}</p>
+                  </div>
+                ))}
+                <div className="hiw-card hiw-cta-card">
+                  <h3 className="hiw-cta-title">Ready to start?</h3>
+                  <Link href="/text-editor" className="wide-btn" style={{ display: "inline-flex", alignItems: "center", gap: "8px", textDecoration: "none", padding: "0 32px" }}>
+                    Start Editing <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M5 12h14M12 5l7 7-7 7" /></svg>
                   </Link>
                 </div>
               </div>

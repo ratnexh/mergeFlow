@@ -5,6 +5,8 @@ import Link from "next/link";
 import InfoModal from "../../components/InfoModal";
 import Header from "../../components/Header";
 import Footer from "../../components/Footer";
+import Script from "next/script";
+import { loadScript } from "../../utils/lazyLoad";
 
 const palette = [
   "#2867e8",
@@ -20,6 +22,8 @@ export default function ImageToPdfClient() {
   // Application State
   const [files, setFiles] = useState([]);
   const [view, setView] = useState("landing"); // "landing" | "workspace" | "processing" | "done"
+  const [libsLoaded, setLibsLoaded] = useState(false);
+  const [loadingError, setLoadingError] = useState(false);
   
   // Theme & Layout States
   const [theme, setTheme] = useState("dark");
@@ -28,6 +32,18 @@ export default function ImageToPdfClient() {
   const [isScrolled, setIsScrolled] = useState(false);
   const [isDragOverDropzone, setIsDragOverDropzone] = useState(false);
   const [isMobile, setIsMobile] = useState(false);
+
+  // Hook workers setup on load (dynamic script loading)
+  useEffect(() => {
+    loadScript("https://unpkg.com/pdf-lib/dist/pdf-lib.min.js")
+      .then(() => {
+        setLibsLoaded(true);
+      })
+      .catch((err) => {
+        console.error("Failed to load PDF-Lib dynamically:", err);
+        setLoadingError(true);
+      });
+  }, []);
 
   // PDF Settings State
   const [pageSize, setPageSize] = useState("Fit"); // "Fit" | "A4" | "Letter"
@@ -387,8 +403,55 @@ export default function ImageToPdfClient() {
     link.remove();
   };
 
-  const formatMb = (bytes) =>
-    Math.max(0.1, bytes / 1024 / 1024).toFixed(bytes > 10000000 ? 0 : 1);
+  const relatedTools = [
+    {
+      title: "PDF to Image",
+      desc: "Convert PDF pages to JPEG/PNG.",
+      href: "/pdf-to-image",
+      icon: (
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={{ width: 18, height: 18 }}>
+          <rect x="3" y="3" width="18" height="18" rx="2" ry="2" />
+          <circle cx="8.5" cy="8.5" r="1.5" />
+          <polyline points="21 15 16 10 5 21" />
+        </svg>
+      )
+    },
+    {
+      title: "Merge PDF",
+      desc: "Combine multiple PDFs into one.",
+      href: "/merge",
+      icon: (
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={{ width: 18, height: 18 }}>
+          <rect x="4" y="4" width="16" height="16" rx="2" />
+          <rect x="9" y="9" width="11" height="11" rx="2" />
+        </svg>
+      )
+    },
+    {
+      title: "Split PDF",
+      desc: "Extract pages from your PDF.",
+      href: "/split",
+      icon: (
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={{ width: 18, height: 18 }}>
+          <line x1="12" y1="3" x2="12" y2="21" />
+          <rect x="2" y="4" width="8" height="16" rx="2" />
+          <rect x="14" y="4" width="8" height="16" rx="2" />
+        </svg>
+      )
+    },
+    {
+      title: "Compress PDF",
+      desc: "Reduce PDF file size offline.",
+      href: "/compress",
+      icon: (
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={{ width: 18, height: 18 }}>
+          <rect x="4" y="14" width="6" height="6" rx="1" />
+          <rect x="14" y="4" width="6" height="6" rx="1" />
+          <path d="M20 14l-6 6M4 10l6-6" />
+        </svg>
+      )
+    }
+  ];
 
   return (
     <>
@@ -435,11 +498,11 @@ export default function ImageToPdfClient() {
                 <span>Back to Tools</span>
               </Link>
 
-              <p className="eyebrow">
-                <svg className="shield-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
+              <p className="eyebrow" aria-label="Privacy protection guarantee">
+                <svg className="shield-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
                   <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" />
                 </svg>
-                Private PDF Studio
+                100% Local Conversion
               </p>
               <h1>Image to PDF</h1>
               <p className="hero-copy">
@@ -453,17 +516,19 @@ export default function ImageToPdfClient() {
               tabIndex="0"
               role="button"
               aria-label="Choose image files or drop them here"
-              onClick={() => fileInputRef.current.click()}
+              onClick={() => {
+                if (libsLoaded) fileInputRef.current.click();
+              }}
               onDragEnter={(e) => { e.preventDefault(); setIsDragOverDropzone(true); }}
               onDragOver={(e) => { e.preventDefault(); setIsDragOverDropzone(true); }}
               onDragLeave={(e) => { e.preventDefault(); setIsDragOverDropzone(false); }}
               onDrop={(e) => {
                 e.preventDefault();
                 setIsDragOverDropzone(false);
-                addFiles([...e.dataTransfer.files]);
+                if (libsLoaded) addFiles([...e.dataTransfer.files]);
               }}
               onKeyDown={(e) => {
-                if (e.key === "Enter" || e.key === " ") {
+                if (libsLoaded && (e.key === "Enter" || e.key === " ")) {
                   fileInputRef.current.click();
                 }
               }}
@@ -474,15 +539,24 @@ export default function ImageToPdfClient() {
                   <div className="pdf-card-shadow card-right"></div>
                   <div className="pdf-card-front" style={{ background: "linear-gradient(135deg, #0f8176, #095952)" }}>PDF</div>
                 </div>
-                <button id="chooseBtn" className="choose-btn-gold" type="button">
-                  <svg className="plus-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-                    <path d="M12 5v14M5 12h14" />
-                  </svg>
-                  Choose Images
-                </button>
-                <p className="dropzone-text">or drag and drop images here</p>
+                {!libsLoaded ? (
+                  <p className="dropzone-text" style={{ padding: "20px 0" }}>Loading secure PDF engine...</p>
+                ) : (
+                  <>
+                    <button id="chooseBtn" className="choose-btn-gold" type="button" aria-label="Open file picker">
+                      <svg className="plus-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+                        <path d="M12 5v14M5 12h14" />
+                      </svg>
+                      Choose Images
+                    </button>
+                    <p className="dropzone-text">or drag and drop images here</p>
+                    <div style={{ fontSize: "13px", color: "var(--subtle)", marginTop: "8px" }}>
+                      Supported Formats: <strong>PNG, JPG, JPEG, WebP, GIF</strong> • Max Size: <strong>100MB per file</strong>
+                    </div>
+                  </>
+                )}
                 <div className="dropzone-security">
-                  <svg className="lock-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
+                  <svg className="lock-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
                     <rect x="3" y="11" width="18" height="11" rx="2" ry="2" />
                     <path d="M7 11V7a5 5 0 0 1 10 0v4" />
                   </svg>
@@ -505,7 +579,7 @@ export default function ImageToPdfClient() {
                     <circle cx="8.5" cy="8.5" r="1.5" />
                     <polyline points="21 15 16 10 5 21" />
                   </svg>
-                </div>
+                  </div>
                 <h3>PNG, JPG, WebP & GIF</h3>
                 <p>Supports all major browser image formats and compiles them cleanly.</p>
               </div>
@@ -605,6 +679,103 @@ export default function ImageToPdfClient() {
               </div>
             </div>
           </section>
+
+          {/* Related Tools Links */}
+          <section className="related-tools-section">
+            <h3 style={{ fontSize: "20px", textAlign: "center", fontFamily: "'Space Grotesk', sans-serif", fontWeight: 700 }}>
+              Related PDF Utilities
+            </h3>
+            <div className="related-tools-grid">
+              {relatedTools.map((t) => (
+                <Link key={t.href} href={t.href} className="related-tool-card">
+                  <div className="related-tool-card-icon">
+                    {t.icon}
+                  </div>
+                  <h4>{t.title}</h4>
+                  <p>{t.desc}</p>
+                  <span className="related-tool-card-cta">
+                    Launch Tool
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" style={{ width: 10, height: 10 }}>
+                      <line x1="5" y1="12" x2="19" y2="12" />
+                      <polyline points="12 5 19 12 12 19" />
+                    </svg>
+                  </span>
+                </Link>
+              ))}
+            </div>
+          </section>
+
+          {/* SEO Content & FAQ Section */}
+          <section className="seo-faq-section">
+            <div style={{ maxWidth: "800px", margin: "0 auto", textAlign: "left" }}>
+              <h2 style={{ fontSize: "24px", fontFamily: "'Space Grotesk', sans-serif", marginBottom: "16px", fontWeight: 700 }}>
+                Convert Images to PDF Online Locally & Securely
+              </h2>
+              <p style={{ fontSize: "14.5px", lineHeight: "1.6", color: "var(--subtle)", marginBottom: "24px" }}>
+                RawPDF provides a clean, private interface to convert images (PNG, JPEG, WebP, GIF) into standard PDF documents. Running 100% locally in your browser sandbox using Javascript libraries, your images never leave your computer. This makes RawPDF ideal for assembling photos of IDs, receipts, drawings, or documents into secure PDFs.
+              </p>
+
+              <h3 style={{ fontSize: "18px", fontFamily: "'Space Grotesk', sans-serif", marginBottom: "12px", fontWeight: 700 }}>
+                How to Convert JPG & PNG Images to PDF Offline
+              </h3>
+              <ol style={{ fontSize: "14.5px", lineHeight: "1.8", color: "var(--subtle)", paddingLeft: "20px", marginBottom: "24px" }}>
+                <li>Drag and drop your images into the dropzone box above, or choose files from your file manager.</li>
+                <li>In the workspace, drag to arrange your images into the desired sequence. Use the rotation buttons to adjust orient.</li>
+                <li>Set page sizes to <strong>Fit to Image</strong>, <strong>A4</strong>, or <strong>US Letter</strong> page templates.</li>
+                <li>Configure custom margins, background color, and output compression quality to optimize file size.</li>
+                <li>Click <strong>Convert Images</strong> to generate and download your compiled PDF file instantly.</li>
+              </ol>
+
+              <h3 style={{ fontSize: "18px", fontFamily: "'Space Grotesk', sans-serif", marginBottom: "12px", fontWeight: 700 }}>
+                Key Benefits of Browser-Based Conversion
+              </h3>
+              <ul style={{ fontSize: "14.5px", lineHeight: "1.8", color: "var(--subtle)", paddingLeft: "20px", marginBottom: "32px" }}>
+                <li><strong>Private & Safe:</strong> All processing is done locally. Your photos and sensitive scans are never uploaded to any remote server.</li>
+                <li><strong>Fast Performance:</strong> With no network upload or download bottlenecks, files compile instantly in your browser memory.</li>
+                <li><strong>Custom Design Options:</strong> Control orientation, page colors, compression density, and spacing borders for professional looking PDF decks.</li>
+              </ul>
+
+              <h3 style={{ fontSize: "22px", fontFamily: "'Space Grotesk', sans-serif", marginBottom: "20px", fontWeight: 700, borderBottom: "1px solid rgba(248, 244, 235, 0.08)", paddingBottom: "8px" }}>
+                Frequently Asked Questions
+              </h3>
+              <div className="seo-faq-grid">
+                <div className="seo-faq-item">
+                  <h4>Is Image to PDF conversion free?</h4>
+                  <p>Yes. RawPDF is completely free to use. There are no registration forms, watermarks, or daily conversion quotas.</p>
+                </div>
+                <div className="seo-faq-item">
+                  <h4>Which image formats are supported?</h4>
+                  <p>We support all common image file types, including PNG, JPG, JPEG, WebP, and non-animated GIFs.</p>
+                </div>
+                <div className="seo-faq-item">
+                  <h4>Can I adjust page layouts and margins?</h4>
+                  <p>Yes. You can select custom margins (0pt, 10pt, 24pt), choose custom background colors, and set page sizes (Fit to image, A4, or Letter) in the editor sidebar.</p>
+                </div>
+                <div className="seo-faq-item">
+                  <h4>Is there a file size limit?</h4>
+                  <p>Each uploaded image can be up to 100MB, letting you compile extremely high-resolution image sets and scanned photo sheets easily.</p>
+                </div>
+              </div>
+            </div>
+          </section>
+
+          {/* SoftwareApplication Schema Markup */}
+          <Script id="schema-image-to-pdf" type="application/ld+json" strategy="afterInteractive">
+            {JSON.stringify({
+              "@context": "https://schema.org",
+              "@type": "SoftwareApplication",
+              "name": "RawPDF Image to PDF Converter",
+              "description": "Convert image collections (PNG, JPG, WebP) into structured PDF documents locally in your browser. 100% private, client-side, and free.",
+              "applicationCategory": "BusinessApplication",
+              "operatingSystem": "All",
+              "browserRequirements": "Requires HTML5 and WebAssembly support",
+              "offers": {
+                "@type": "Offer",
+                "price": "0.00",
+                "priceCurrency": "USD"
+              }
+            })}
+          </Script>
         </main>
       )}
 
