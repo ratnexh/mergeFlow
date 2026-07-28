@@ -79,6 +79,84 @@ export default function ImageToPdfClient() {
     document.body.classList.toggle("theme-light", savedTheme === "light");
   }, [theme]);
 
+  const getImgDimensions = (file) => {
+    return new Promise((resolve) => {
+      const url = URL.createObjectURL(file);
+      const img = new Image();
+      img.onload = () => {
+        URL.revokeObjectURL(url);
+        resolve({ width: img.width, height: img.height });
+      };
+      img.onerror = () => {
+        URL.revokeObjectURL(url);
+        resolve({ width: 800, height: 600 });
+      };
+      img.src = url;
+    });
+  };
+
+  const addFiles = async (rawFiles) => {
+    const tooLarge = rawFiles.find((file) => file.size > 104857600);
+    if (tooLarge) {
+      setModal({
+        isOpen: true,
+        title: "File Too Large",
+        body: `The file "${tooLarge.name}" exceeds the maximum size limit of 100MB. Please select a smaller file.`,
+      });
+      return;
+    }
+    const usable = rawFiles.filter((file) => {
+      const name = file.name.toLowerCase();
+      return (
+        file.size > 0 &&
+        (file.type.startsWith("image/") ||
+          name.endsWith(".jpg") ||
+          name.endsWith(".jpeg") ||
+          name.endsWith(".png") ||
+          name.endsWith(".webp") ||
+          name.endsWith(".gif"))
+      );
+    });
+    if (!usable.length) return;
+
+    const items = await Promise.all(
+      usable.map(async (file, idx) => {
+        const dims = await getImgDimensions(file);
+        return {
+          id: crypto.randomUUID(),
+          file,
+          name: file.name,
+          size: file.size,
+          width: dims.width,
+          height: dims.height,
+          rotation: 0,
+          url: URL.createObjectURL(file),
+          accent: palette[(files.length + idx) % palette.length],
+        };
+      })
+    );
+
+    setFiles((prev) => [...prev, ...items]);
+    setView("workspace");
+  };
+
+  // Restores pending screenshot from webpage capture tool
+  useEffect(() => {
+    if (typeof window !== "undefined") {
+      const pendingImage = sessionStorage.getItem("pending_image_to_pdf_base64");
+      if (pendingImage) {
+        sessionStorage.removeItem("pending_image_to_pdf_base64");
+        fetch(pendingImage)
+          .then((res) => res.blob())
+          .then((blob) => {
+            const file = new File([blob], "captured-webpage.png", { type: "image/png" });
+            addFiles([file]);
+          })
+          .catch((err) => console.error("Error loading pending capture image:", err));
+      }
+    }
+  }, []);
+
   // Scroll Shrink Nav Hook
   useEffect(() => {
     const handleScroll = () => {
@@ -144,66 +222,7 @@ export default function ImageToPdfClient() {
     });
   };
 
-  const getImgDimensions = (file) => {
-    return new Promise((resolve) => {
-      const url = URL.createObjectURL(file);
-      const img = new Image();
-      img.onload = () => {
-        URL.revokeObjectURL(url);
-        resolve({ width: img.width, height: img.height });
-      };
-      img.onerror = () => {
-        URL.revokeObjectURL(url);
-        resolve({ width: 800, height: 600 });
-      };
-      img.src = url;
-    });
-  };
 
-  const addFiles = async (rawFiles) => {
-    const tooLarge = rawFiles.find((file) => file.size > 104857600);
-    if (tooLarge) {
-      setModal({
-        isOpen: true,
-        title: "File Too Large",
-        body: `The file "${tooLarge.name}" exceeds the maximum size limit of 100MB. Please select a smaller file.`,
-      });
-      return;
-    }
-    const usable = rawFiles.filter((file) => {
-      const name = file.name.toLowerCase();
-      return (
-        file.size > 0 &&
-        (file.type.startsWith("image/") ||
-          name.endsWith(".jpg") ||
-          name.endsWith(".jpeg") ||
-          name.endsWith(".png") ||
-          name.endsWith(".webp") ||
-          name.endsWith(".gif"))
-      );
-    });
-    if (!usable.length) return;
-
-    const items = await Promise.all(
-      usable.map(async (file, idx) => {
-        const dims = await getImgDimensions(file);
-        return {
-          id: crypto.randomUUID(),
-          file,
-          name: file.name,
-          size: file.size,
-          width: dims.width,
-          height: dims.height,
-          rotation: 0,
-          url: URL.createObjectURL(file),
-          accent: palette[(files.length + idx) % palette.length],
-        };
-      })
-    );
-
-    setFiles((prev) => [...prev, ...items]);
-    setView("workspace");
-  };
 
   const deleteImage = (id) => {
     const item = files.find((f) => f.id === id);

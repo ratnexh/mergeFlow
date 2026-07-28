@@ -16,7 +16,6 @@ export default function HowItWorksPage() {
     { id: "split", label: "Split PDF" },
     { id: "compress", label: "Compress PDF" },
     { id: "protect", label: "Protect PDF" },
-    { id: "edit", label: "Edit PDF" },
     { id: "pdf-to-image", label: "PDF to Image" },
     { id: "image-to-pdf", label: "Image to PDF" },
     { id: "ocr", label: "OCR PDF" },
@@ -408,13 +407,42 @@ export default function HowItWorksPage() {
 
       <main className="landing view active">
         {/* Hero */}
-        <section className="hero" style={{ minHeight: "50svh" }}>
+        <section className="hero" style={{ minHeight: "36svh" }}>
           <div className="hero-content" style={{ textAlign: "center" }}>
             <p className="eyebrow">Guide</p>
             <h1>How It Works</h1>
             <p className="hero-copy">
               Everything happens in your browser — no uploads, no accounts, no waiting.
             </p>
+          </div>
+        </section>
+
+        {/* Secure 3-Step Local Processing Flow Overview */}
+        <section className="how-it-works-brief" style={{ padding: "40px 20px 60px", borderBottom: "1px solid rgba(248, 244, 235, 0.06)", maxWidth: "1280px", margin: "0 auto" }}>
+          <div style={{ textAlign: "center", marginBottom: "36px" }}>
+            <h2 style={{ fontSize: "26px", fontFamily: "'Space Grotesk', sans-serif", fontWeight: 700 }}>
+              Secure 3-Step Local Processing Flow
+            </h2>
+            <p style={{ color: "var(--subtle)", fontSize: "14px", margin: "8px 0 0" }}>
+              How all tools on rawPDF process your data safely inside your web browser.
+            </p>
+          </div>
+          <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(260px, 1fr))", gap: "24px" }}>
+            <div className="hiw-card" style={{ padding: "24px" }}>
+              <div className="hiw-number">01</div>
+              <h3 className="hiw-title" style={{ fontSize: "18px", marginBottom: "8px" }}>Upload or Drop Files</h3>
+              <p className="hiw-desc" style={{ fontSize: "14px", color: "var(--subtle)", margin: 0, lineHeight: 1.5 }}>Select your PDF or image files from your device. They load instantly into browser memory without any network transfer.</p>
+            </div>
+            <div className="hiw-card" style={{ padding: "24px" }}>
+              <div className="hiw-number">02</div>
+              <h3 className="hiw-title" style={{ fontSize: "18px", marginBottom: "8px" }}>Process Locally</h3>
+              <p className="hiw-desc" style={{ fontSize: "14px", color: "var(--subtle)", margin: 0, lineHeight: 1.5 }}>Perform merges, splits, compressions, or edits offline. All logic runs in client-side WebAssembly and PDF engines.</p>
+            </div>
+            <div className="hiw-card" style={{ padding: "24px" }}>
+              <div className="hiw-number">03</div>
+              <h3 className="hiw-title" style={{ fontSize: "18px", marginBottom: "8px" }}>Download Instantly</h3>
+              <p className="hiw-desc" style={{ fontSize: "14px", color: "var(--subtle)", margin: 0, lineHeight: 1.5 }}>Save your newly generated file directly back to your device with zero server processing delays.</p>
+            </div>
           </div>
         </section>
 
@@ -444,12 +472,17 @@ export default function HowItWorksPage() {
             {/* Merge */}
             <div id="merge" className="hiw-section">
               <div className="hiw-section-header">
-                <span className="hiw-section-icon" style={{ background: "linear-gradient(135deg, #b88a43, #0f8176)" }}>
-                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#fff" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
-                    <path d="M12 20h9" /><path d="M16.5 3.5a2.12 2.12 0 0 1 3 3L7 19l-4 1 1-4Z" />
-                  </svg>
-                </span>
-                <h2 className="hiw-section-title">Merge PDFs</h2>
+                <div className="hiw-header-left">
+                  <span className="hiw-section-icon" style={{ background: "linear-gradient(135deg, #b88a43, #0f8176)" }}>
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#fff" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
+                      <path d="M12 20h9" /><path d="M16.5 3.5a2.12 2.12 0 0 1 3 3L7 19l-4 1 1-4Z" />
+                    </svg>
+                  </span>
+                  <h2 className="hiw-section-title">Merge PDFs</h2>
+                </div>
+                <Link href="/merge" className="hiw-action-btn">
+                  Start Merging <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M5 12h14M12 5l7 7-7 7" /></svg>
+                </Link>
               </div>
               <div className="hiw-steps">
                 {mergeSteps.map((step) => (
@@ -460,12 +493,6 @@ export default function HowItWorksPage() {
                     <p className="hiw-desc">{step.desc}</p>
                   </div>
                 ))}
-                <div className="hiw-card hiw-cta-card">
-                  <h3 className="hiw-cta-title">Ready to start?</h3>
-                  <Link href="/merge" className="wide-btn" style={{ display: "inline-flex", alignItems: "center", gap: "8px", textDecoration: "none", padding: "0 32px" }}>
-                    Start Merging <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M5 12h14M12 5l7 7-7 7" /></svg>
-                  </Link>
-                </div>
               </div>
             </div>
 
@@ -474,14 +501,19 @@ export default function HowItWorksPage() {
             {/* Split */}
             <div id="split" className="hiw-section">
               <div className="hiw-section-header">
-                <span className="hiw-section-icon" style={{ background: "linear-gradient(135deg, #0f8176, #b88a43)" }}>
-                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#fff" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
-                    <line x1="12" y1="3" x2="12" y2="21" />
-                    <rect x="2" y="4" width="8" height="16" rx="2" />
-                    <rect x="14" y="4" width="8" height="16" rx="2" />
-                  </svg>
-                </span>
-                <h2 className="hiw-section-title">Split PDF</h2>
+                <div className="hiw-header-left">
+                  <span className="hiw-section-icon" style={{ background: "linear-gradient(135deg, #0f8176, #b88a43)" }}>
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#fff" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
+                      <line x1="12" y1="3" x2="12" y2="21" />
+                      <rect x="2" y="4" width="8" height="16" rx="2" />
+                      <rect x="14" y="4" width="8" height="16" rx="2" />
+                    </svg>
+                  </span>
+                  <h2 className="hiw-section-title">Split PDF</h2>
+                </div>
+                <Link href="/split" className="hiw-action-btn">
+                  Start Splitting <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M5 12h14M12 5l7 7-7 7" /></svg>
+                </Link>
               </div>
               <div className="hiw-steps">
                 {splitSteps.map((step) => (
@@ -492,12 +524,6 @@ export default function HowItWorksPage() {
                     <p className="hiw-desc">{step.desc}</p>
                   </div>
                 ))}
-                <div className="hiw-card hiw-cta-card">
-                  <h3 className="hiw-cta-title">Ready to start?</h3>
-                  <Link href="/split" className="wide-btn" style={{ display: "inline-flex", alignItems: "center", gap: "8px", textDecoration: "none", padding: "0 32px" }}>
-                    Start Splitting <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M5 12h14M12 5l7 7-7 7" /></svg>
-                  </Link>
-                </div>
               </div>
             </div>
 
@@ -506,12 +532,17 @@ export default function HowItWorksPage() {
             {/* Compress */}
             <div id="compress" className="hiw-section">
               <div className="hiw-section-header">
-                <span className="hiw-section-icon" style={{ background: "linear-gradient(135deg, #0f8176, #2867e8)" }}>
-                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#fff" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
-                    <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" /><polyline points="7 10 12 15 17 10" /><line x1="12" y1="15" x2="12" y2="3" />
-                  </svg>
-                </span>
-                <h2 className="hiw-section-title">Compress PDF</h2>
+                <div className="hiw-header-left">
+                  <span className="hiw-section-icon" style={{ background: "linear-gradient(135deg, #0f8176, #2867e8)" }}>
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#fff" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
+                      <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" /><polyline points="7 10 12 15 17 10" /><line x1="12" y1="15" x2="12" y2="3" />
+                    </svg>
+                  </span>
+                  <h2 className="hiw-section-title">Compress PDF</h2>
+                </div>
+                <Link href="/compress" className="hiw-action-btn">
+                  Start Compressing <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M5 12h14M12 5l7 7-7 7" /></svg>
+                </Link>
               </div>
               <div className="hiw-steps">
                 {compressSteps.map((step) => (
@@ -522,12 +553,6 @@ export default function HowItWorksPage() {
                     <p className="hiw-desc">{step.desc}</p>
                   </div>
                 ))}
-                <div className="hiw-card hiw-cta-card">
-                  <h3 className="hiw-cta-title">Ready to start?</h3>
-                  <Link href="/compress" className="wide-btn" style={{ display: "inline-flex", alignItems: "center", gap: "8px", textDecoration: "none", padding: "0 32px" }}>
-                    Start Compressing <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M5 12h14M12 5l7 7-7 7" /></svg>
-                  </Link>
-                </div>
               </div>
             </div>
 
@@ -536,13 +561,18 @@ export default function HowItWorksPage() {
             {/* Protect */}
             <div id="protect" className="hiw-section">
               <div className="hiw-section-header">
-                <span className="hiw-section-icon" style={{ background: "linear-gradient(135deg, #b88a43, #714c14)" }}>
-                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#fff" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
-                    <rect x="3" y="11" width="18" height="11" rx="2" ry="2" />
-                    <path d="M7 11V7a5 5 0 0 1 10 0v4" />
-                  </svg>
-                </span>
-                <h2 className="hiw-section-title">Protect PDF</h2>
+                <div className="hiw-header-left">
+                  <span className="hiw-section-icon" style={{ background: "linear-gradient(135deg, #b88a43, #714c14)" }}>
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#fff" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
+                      <rect x="3" y="11" width="18" height="11" rx="2" ry="2" />
+                      <path d="M7 11V7a5 5 0 0 1 10 0v4" />
+                    </svg>
+                  </span>
+                  <h2 className="hiw-section-title">Protect PDF</h2>
+                </div>
+                <Link href="/protect" className="hiw-action-btn">
+                  Start Protecting <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M5 12h14M12 5l7 7-7 7" /></svg>
+                </Link>
               </div>
               <div className="hiw-steps">
                 {protectSteps.map((step) => (
@@ -553,43 +583,6 @@ export default function HowItWorksPage() {
                     <p className="hiw-desc">{step.desc}</p>
                   </div>
                 ))}
-                <div className="hiw-card hiw-cta-card">
-                  <h3 className="hiw-cta-title">Ready to start?</h3>
-                  <Link href="/protect" className="wide-btn" style={{ display: "inline-flex", alignItems: "center", gap: "8px", textDecoration: "none", padding: "0 32px" }}>
-                    Start Protecting <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M5 12h14M12 5l7 7-7 7" /></svg>
-                  </Link>
-                </div>
-              </div>
-            </div>
-
-            <div className="hiw-divider" />
-
-            {/* Edit */}
-            <div id="edit" className="hiw-section">
-              <div className="hiw-section-header">
-                <span className="hiw-section-icon" style={{ background: "linear-gradient(135deg, #e11d48, #b88a43)" }}>
-                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#fff" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
-                    <path d="M12 20h9" />
-                    <path d="M16.5 3.5a2.12 2.12 0 0 1 3 3L7 19l-4 1 1-4Z" />
-                  </svg>
-                </span>
-                <h2 className="hiw-section-title">Edit PDF <span className="beta-badge" style={{ fontSize: "11px", padding: "2px 8px", marginLeft: "8px", top: "-3px" }}>Beta</span></h2>
-              </div>
-              <div className="hiw-steps">
-                {editSteps.map((step) => (
-                  <div key={step.number} className="hiw-card">
-                    <div className="hiw-number">{step.number}</div>
-                    <div className="hiw-icon">{step.icon}</div>
-                    <h3 className="hiw-title">{step.title}</h3>
-                    <p className="hiw-desc">{step.desc}</p>
-                  </div>
-                ))}
-                <div className="hiw-card hiw-cta-card">
-                  <h3 className="hiw-cta-title">Ready to start?</h3>
-                  <Link href="/edit" className="wide-btn" style={{ display: "inline-flex", alignItems: "center", gap: "8px", textDecoration: "none", padding: "0 32px" }}>
-                    Start Editing <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M5 12h14M12 5l7 7-7 7" /></svg>
-                  </Link>
-                </div>
               </div>
             </div>
 
@@ -598,14 +591,19 @@ export default function HowItWorksPage() {
             {/* PDF to Image */}
             <div id="pdf-to-image" className="hiw-section">
               <div className="hiw-section-header">
-                <span className="hiw-section-icon" style={{ background: "linear-gradient(135deg, #f97316, #b88a43)" }}>
-                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#fff" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
-                    <rect x="3" y="3" width="18" height="18" rx="2" ry="2" />
-                    <circle cx="8.5" cy="8.5" r="1.5" />
-                    <polyline points="21 15 16 10 5 21" />
-                  </svg>
-                </span>
-                <h2 className="hiw-section-title">Convert PDF to Image</h2>
+                <div className="hiw-header-left">
+                  <span className="hiw-section-icon" style={{ background: "linear-gradient(135deg, #f97316, #b88a43)" }}>
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#fff" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
+                      <rect x="3" y="3" width="18" height="18" rx="2" ry="2" />
+                      <circle cx="8.5" cy="8.5" r="1.5" />
+                      <polyline points="21 15 16 10 5 21" />
+                    </svg>
+                  </span>
+                  <h2 className="hiw-section-title">Convert PDF to Image</h2>
+                </div>
+                <Link href="/pdf-to-image" className="hiw-action-btn">
+                  Start Converting <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M5 12h14M12 5l7 7-7 7" /></svg>
+                </Link>
               </div>
               <div className="hiw-steps">
                 {toImageSteps.map((step) => (
@@ -616,12 +614,6 @@ export default function HowItWorksPage() {
                     <p className="hiw-desc">{step.desc}</p>
                   </div>
                 ))}
-                <div className="hiw-card hiw-cta-card">
-                  <h3 className="hiw-cta-title">Ready to start?</h3>
-                  <Link href="/pdf-to-image" className="wide-btn" style={{ display: "inline-flex", alignItems: "center", gap: "8px", textDecoration: "none", padding: "0 32px" }}>
-                    Start Converting <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M5 12h14M12 5l7 7-7 7" /></svg>
-                  </Link>
-                </div>
               </div>
             </div>
 
@@ -630,14 +622,19 @@ export default function HowItWorksPage() {
             {/* Image to PDF */}
             <div id="image-to-pdf" className="hiw-section">
               <div className="hiw-section-header">
-                <span className="hiw-section-icon" style={{ background: "linear-gradient(135deg, #8b5cf6, #0f8176)" }}>
-                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#fff" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
-                    <rect x="3" y="3" width="18" height="18" rx="2" ry="2" />
-                    <circle cx="8.5" cy="8.5" r="1.5" />
-                    <polyline points="21 15 16 10 5 21" />
-                  </svg>
-                </span>
-                <h2 className="hiw-section-title">Image to PDF</h2>
+                <div className="hiw-header-left">
+                  <span className="hiw-section-icon" style={{ background: "linear-gradient(135deg, #8b5cf6, #0f8176)" }}>
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#fff" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
+                      <rect x="3" y="3" width="18" height="18" rx="2" ry="2" />
+                      <circle cx="8.5" cy="8.5" r="1.5" />
+                      <polyline points="21 15 16 10 5 21" />
+                    </svg>
+                  </span>
+                  <h2 className="hiw-section-title">Image to PDF</h2>
+                </div>
+                <Link href="/image-to-pdf" className="hiw-action-btn">
+                  Start Converting <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M5 12h14M12 5l7 7-7 7" /></svg>
+                </Link>
               </div>
               <div className="hiw-steps">
                 {toPdfSteps.map((step) => (
@@ -648,12 +645,6 @@ export default function HowItWorksPage() {
                     <p className="hiw-desc">{step.desc}</p>
                   </div>
                 ))}
-                <div className="hiw-card hiw-cta-card">
-                  <h3 className="hiw-cta-title">Ready to start?</h3>
-                  <Link href="/image-to-pdf" className="wide-btn" style={{ display: "inline-flex", alignItems: "center", gap: "8px", textDecoration: "none", padding: "0 32px" }}>
-                    Start Converting <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M5 12h14M12 5l7 7-7 7" /></svg>
-                  </Link>
-                </div>
               </div>
             </div>
 
@@ -662,12 +653,17 @@ export default function HowItWorksPage() {
             {/* OCR PDF */}
             <div id="ocr" className="hiw-section">
               <div className="hiw-section-header">
-                <span className="hiw-section-icon" style={{ background: "linear-gradient(135deg, #10b981, #0f8176)" }}>
-                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#fff" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
-                    <path d="M12 2v20M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6" />
-                  </svg>
-                </span>
-                <h2 className="hiw-section-title">OCR PDF Text Extraction</h2>
+                <div className="hiw-header-left">
+                  <span className="hiw-section-icon" style={{ background: "linear-gradient(135deg, #10b981, #0f8176)" }}>
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#fff" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
+                      <path d="M12 2v20M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6" />
+                    </svg>
+                  </span>
+                  <h2 className="hiw-section-title">OCR PDF Text Extraction</h2>
+                </div>
+                <Link href="/ocr" className="hiw-action-btn">
+                  Start Extracting <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M5 12h14M12 5l7 7-7 7" /></svg>
+                </Link>
               </div>
               <div className="hiw-steps">
                 {ocrSteps.map((step) => (
@@ -678,12 +674,6 @@ export default function HowItWorksPage() {
                     <p className="hiw-desc">{step.desc}</p>
                   </div>
                 ))}
-                <div className="hiw-card hiw-cta-card">
-                  <h3 className="hiw-cta-title">Ready to start?</h3>
-                  <Link href="/ocr" className="wide-btn" style={{ display: "inline-flex", alignItems: "center", gap: "8px", textDecoration: "none", padding: "0 32px" }}>
-                    Start Extracting <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M5 12h14M12 5l7 7-7 7" /></svg>
-                  </Link>
-                </div>
               </div>
             </div>
 
@@ -692,13 +682,18 @@ export default function HowItWorksPage() {
             {/* Text Editor */}
             <div id="text-editor" className="hiw-section">
               <div className="hiw-section-header">
-                <span className="hiw-section-icon" style={{ background: "linear-gradient(135deg, #e5c07b, #c6a052)" }}>
-                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#fff" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
-                    <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" />
-                    <polyline points="14 2 14 8 20 8" />
-                  </svg>
-                </span>
-                <h2 className="hiw-section-title">Text Editor & Case Converter</h2>
+                <div className="hiw-header-left">
+                  <span className="hiw-section-icon" style={{ background: "linear-gradient(135deg, #e5c07b, #c6a052)" }}>
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#fff" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
+                      <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" />
+                      <polyline points="14 2 14 8 20 8" />
+                    </svg>
+                  </span>
+                  <h2 className="hiw-section-title">Text Editor & Case Converter</h2>
+                </div>
+                <Link href="/text-editor" className="hiw-action-btn">
+                  Start Editing <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M5 12h14M12 5l7 7-7 7" /></svg>
+                </Link>
               </div>
               <div className="hiw-steps">
                 {textEditorSteps.map((step) => (
@@ -709,12 +704,6 @@ export default function HowItWorksPage() {
                     <p className="hiw-desc">{step.desc}</p>
                   </div>
                 ))}
-                <div className="hiw-card hiw-cta-card">
-                  <h3 className="hiw-cta-title">Ready to start?</h3>
-                  <Link href="/text-editor" className="wide-btn" style={{ display: "inline-flex", alignItems: "center", gap: "8px", textDecoration: "none", padding: "0 32px" }}>
-                    Start Editing <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M5 12h14M12 5l7 7-7 7" /></svg>
-                  </Link>
-                </div>
               </div>
             </div>
 

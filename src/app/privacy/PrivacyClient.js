@@ -6,6 +6,27 @@ import Footer from "../../components/Footer";
 
 const sections = [
   {
+    id: "security-guarantees",
+    title: "Security & privacy guarantees",
+    type: "guarantees",
+    icon: (
+      <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round">
+        <path d="M10 2s6 3 6 8-6 8-6 8-6-3-6-8 6-8 6-8z" />
+      </svg>
+    ),
+  },
+  {
+    id: "security-comparison",
+    title: "Security comparison matrix",
+    type: "comparison",
+    icon: (
+      <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round">
+        <rect x="3" y="3" width="14" height="14" rx="2" />
+        <path d="M3 9h14M9 3v14" />
+      </svg>
+    ),
+  },
+  {
     id: "local-processing",
     title: "Your files never leave your device",
     body: "All PDF processing — merging, splitting, rotating, compressing, protecting, converting PDF to images, and converting images to PDF — happens entirely inside your browser using Web APIs. No file is ever uploaded to any server. Your documents and images stay completely private.",
@@ -87,7 +108,7 @@ export default function PrivacyPage() {
   const [theme, setTheme] = useState("dark");
   const [isScrolled, setIsScrolled] = useState(false);
   const [isToolsOpen, setIsToolsOpen] = useState(false);
-  const [activeId, setActiveId] = useState("local-processing");
+  const [activeId, setActiveId] = useState("security-guarantees");
 
   useEffect(() => {
     const saved = localStorage.getItem("mergeStudioTheme") || "dark";
@@ -98,7 +119,6 @@ export default function PrivacyPage() {
   useEffect(() => {
     const onScroll = () => {
       setIsScrolled(window.scrollY > 20);
-      // Update active section
       for (const s of [...sections].reverse()) {
         const el = document.getElementById(s.id);
         if (el && el.getBoundingClientRect().top <= 120) {
@@ -147,8 +167,8 @@ export default function PrivacyPage() {
         {/* Compact hero */}
         <section className="hero" style={{ minHeight: "36svh" }}>
           <div className="hero-content" style={{ textAlign: "center" }}>
-            <p className="eyebrow">Legal</p>
-            <h1>Privacy Policy</h1>
+            <p className="eyebrow">Legal & Security</p>
+            <h1>Privacy & Security Policy</h1>
             <p className="hero-copy">
               Your documents are yours — always local, never uploaded.
             </p>
@@ -183,7 +203,76 @@ export default function PrivacyPage() {
                 <div className="privacy-block-icon">{s.icon}</div>
                 <div className="privacy-block-body">
                   <h2 className="privacy-block-title">{s.title}</h2>
-                  {s.id !== "contact" ? (
+                  
+                  {s.type === "guarantees" ? (
+                    <div style={{ marginTop: "12px" }}>
+                      <p className="privacy-block-text" style={{ marginBottom: "20px" }}>
+                        rawPDF is built from the ground up to protect confidential documents, tax forms, medical files, and sensitive personal data.
+                      </p>
+                      <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(220px, 1fr))", gap: "16px" }}>
+                        <div style={{ background: "rgba(248, 244, 235, 0.02)", border: "1px solid rgba(248, 244, 235, 0.08)", borderRadius: "12px", padding: "18px" }}>
+                          <h3 style={{ fontSize: "15px", color: "var(--gold)", marginBottom: "8px", fontFamily: "'Space Grotesk', sans-serif" }}>Local Processing</h3>
+                          <p style={{ fontSize: "13px", color: "var(--subtle)", margin: 0, lineHeight: 1.5 }}>All document conversions, rendering, and processing occur locally inside your browser's secure sandbox environment.</p>
+                        </div>
+                        <div style={{ background: "rgba(248, 244, 235, 0.02)", border: "1px solid rgba(248, 244, 235, 0.08)", borderRadius: "12px", padding: "18px" }}>
+                          <h3 style={{ fontSize: "15px", color: "var(--gold)", marginBottom: "8px", fontFamily: "'Space Grotesk', sans-serif" }}>No File Uploads</h3>
+                          <p style={{ fontSize: "13px", color: "var(--subtle)", margin: 0, lineHeight: 1.5 }}>Your confidential PDFs and images are never transmitted or stored on any external server. Complete data sovereignty.</p>
+                        </div>
+                        <div style={{ background: "rgba(248, 244, 235, 0.02)", border: "1px solid rgba(248, 244, 235, 0.08)", borderRadius: "12px", padding: "18px" }}>
+                          <h3 style={{ fontSize: "15px", color: "var(--gold)", marginBottom: "8px", fontFamily: "'Space Grotesk', sans-serif" }}>No Account Required</h3>
+                          <p style={{ fontSize: "13px", color: "var(--subtle)", margin: 0, lineHeight: 1.5 }}>Skip registration, subscriptions, or usage logs. Enjoy instant access to premium document tools completely free.</p>
+                        </div>
+                        <div style={{ background: "rgba(248, 244, 235, 0.02)", border: "1px solid rgba(248, 244, 235, 0.08)", borderRadius: "12px", padding: "18px" }}>
+                          <h3 style={{ fontSize: "15px", color: "var(--gold)", marginBottom: "8px", fontFamily: "'Space Grotesk', sans-serif" }}>Privacy First</h3>
+                          <p style={{ fontSize: "13px", color: "var(--subtle)", margin: 0, lineHeight: 1.5 }}>Perfect for medical records, legal agreements, tax filings, and other sensitive workflows that demand strict confidentiality.</p>
+                        </div>
+                      </div>
+                    </div>
+                  ) : s.type === "comparison" ? (
+                    <div style={{ marginTop: "12px" }}>
+                      <p className="privacy-block-text" style={{ marginBottom: "16px" }}>
+                        How client-side local architecture compares to traditional online PDF cloud processing services:
+                      </p>
+                      <div style={{ overflowX: "auto" }}>
+                        <table style={{ width: "100%", borderCollapse: "collapse", minWidth: "450px", textAlign: "left", fontSize: "13px" }}>
+                          <thead>
+                            <tr style={{ borderBottom: "2px solid rgba(248, 244, 235, 0.15)" }}>
+                              <th style={{ padding: "12px 10px", fontWeight: "700" }}>Capability / Feature</th>
+                              <th style={{ padding: "12px 10px", fontWeight: "700", color: "var(--gold)" }}>rawPDF (Local)</th>
+                              <th style={{ padding: "12px 10px", fontWeight: "700", color: "var(--subtle)" }}>Typical Online PDF Tools</th>
+                            </tr>
+                          </thead>
+                          <tbody>
+                            <tr style={{ borderBottom: "1px solid rgba(248, 244, 235, 0.06)" }}>
+                              <td style={{ padding: "12px 10px", fontWeight: "500" }}>Files uploaded to servers</td>
+                              <td style={{ padding: "12px 10px", color: "#e24c4c", fontWeight: "bold" }}>❌ No (Never leaves device)</td>
+                              <td style={{ padding: "12px 10px", color: "var(--subtle)" }}>⚠️ Yes (Temporary cloud storage)</td>
+                            </tr>
+                            <tr style={{ borderBottom: "1px solid rgba(248, 244, 235, 0.06)" }}>
+                              <td style={{ padding: "12px 10px", fontWeight: "500" }}>Local browser processing</td>
+                              <td style={{ padding: "12px 10px", color: "#0f8176", fontWeight: "bold" }}>✅ Yes (100% offline)</td>
+                              <td style={{ padding: "12px 10px", color: "var(--subtle)" }}>❌ No (Server API execution)</td>
+                            </tr>
+                            <tr style={{ borderBottom: "1px solid rgba(248, 244, 235, 0.06)" }}>
+                              <td style={{ padding: "12px 10px", fontWeight: "500" }}>Account required</td>
+                              <td style={{ padding: "12px 10px", color: "#0f8176", fontWeight: "bold" }}>❌ No (Anonymous)</td>
+                              <td style={{ padding: "12px 10px", color: "var(--subtle)" }}>⚠️ Often (Sign-up/tracking)</td>
+                            </tr>
+                            <tr style={{ borderBottom: "1px solid rgba(248, 244, 235, 0.06)" }}>
+                              <td style={{ padding: "12px 10px", fontWeight: "500" }}>Privacy architecture</td>
+                              <td style={{ padding: "12px 10px", color: "#0f8176", fontWeight: "bold" }}>✅ Yes (Zero trust)</td>
+                              <td style={{ padding: "12px 10px", color: "var(--subtle)" }}>❌ No (Third party logs)</td>
+                            </tr>
+                            <tr style={{ borderBottom: "1px solid rgba(248, 244, 235, 0.06)" }}>
+                              <td style={{ padding: "12px 10px", fontWeight: "500" }}>Offline mode</td>
+                              <td style={{ padding: "12px 10px", color: "#0f8176", fontWeight: "bold" }}>✅ Yes (No internet needed)</td>
+                              <td style={{ padding: "12px 10px", color: "var(--subtle)" }}>❌ No (Requires upload connection)</td>
+                            </tr>
+                          </tbody>
+                        </table>
+                      </div>
+                    </div>
+                  ) : s.id !== "contact" ? (
                     <p className="privacy-block-text">{s.body}</p>
                   ) : (
                     <p className="privacy-block-text">

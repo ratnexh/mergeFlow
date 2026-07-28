@@ -1,6 +1,7 @@
 import Script from "next/script";
 import "./globals.css";
 import CookieBanner from "../components/CookieBanner";
+import BackToTop from "../components/BackToTop";
 
 export const metadata = {
   title: "rawPDF - Private client-side PDF Studio",
@@ -50,6 +51,7 @@ export default function RootLayout({ children }) {
       <body>
         {children}
         <CookieBanner />
+        <BackToTop />
       </body>
     </html>
   );

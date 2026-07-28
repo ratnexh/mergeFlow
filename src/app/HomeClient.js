@@ -10,7 +10,7 @@ import Footer from "../components/Footer";
 
 export default function Home() {
   const router = useRouter();
-  
+
   // Theme & Layout States
   const [theme, setTheme] = useState("dark");
   const [isToolsOpen, setIsToolsOpen] = useState(false);
@@ -167,20 +167,6 @@ export default function Home() {
       )
     },
     {
-      id: "edit",
-      name: "Edit PDF",
-      desc: "Add text, highlights, shapes, and images to any PDF page — all processed locally in your browser.",
-      path: "/edit",
-      category: "Editing",
-      iconClass: "edit-icon-color",
-      svg: (
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true" className="portal-icon">
-          <path d="M12 20h9" />
-          <path d="M16.5 3.5a2.12 2.12 0 0 1 3 3L7 19l-4 1 1-4Z" />
-        </svg>
-      )
-    },
-    {
       id: "ocr",
       name: "OCR PDF",
       desc: "Extract searchable, editable text from scanned PDFs locally in your browser using Wasm OCR.",
@@ -220,8 +206,8 @@ export default function Home() {
     (t) =>
       (activeCategory === "All" || t.category === activeCategory) &&
       (t.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-       t.desc.toLowerCase().includes(searchQuery.toLowerCase()) ||
-       t.category.toLowerCase().includes(searchQuery.toLowerCase()))
+        t.desc.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        t.category.toLowerCase().includes(searchQuery.toLowerCase()))
   );
 
   const categories = ["Organize PDFs", "Convert PDFs", "Optimize PDFs", "Security", "Editing"];
@@ -269,7 +255,7 @@ export default function Home() {
 
       {/* Homepage View */}
       <main id="portal" className="landing view active" style={{ paddingBottom: "120px" }}>
-        
+
         {/* Title / Hero */}
         <section className="hero" style={{ paddingBottom: "80px", minHeight: "auto" }}>
           <div className="hero-content" style={{ textAlign: "center", maxWidth: "850px", margin: "0 auto" }}>
@@ -286,17 +272,17 @@ export default function Home() {
               Merge, split, compress, convert, edit, and secure PDFs without uploading files. Everything is processed locally on your device.
             </p>
             <div style={{ display: "flex", gap: "16px", justifyContent: "center", flexWrap: "wrap" }}>
-              <button 
-                className="choose-btn-gold" 
+              <button
+                className="choose-btn-gold"
                 style={{ padding: "14px 28px", fontSize: "15px", fontWeight: "700", minHeight: "48px" }}
                 onClick={() => {
                   router.push("/merge");
                 }}
               >
-                Start Processing PDFs
+                Merge PDFs
               </button>
-              <button 
-                className="ghost-btn" 
+              <button
+                className="ghost-btn"
                 style={{ padding: "14px 28px", fontSize: "15px", fontWeight: "700", minHeight: "48px" }}
                 onClick={() => {
                   const el = document.getElementById("tools-catalog");
@@ -309,114 +295,9 @@ export default function Home() {
           </div>
         </section>
 
-        {/* Trust Section */}
-        <section className="trust-section" style={{ padding: "60px 20px", background: "rgba(255, 255, 255, 0.01)", borderBottom: "1px solid rgba(248, 244, 235, 0.06)", borderTop: "1px solid rgba(248, 244, 235, 0.06)" }}>
-          <div style={{ maxWidth: "1100px", margin: "0 auto", textAlign: "center" }}>
-            <h2 style={{ fontSize: "28px", marginBottom: "32px", fontFamily: "'Space Grotesk', sans-serif", fontWeight: 700 }}>
-              Your Documents Never Leave Your Device
-            </h2>
-            <div className="trust-grid" style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(240px, 1fr))", gap: "24px" }}>
-              <div className="trust-card" style={{ padding: "24px", background: "rgba(248, 244, 235, 0.02)", border: "1px solid rgba(248, 244, 235, 0.06)", borderRadius: "12px", textAlign: "left" }}>
-                <h3 style={{ fontSize: "18px", color: "var(--gold)", marginBottom: "10px", fontFamily: "'Space Grotesk', sans-serif" }}>Local Processing</h3>
-                <p style={{ fontSize: "14px", color: "var(--subtle)", margin: 0, lineHeight: 1.5 }}>All document conversions, rendering, and processing occur locally inside your browser's secure sandbox environment.</p>
-              </div>
-              <div className="trust-card" style={{ padding: "24px", background: "rgba(248, 244, 235, 0.02)", border: "1px solid rgba(248, 244, 235, 0.06)", borderRadius: "12px", textAlign: "left" }}>
-                <h3 style={{ fontSize: "18px", color: "var(--gold)", marginBottom: "10px", fontFamily: "'Space Grotesk', sans-serif" }}>No File Uploads</h3>
-                <p style={{ fontSize: "14px", color: "var(--subtle)", margin: 0, lineHeight: 1.5 }}>Your confidential PDFs and images are never transmitted or stored on any external server. Complete data sovereignty.</p>
-              </div>
-              <div className="trust-card" style={{ padding: "24px", background: "rgba(248, 244, 235, 0.02)", border: "1px solid rgba(248, 244, 235, 0.06)", borderRadius: "12px", textAlign: "left" }}>
-                <h3 style={{ fontSize: "18px", color: "var(--gold)", marginBottom: "10px", fontFamily: "'Space Grotesk', sans-serif" }}>No Account Required</h3>
-                <p style={{ fontSize: "14px", color: "var(--subtle)", margin: 0, lineHeight: 1.5 }}>Skip registration, subscriptions, or usage logs. Enjoy instant access to premium document tools completely free.</p>
-              </div>
-              <div className="trust-card" style={{ padding: "24px", background: "rgba(248, 244, 235, 0.02)", border: "1px solid rgba(248, 244, 235, 0.06)", borderRadius: "12px", textAlign: "left" }}>
-                <h3 style={{ fontSize: "18px", color: "var(--gold)", marginBottom: "10px", fontFamily: "'Space Grotesk', sans-serif" }}>Privacy First</h3>
-                <p style={{ fontSize: "14px", color: "var(--subtle)", margin: 0, lineHeight: 1.5 }}>Perfect for medical records, legal agreements, tax filings, and other sensitive workflows that demand strict confidentiality.</p>
-              </div>
-            </div>
-          </div>
-        </section>
-
-        {/* How It Works Flow */}
-        <section className="how-it-works-brief" style={{ padding: "60px 20px", borderBottom: "1px solid rgba(248, 244, 235, 0.06)" }}>
-          <div style={{ maxWidth: "900px", margin: "0 auto", textAlign: "center" }}>
-            <h2 style={{ fontSize: "28px", marginBottom: "40px", fontFamily: "'Space Grotesk', sans-serif", fontWeight: 700 }}>
-              Secure 3-Step Local Processing Flow
-            </h2>
-            <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(260px, 1fr))", gap: "32px", position: "relative" }}>
-              <div className="step-card-brief">
-                <div style={{ width: "48px", height: "48px", borderRadius: "50%", background: "rgba(184, 138, 67, 0.15)", color: "var(--gold)", display: "flex", alignItems: "center", justifyContent: "center", margin: "0 auto 16px", fontSize: "18px", fontWeight: "bold" }}>1</div>
-                <h3 style={{ fontSize: "18px", marginBottom: "8px", fontFamily: "'Space Grotesk', sans-serif" }}>Upload or Drop Files</h3>
-                <p style={{ fontSize: "14px", color: "var(--subtle)", margin: 0, lineHeight: 1.5 }}>Select your PDF or image files from your device. They load instantly into browser memory.</p>
-              </div>
-              <div className="step-card-brief">
-                <div style={{ width: "48px", height: "48px", borderRadius: "50%", background: "rgba(15, 129, 118, 0.15)", color: "#0f8176", display: "flex", alignItems: "center", justifyContent: "center", margin: "0 auto 16px", fontSize: "18px", fontWeight: "bold" }}>2</div>
-                <h3 style={{ fontSize: "18px", marginBottom: "8px", fontFamily: "'Space Grotesk', sans-serif" }}>Process Locally</h3>
-                <p style={{ fontSize: "14px", color: "var(--subtle)", margin: 0, lineHeight: 1.5 }}>Perform merges, splits, compressions, or edits offline. All logic runs in client-side WebAssembly.</p>
-              </div>
-              <div className="step-card-brief">
-                <div style={{ width: "48px", height: "48px", borderRadius: "50%", background: "rgba(184, 138, 67, 0.15)", color: "var(--gold)", display: "flex", alignItems: "center", justifyContent: "center", margin: "0 auto 16px", fontSize: "18px", fontWeight: "bold" }}>3</div>
-                <h3 style={{ fontSize: "18px", marginBottom: "8px", fontFamily: "'Space Grotesk', sans-serif" }}>Download Instantly</h3>
-                <p style={{ fontSize: "14px", color: "var(--subtle)", margin: 0, lineHeight: 1.5 }}>Save your newly generated file directly back to your device without any server delay.</p>
-              </div>
-            </div>
-          </div>
-        </section>
-
-        {/* Competitor Comparison Section */}
-        <section className="comparison-section" style={{ padding: "60px 20px", borderBottom: "1px solid rgba(248, 244, 235, 0.06)" }}>
-          <div style={{ maxWidth: "800px", margin: "0 auto" }}>
-            <h2 style={{ fontSize: "28px", textAlign: "center", marginBottom: "32px", fontFamily: "'Space Grotesk', sans-serif", fontWeight: 700 }}>
-              How RawPDF Compares
-            </h2>
-            <div style={{ overflowX: "auto" }}>
-              <table className="comparison-table" style={{ width: "100%", borderCollapse: "collapse", minWidth: "500px", textAlign: "left" }}>
-                <thead>
-                  <tr style={{ borderBottom: "2px solid rgba(248, 244, 235, 0.15)" }}>
-                    <th style={{ padding: "16px 12px", fontWeight: "700" }}>Feature / Security Capability</th>
-                    <th style={{ padding: "16px 12px", fontWeight: "700", color: "var(--gold)" }}>RawPDF (Local)</th>
-                    <th style={{ padding: "16px 12px", fontWeight: "700", color: "var(--subtle)" }}>Typical Online PDF Tools</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  <tr style={{ borderBottom: "1px solid rgba(248, 244, 235, 0.06)" }}>
-                    <td style={{ padding: "14px 12px", fontWeight: "500" }}>Files uploaded to servers</td>
-                    <td style={{ padding: "14px 12px", color: "#e24c4c", fontWeight: "bold" }}>❌ No (Never leaves device)</td>
-                    <td style={{ padding: "14px 12px", color: "var(--subtle)" }}>⚠️ Yes (Temporary storage)</td>
-                  </tr>
-                  <tr style={{ borderBottom: "1px solid rgba(248, 244, 235, 0.06)" }}>
-                    <td style={{ padding: "14px 12px", fontWeight: "500" }}>Local browser processing</td>
-                    <td style={{ padding: "14px 12px", color: "#0f8176", fontWeight: "bold" }}>✅ Yes (100% offline)</td>
-                    <td style={{ padding: "14px 12px", color: "var(--subtle)" }}>❌ No (Server-based API)</td>
-                  </tr>
-                  <tr style={{ borderBottom: "1px solid rgba(248, 244, 235, 0.06)" }}>
-                    <td style={{ padding: "14px 12px", fontWeight: "500" }}>Account required</td>
-                    <td style={{ padding: "14px 12px", color: "#0f8176", fontWeight: "bold" }}>❌ No (Anonymous processing)</td>
-                    <td style={{ padding: "14px 12px", color: "var(--subtle)" }}>⚠️ Often (To upsell / log history)</td>
-                  </tr>
-                  <tr style={{ borderBottom: "1px solid rgba(248, 244, 235, 0.06)" }}>
-                    <td style={{ padding: "14px 12px", fontWeight: "500" }}>Privacy-focused design</td>
-                    <td style={{ padding: "14px 12px", color: "#0f8176", fontWeight: "bold" }}>✅ Yes (By architecture)</td>
-                    <td style={{ padding: "14px 12px", color: "var(--subtle)" }}>❌ No (Files handled by third parties)</td>
-                  </tr>
-                  <tr style={{ borderBottom: "1px solid rgba(248, 244, 235, 0.06)" }}>
-                    <td style={{ padding: "14px 12px", fontWeight: "500" }}>Works offline after page load</td>
-                    <td style={{ padding: "14px 12px", color: "#0f8176", fontWeight: "bold" }}>✅ Yes (Can disconnect internet)</td>
-                    <td style={{ padding: "14px 12px", color: "var(--subtle)" }}>❌ No (Requires active upload)</td>
-                  </tr>
-                  <tr style={{ borderBottom: "1px solid rgba(248, 244, 235, 0.06)" }}>
-                    <td style={{ padding: "14px 12px", fontWeight: "500" }}>Fast processing speeds</td>
-                    <td style={{ padding: "14px 12px", color: "#0f8176", fontWeight: "bold" }}>✅ Instant (No network lag)</td>
-                    <td style={{ padding: "14px 12px", color: "var(--subtle)" }}>⚠️ Slow (Upload/download queue)</td>
-                  </tr>
-                </tbody>
-              </table>
-            </div>
-          </div>
-        </section>
-
         {/* Dynamic Tool Search & Categorized Discovery Section */}
-        <section id="tools-catalog" style={{ padding: "60px 20px", scrollMarginTop: "80px" }}>
-          <div style={{ maxWidth: "1100px", margin: "0 auto" }}>
+        <section id="tools-catalog" style={{ padding: "40px 20px 60px", scrollMarginTop: "80px" }}>
+          <div style={{ maxWidth: "1280px", margin: "0 auto" }}>
             <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", flexWrap: "wrap", gap: "24px", marginBottom: "48px" }}>
               <div>
                 <h2 style={{ fontSize: "28px", margin: 0, fontFamily: "'Space Grotesk', sans-serif", fontWeight: 700 }}>
@@ -424,7 +305,7 @@ export default function Home() {
                 </h2>
                 <p style={{ color: "var(--subtle)", margin: "6px 0 0", fontSize: "15px" }}>Fully browser-based PDF conversion, page layout, and encryption tools.</p>
               </div>
-              
+
               {/* Tool Search Bar */}
               <div className="search-wrap" style={{ position: "relative", maxWidth: "360px", width: "100%" }}>
                 <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round" style={{ width: "18px", height: "18px", position: "absolute", left: "14px", top: "50%", transform: "translateY(-50%)", color: "var(--muted)" }}>
@@ -508,33 +389,6 @@ export default function Home() {
                 ))}
               </div>
             )}
-          </div>
-        </section>
-
-        {/* Social Proof & GitHub Stars Placeholder */}
-        <section className="social-proof-section" style={{ padding: "60px 20px", borderBottom: "1px solid rgba(248, 244, 235, 0.06)", borderTop: "1px solid rgba(248, 244, 235, 0.06)", background: "rgba(255, 255, 255, 0.005)" }}>
-          <div style={{ maxWidth: "1100px", margin: "0 auto", textAlign: "center" }}>
-            <h2 style={{ fontSize: "28px", marginBottom: "16px", fontFamily: "'Space Grotesk', sans-serif", fontWeight: 700 }}>
-              Loved by Security-Conscious Teams
-            </h2>
-            <p style={{ color: "var(--subtle)", marginBottom: "40px", fontSize: "15px" }}>Perfect for professionals handling sensitive client records, legal documents, and personal spreadsheets.</p>
-            <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(280px, 1fr))", gap: "24px", marginBottom: "32px" }}>
-              <div className="proof-card" style={{ padding: "24px", background: "rgba(248, 244, 235, 0.01)", border: "1px solid rgba(248, 244, 235, 0.04)", borderRadius: "12px", textAlign: "left" }}>
-                <p style={{ fontSize: "14px", fontStyle: "italic", color: "var(--subtle)", marginBottom: "16px", lineHeight: 1.5 }}>"As an accountant handling client tax records, RawPDF has changed my workflow. I can merge and compress client docs knowing they never leave my screen."</p>
-                <strong style={{ fontSize: "14px", display: "block" }}>Sarah L.</strong>
-                <span style={{ fontSize: "12px", color: "var(--muted)" }}>Certified Public Accountant</span>
-              </div>
-              <div className="proof-card" style={{ padding: "24px", background: "rgba(248, 244, 235, 0.01)", border: "1px solid rgba(248, 244, 235, 0.04)", borderRadius: "12px", textAlign: "left" }}>
-                <p style={{ fontSize: "14px", fontStyle: "italic", color: "var(--subtle)", marginBottom: "16px", lineHeight: 1.5 }}>"The offline compression is incredible. I shut off my Wi-Fi to test it, and it processed my 80MB PDF locally in seconds. Brilliant browser-side execution."</p>
-                <strong style={{ fontSize: "14px", display: "block" }}>David K.</strong>
-                <span style={{ fontSize: "12px", color: "var(--muted)" }}>Software Architect</span>
-              </div>
-              <div className="proof-card" style={{ padding: "24px", background: "rgba(248, 244, 235, 0.01)", border: "1px solid rgba(248, 244, 235, 0.04)", borderRadius: "12px", textAlign: "left" }}>
-                <p style={{ fontSize: "14px", fontStyle: "italic", color: "var(--subtle)", marginBottom: "16px", lineHeight: 1.5 }}>"No accounts, no limits, no upload delay. This is how the web should work. Excellent local WebAssembly implementation."</p>
-                <strong style={{ fontSize: "14px", display: "block" }}>Elena R.</strong>
-                <span style={{ fontSize: "12px", color: "var(--muted)" }}>Legal Paralegal</span>
-              </div>
-            </div>
           </div>
         </section>
 

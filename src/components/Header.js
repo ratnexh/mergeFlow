@@ -25,7 +25,7 @@ export default function Header({
               </linearGradient>
             </defs>
             <rect x="4" y="6" width="16" height="20" rx="3" stroke="url(#logoGrad)" strokeWidth="2.5" strokeLinejoin="round" className="rect-back" />
-            <rect x="12" y="10" width="16" height="20" rx="3" fill="#0d121b" stroke="url(#logoGrad)" strokeWidth="2.5" strokeLinejoin="round" className="rect-front" />
+            <rect x="12" y="10" width="16" height="20" rx="3" fill="var(--bg)" stroke="url(#logoGrad)" strokeWidth="2.5" strokeLinejoin="round" className="rect-front" />
             <path d="M17 15H23" stroke="url(#logoGrad)" strokeWidth="2" strokeLinecap="round" />
             <path d="M17 19H23" stroke="url(#logoGrad)" strokeWidth="2" strokeLinecap="round" />
           </svg>
@@ -86,7 +86,6 @@ export default function Header({
             <li role="none"><Link id="toolToImage" role="menuitem" href="/pdf-to-image" className={pathname === "/pdf-to-image" ? "active" : ""} onClick={() => setIsToolsOpen(false)}>PDF to Image</Link></li>
             <li role="none"><Link id="toolFromImage" role="menuitem" href="/image-to-pdf" className={pathname === "/image-to-pdf" ? "active" : ""} onClick={() => setIsToolsOpen(false)}>Image to PDF</Link></li>
             <li role="none"><Link id="toolProtect" role="menuitem" href="/protect" className={pathname === "/protect" ? "active" : ""} onClick={() => setIsToolsOpen(false)}>Protect PDF</Link></li>
-            <li role="none"><Link id="toolEdit" role="menuitem" href="/edit" className={pathname === "/edit" ? "active" : ""} onClick={() => setIsToolsOpen(false)}>Edit PDF</Link></li>
             <li role="none"><Link id="toolOcr" role="menuitem" href="/ocr" className={pathname === "/ocr" ? "active" : ""} onClick={() => setIsToolsOpen(false)}>OCR PDF</Link></li>
             <li role="none"><Link id="toolTextEditor" role="menuitem" href="/text-editor" className={pathname === "/text-editor" ? "active" : ""} onClick={() => setIsToolsOpen(false)}>Text Editor</Link></li>
           </ul>

@@ -129,92 +129,6 @@ export default function OcrClient() {
     setOcrLogs((prev) => [...prev, { text, type, timestamp }].slice(-4));
   };
 
-  useEffect(() => {
-    if (!toastMessage) return;
-    const timer = setTimeout(() => setToastMessage(""), 2200);
-    return () => clearTimeout(timer);
-  }, [toastMessage]);
-
-  // Initialize Theme
-  useEffect(() => {
-    const saved = localStorage.getItem("mergeStudioTheme") || "dark";
-    setTheme(saved);
-    document.body.classList.toggle("theme-light", saved === "light");
-  }, []);
-
-  const toggleTheme = () => {
-    const next = theme === "light" ? "dark" : "light";
-    setTheme(next);
-    localStorage.setItem("mergeStudioTheme", next);
-    document.body.classList.toggle("theme-light", next === "light");
-  };
-
-  // Scroll Nav Shrink Hook
-  useEffect(() => {
-    const handleScroll = () => setIsScrolled(window.scrollY > 20);
-    window.addEventListener("scroll", handleScroll, { passive: true });
-    return () => window.removeEventListener("scroll", handleScroll);
-  }, []);
-
-  // Dropdown click-outside
-  useEffect(() => {
-    const handleOutsideClick = (e) => {
-      const el = document.getElementById("toolsDropdown");
-      if (el && !el.contains(e.target)) setIsToolsOpen(false);
-    };
-    document.addEventListener("click", handleOutsideClick);
-    return () => document.removeEventListener("click", handleOutsideClick);
-  }, []);
-
-  // Dynamic library loading
-  useEffect(() => {
-    Promise.all([
-      loadScript("https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"),
-      loadScript("https://cdnjs.cloudflare.com/ajax/libs/tesseract.js/4.1.1/tesseract.min.js")
-    ]).then(() => {
-      if (window.pdfjsLib) {
-        window.pdfjsLib.GlobalWorkerOptions.workerSrc =
-          "https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js";
-      }
-      setIsLibLoaded(true);
-    }).catch(err => {
-      console.error("Failed to load OCR libraries dynamically:", err);
-      setModal({
-        isOpen: true,
-        title: "Load Error",
-        body: "Failed to load OCR libraries. Please check your network connection and reload the page.",
-      });
-    });
-  }, []);
-
-  const handleFileSelect = (files) => {
-    const pdf = [...files].find((f) => f.type === "application/pdf" || f.name.toLowerCase().endsWith(".pdf"));
-    if (!pdf) return;
-
-    // Enforce 100MB file size limit
-    const MAX_SIZE = 100 * 1024 * 1024;
-    if (pdf.size > MAX_SIZE) {
-      setModal({
-        isOpen: true,
-        title: "File Too Large",
-        body: `The file "${pdf.name}" exceeds the maximum size limit of 100MB. Please select a smaller file.`,
-      });
-      return;
-    }
-
-    if (!isLibLoaded || !window.Tesseract) {
-      setModal({
-        isOpen: true,
-        title: "Library Loading",
-        body: "OCR libraries are still loading. Please wait a moment and try again.",
-      });
-      return;
-    }
-
-    setPdfFile(pdf);
-    startOcr(pdf);
-  };
-
   const startOcr = async (file) => {
     setView("processing");
     setProgress(0);
@@ -348,6 +262,94 @@ export default function OcrClient() {
       setView("upload");
     }
   };
+
+  useEffect(() => {
+    if (!toastMessage) return;
+    const timer = setTimeout(() => setToastMessage(""), 2200);
+    return () => clearTimeout(timer);
+  }, [toastMessage]);
+
+  // Initialize Theme
+  useEffect(() => {
+    const saved = localStorage.getItem("mergeStudioTheme") || "dark";
+    setTheme(saved);
+    document.body.classList.toggle("theme-light", saved === "light");
+  }, []);
+
+  const toggleTheme = () => {
+    const next = theme === "light" ? "dark" : "light";
+    setTheme(next);
+    localStorage.setItem("mergeStudioTheme", next);
+    document.body.classList.toggle("theme-light", next === "light");
+  };
+
+  // Scroll Nav Shrink Hook
+  useEffect(() => {
+    const handleScroll = () => setIsScrolled(window.scrollY > 20);
+    window.addEventListener("scroll", handleScroll, { passive: true });
+    return () => window.removeEventListener("scroll", handleScroll);
+  }, []);
+
+  // Dropdown click-outside
+  useEffect(() => {
+    const handleOutsideClick = (e) => {
+      const el = document.getElementById("toolsDropdown");
+      if (el && !el.contains(e.target)) setIsToolsOpen(false);
+    };
+    document.addEventListener("click", handleOutsideClick);
+    return () => document.removeEventListener("click", handleOutsideClick);
+  }, []);
+
+  // Dynamic library loading
+  useEffect(() => {
+    Promise.all([
+      loadScript("https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"),
+      loadScript("https://cdnjs.cloudflare.com/ajax/libs/tesseract.js/4.1.1/tesseract.min.js")
+    ]).then(() => {
+      if (window.pdfjsLib) {
+        window.pdfjsLib.GlobalWorkerOptions.workerSrc =
+          "https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js";
+      }
+      setIsLibLoaded(true);
+    }).catch(err => {
+      console.error("Failed to load OCR libraries dynamically:", err);
+      setModal({
+        isOpen: true,
+        title: "Load Error",
+        body: "Failed to load OCR libraries. Please check your network connection and reload the page.",
+      });
+    });
+  }, []);
+
+  const handleFileSelect = (files) => {
+    const pdf = [...files].find((f) => f.type === "application/pdf" || f.name.toLowerCase().endsWith(".pdf"));
+    if (!pdf) return;
+
+    // Enforce 100MB file size limit
+    const MAX_SIZE = 100 * 1024 * 1024;
+    if (pdf.size > MAX_SIZE) {
+      setModal({
+        isOpen: true,
+        title: "File Too Large",
+        body: `The file "${pdf.name}" exceeds the maximum size limit of 100MB. Please select a smaller file.`,
+      });
+      return;
+    }
+
+    if (!isLibLoaded || !window.Tesseract) {
+      setModal({
+        isOpen: true,
+        title: "Library Loading",
+        body: "OCR libraries are still loading. Please wait a moment and try again.",
+      });
+      return;
+    }
+
+    setPdfFile(pdf);
+    startOcr(pdf);
+  };
+
+
 
   const copyText = (text) => {
     if (navigator.clipboard && navigator.clipboard.writeText) {

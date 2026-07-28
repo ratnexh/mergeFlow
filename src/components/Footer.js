@@ -17,7 +17,7 @@ export default function Footer() {
                   </linearGradient>
                 </defs>
                 <rect x="4" y="6" width="16" height="20" rx="3" stroke="url(#footerLogoGrad)" strokeWidth="2.5" strokeLinejoin="round" className="rect-back" />
-                <rect x="12" y="10" width="16" height="20" rx="3" fill="#0d121b" stroke="url(#footerLogoGrad)" strokeWidth="2.5" strokeLinejoin="round" className="rect-front" />
+                <rect x="12" y="10" width="16" height="20" rx="3" fill="var(--bg)" stroke="url(#footerLogoGrad)" strokeWidth="2.5" strokeLinejoin="round" className="rect-front" />
                 <path d="M17 15H23" stroke="url(#footerLogoGrad)" strokeWidth="2" strokeLinecap="round" />
                 <path d="M17 19H23" stroke="url(#footerLogoGrad)" strokeWidth="2" strokeLinecap="round" />
               </svg>
