@@ -86,6 +86,7 @@ export default function Header({
             <li role="none"><Link id="toolToImage" role="menuitem" href="/pdf-to-image" className={pathname === "/pdf-to-image" ? "active" : ""} onClick={() => setIsToolsOpen(false)}>PDF to Image</Link></li>
             <li role="none"><Link id="toolFromImage" role="menuitem" href="/image-to-pdf" className={pathname === "/image-to-pdf" ? "active" : ""} onClick={() => setIsToolsOpen(false)}>Image to PDF</Link></li>
             <li role="none"><Link id="toolProtect" role="menuitem" href="/protect" className={pathname === "/protect" ? "active" : ""} onClick={() => setIsToolsOpen(false)}>Protect PDF</Link></li>
+            <li role="none"><Link id="toolSanitize" role="menuitem" href="/sanitize" className={pathname === "/sanitize" ? "active" : ""} onClick={() => setIsToolsOpen(false)}>Sanitize Metadata</Link></li>
             <li role="none"><Link id="toolOcr" role="menuitem" href="/ocr" className={pathname === "/ocr" ? "active" : ""} onClick={() => setIsToolsOpen(false)}>OCR PDF</Link></li>
             <li role="none"><Link id="toolTextEditor" role="menuitem" href="/text-editor" className={pathname === "/text-editor" ? "active" : ""} onClick={() => setIsToolsOpen(false)}>Text Editor</Link></li>
           </ul>

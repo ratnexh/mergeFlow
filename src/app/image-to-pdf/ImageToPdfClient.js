@@ -18,13 +18,18 @@ const palette = [
   "#65a30d",
 ];
 
+const formatMb = (bytes) => {
+  if (!bytes || isNaN(bytes)) return "0.00";
+  return (bytes / (1024 * 1024)).toFixed(2);
+};
+
 export default function ImageToPdfClient() {
   // Application State
   const [files, setFiles] = useState([]);
   const [view, setView] = useState("landing"); // "landing" | "workspace" | "processing" | "done"
   const [libsLoaded, setLibsLoaded] = useState(false);
   const [loadingError, setLoadingError] = useState(false);
-  
+
   // Theme & Layout States
   const [theme, setTheme] = useState("dark");
   const [isControlsOpen, setIsControlsOpen] = useState(false);
@@ -316,6 +321,9 @@ export default function ImageToPdfClient() {
         canvas.width = isRotated ? img.height : img.width;
         canvas.height = isRotated ? img.width : img.height;
 
+        ctx.fillStyle = bgColor || "#ffffff";
+        ctx.fillRect(0, 0, canvas.width, canvas.height);
+
         ctx.translate(canvas.width / 2, canvas.height / 2);
         ctx.rotate((rotationAngle * Math.PI) / 180);
         ctx.drawImage(img, -img.width / 2, -img.height / 2);
@@ -389,7 +397,10 @@ export default function ImageToPdfClient() {
         setProgress(Math.round(((i + 1) / files.length) * 100));
       }
 
-      const pdfBytes = await pdfDoc.save();
+      pdfDoc.setAuthor("rawPDF Studio");
+      pdfDoc.setCreator("rawPDF Engine");
+      pdfDoc.setProducer("rawPDF (https://ratnexh.github.io/rawPDF/)");
+      const pdfBytes = await pdfDoc.save({ updateInfoDict: false });
       const pdfBlob = new Blob([pdfBytes], { type: "application/pdf" });
       setResultBlob(pdfBlob);
 
@@ -598,7 +609,7 @@ export default function ImageToPdfClient() {
                     <circle cx="8.5" cy="8.5" r="1.5" />
                     <polyline points="21 15 16 10 5 21" />
                   </svg>
-                  </div>
+                </div>
                 <h3>PNG, JPG, WebP & GIF</h3>
                 <p>Supports all major browser image formats and compiles them cleanly.</p>
               </div>
@@ -923,7 +934,7 @@ export default function ImageToPdfClient() {
                       title={color.label}
                     />
                   ))}
-                  
+
                   {/* Custom Color Input */}
                   <div style={{ position: "relative", width: "32px", height: "32px" }}>
                     <input
@@ -960,7 +971,7 @@ export default function ImageToPdfClient() {
                       🌈
                     </div>
                   </div>
-                  
+
                   <span style={{ fontSize: "11px", color: "var(--subtle)", marginLeft: "4px" }}>
                     {bgColor.toUpperCase()}
                   </span>
@@ -1054,7 +1065,7 @@ export default function ImageToPdfClient() {
                         </span>
                         <span style={{ fontSize: 10, color: "var(--subtle)" }}>{formatMb(item.size)} MB</span>
                       </div>
-                      
+
                       {/* Action buttons row */}
                       <div style={{ display: "flex", gap: 6, justifyContent: "center", marginTop: 8 }}>
                         <button

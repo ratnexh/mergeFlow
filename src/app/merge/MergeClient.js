@@ -330,7 +330,10 @@ export default function MergePage() {
             merged.addPage(page);
           });
         }
-        const bytes = await merged.save();
+        merged.setAuthor("rawPDF Studio");
+        merged.setCreator("rawPDF Engine");
+        merged.setProducer("rawPDF (https://ratnexh.github.io/rawPDF/)");
+        const bytes = await merged.save({ updateInfoDict: false });
         return new Blob([bytes], { type: "application/pdf" });
       } catch (e) {
         console.warn("Fallback PDF triggered due to load error:", e);
