@@ -7,6 +7,7 @@ import InfoModal from "../../components/InfoModal";
 import ConfirmModal from "../../components/ConfirmModal";
 import Script from "next/script";
 import { loadScript } from "../../utils/lazyLoad";
+import { useAppTheme } from "../../utils/useTheme";
 
 function cleanOcrText(text) {
   if (!text) return "";
@@ -95,7 +96,7 @@ function cleanOcrText(text) {
 
 export default function OcrClient() {
   // Navigation & Theme States
-  const [theme, setTheme] = useState("dark");
+  const { theme, toggleTheme } = useAppTheme();
   const [isToolsOpen, setIsToolsOpen] = useState(false);
   const [isScrolled, setIsScrolled] = useState(false);
   const [isDragOver, setIsDragOver] = useState(false);
@@ -267,20 +268,6 @@ export default function OcrClient() {
     const timer = setTimeout(() => setToastMessage(""), 2200);
     return () => clearTimeout(timer);
   }, [toastMessage]);
-
-  // Initialize Theme
-  useEffect(() => {
-    const saved = localStorage.getItem("mergeStudioTheme") || "dark";
-    setTheme(saved);
-    document.body.classList.toggle("theme-light", saved === "light");
-  }, []);
-
-  const toggleTheme = () => {
-    const next = theme === "light" ? "dark" : "light";
-    setTheme(next);
-    localStorage.setItem("mergeStudioTheme", next);
-    document.body.classList.toggle("theme-light", next === "light");
-  };
 
   // Scroll Nav Shrink Hook
   useEffect(() => {
@@ -659,7 +646,7 @@ export default function OcrClient() {
 
       {view === "processing" && (
         <main className="landing view active">
-          <section className="processing-container" style={{ minHeight: "70svh", display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", padding: "100px 20px 40px" }}>
+          <section className="processing-container" style={{ minHeight: "100vh", display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", padding: "84px 20px 40px", boxSizing: "border-box" }}>
             <div className="ocr-processing-card" style={{ maxWidth: "520px", width: "100%", textAlign: "center" }}>
               
               {/* Document Scanner Graphic */}
@@ -671,7 +658,7 @@ export default function OcrClient() {
                 <div className="ocr-scanner-line-doc" style={{ width: "60%" }}></div>
               </div>
 
-              <h2 style={{ fontSize: "22px", fontFamily: "'Space Grotesk', sans-serif", fontWeight: 700, marginBottom: "8px", color: "#f8f4eb" }}>
+              <h2 className="ocr-processing-title" style={{ fontSize: "22px", fontFamily: "'Space Grotesk', sans-serif", fontWeight: 700, marginBottom: "8px" }}>
                 Extracting Text...
               </h2>
               
@@ -683,7 +670,7 @@ export default function OcrClient() {
               <div className="ocr-progress-ring-wrap">
                 <svg width="140" height="140">
                   <circle
-                    stroke="rgba(248, 244, 235, 0.05)"
+                    className="ocr-progress-ring-track"
                     fill="transparent"
                     strokeWidth="8"
                     cx="70"

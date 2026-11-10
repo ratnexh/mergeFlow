@@ -6,6 +6,7 @@ import InfoModal from "../../components/InfoModal";
 import Header from "../../components/Header";
 import Script from "next/script";
 import { loadScript } from "../../utils/lazyLoad";
+import { useAppTheme } from "../../utils/useTheme";
 
 const palette = [
   "#2867e8",
@@ -30,7 +31,7 @@ export default function ImageToPdfClient() {
   const [loadingError, setLoadingError] = useState(false);
 
   // Theme & Layout States
-  const [theme, setTheme] = useState("dark");
+  const { theme, toggleTheme } = useAppTheme();
   const [isControlsOpen, setIsControlsOpen] = useState(false);
   const [isToolsOpen, setIsToolsOpen] = useState(false);
   const [isScrolled, setIsScrolled] = useState(false);
@@ -75,13 +76,6 @@ export default function ImageToPdfClient() {
     window.addEventListener("resize", checkMobile);
     return () => window.removeEventListener("resize", checkMobile);
   }, []);
-
-  // Theme Sync on load
-  useEffect(() => {
-    const savedTheme = localStorage.getItem("mergeStudioTheme") || "dark";
-    setTheme(savedTheme);
-    document.body.classList.toggle("theme-light", savedTheme === "light");
-  }, [theme]);
 
   const getImgDimensions = (file) => {
     return new Promise((resolve) => {
@@ -209,13 +203,6 @@ export default function ImageToPdfClient() {
       });
     };
   }, []);
-
-  const toggleTheme = () => {
-    const nextTheme = theme === "light" ? "dark" : "light";
-    setTheme(nextTheme);
-    localStorage.setItem("mergeStudioTheme", nextTheme);
-    document.body.classList.toggle("theme-light", nextTheme === "light");
-  };
 
   const deleteImage = (id) => {
     const item = files.find((f) => f.id === id);
@@ -774,7 +761,7 @@ export default function ImageToPdfClient() {
                   >
                     <div className="card-index-badge">{idx + 1}</div>
 
-                    <div className="page-thumb" style={{ height: 160, display: "flex", alignItems: "center", justifyContent: "center", background: "rgba(0,0,0,0.25)", overflow: "hidden", position: "relative" }}>
+                    <div className="page-thumb" style={{ height: 160, display: "flex", alignItems: "center", justifyContent: "center", background: theme === "light" ? "#f1f5f9" : "rgba(0,0,0,0.25)", overflow: "hidden", position: "relative" }}>
                       <img
                         src={item.url}
                         alt={item.name}
@@ -890,7 +877,7 @@ export default function ImageToPdfClient() {
               {resultBlob ? `${formatMb(resultBlob.size)} MB — ready to download` : ""}
             </p>
             <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
-              <button className="wide-btn" onClick={downloadResult} style={{ minHeight: 50, marginTop: 0, background: "#0f8176" }}>
+              <button className="wide-btn" onClick={downloadResult} style={{ minHeight: 50, marginTop: 0, background: "#0f8176", color: "#ffffff" }}>
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round" style={{ width: 17, height: 17, display: "inline", marginRight: 8 }}>
                   <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" /><polyline points="7 10 12 15 17 10" /><line x1="12" y1="15" x2="12" y2="3" />
                 </svg>

@@ -477,7 +477,7 @@ export default function ImageEditorModal({ isOpen, images, onSave, onClose }) {
                     <button
                       key={color.hex}
                       className={`color-pill${brushColor === color.hex ? " active" : ""}`}
-                      style={{ background: color.hex, border: color.hex === "#ffffff" ? "1px solid rgba(248, 244, 235, 0.4)" : "none" }}
+                      style={{ background: color.hex, border: color.hex === "#ffffff" ? "1px solid rgba(100, 116, 139, 0.45)" : "none" }}
                       onClick={() => setBrushColor(color.hex)}
                       title={color.label}
                     />

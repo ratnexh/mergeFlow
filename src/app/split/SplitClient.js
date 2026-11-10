@@ -9,6 +9,7 @@ import ConfirmModal from "../../components/ConfirmModal";
 import Header from "../../components/Header";
 import Script from "next/script";
 import { loadScript } from "../../utils/lazyLoad";
+import { useAppTheme } from "../../utils/useTheme";
 
 const palette = [
   "#2867e8",
@@ -34,7 +35,7 @@ export default function SplitPage() {
   const [loadingError, setLoadingError] = useState(false);
 
   // Theme & Layout States
-  const [theme, setTheme] = useState("dark");
+  const { theme, toggleTheme } = useAppTheme();
   const [isControlsOpen, setIsControlsOpen] = useState(false);
   const [isPreviewMobileActive, setIsPreviewMobileActive] = useState(false);
   const [isToolsOpen, setIsToolsOpen] = useState(false);
@@ -65,13 +66,6 @@ export default function SplitPage() {
       setLoadingError(true);
     });
   }, []);
-
-  // Theme Sync on load
-  useEffect(() => {
-    const savedTheme = localStorage.getItem("mergeStudioTheme") || "dark";
-    setTheme(savedTheme);
-    document.body.classList.toggle("theme-light", savedTheme === "light");
-  }, [theme]);
 
   // Scroll Shrink Nav Hook
   useEffect(() => {
@@ -412,13 +406,6 @@ export default function SplitPage() {
     setMergedBlob(null);
     setMergedUrl(null);
     setView("landing");
-  };
-
-  const toggleTheme = () => {
-    const nextTheme = theme === "light" ? "dark" : "light";
-    setTheme(nextTheme);
-    localStorage.setItem("mergeStudioTheme", nextTheme);
-    document.body.classList.toggle("theme-light", nextTheme === "light");
   };
 
   // Helper Utils

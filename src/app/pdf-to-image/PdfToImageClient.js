@@ -7,6 +7,7 @@ import Header from "../../components/Header";
 import ImageEditorModal from "../../components/ImageEditorModal";
 import Script from "next/script";
 import { loadScript } from "../../utils/lazyLoad";
+import { useAppTheme } from "../../utils/useTheme";
 import {
   cancelActiveRenderTask,
   isPdfRenderCancelled,
@@ -68,7 +69,7 @@ function PageCardThumbnail({ pdfDoc, pageNum }) {
 
 export default function PdfToImageClient() {
   // Theme & Layout States
-  const [theme, setTheme] = useState("dark");
+  const { theme, toggleTheme } = useAppTheme();
   const [isToolsOpen, setIsToolsOpen] = useState(false);
   const [isScrolled, setIsScrolled] = useState(false);
   const [isDragOverDropzone, setIsDragOverDropzone] = useState(false);
@@ -123,14 +124,6 @@ export default function PdfToImageClient() {
   }, []);
 
   const fileInputRef = useRef(null);
-
-  // Theme Sync on load
-  useEffect(() => {
-    const savedTheme = localStorage.getItem("mergeStudioTheme") || "dark";
-    document.body.classList.toggle("theme-light", savedTheme === "light");
-    const raf = requestAnimationFrame(() => setTheme(savedTheme));
-    return () => cancelAnimationFrame(raf);
-  }, []);
 
   // Scroll Shrink Nav Hook
   useEffect(() => {
@@ -196,13 +189,6 @@ export default function PdfToImageClient() {
       });
     };
   }, []);
-
-  const toggleTheme = () => {
-    const nextTheme = theme === "light" ? "dark" : "light";
-    setTheme(nextTheme);
-    localStorage.setItem("mergeStudioTheme", nextTheme);
-    document.body.classList.toggle("theme-light", nextTheme === "light");
-  };
 
   const resetToImageState = () => {
     setPdfFile(null);

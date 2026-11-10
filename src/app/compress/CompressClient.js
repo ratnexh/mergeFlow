@@ -6,6 +6,7 @@ import InfoModal from "../../components/InfoModal";
 import Header from "../../components/Header";
 import Script from "next/script";
 import { loadScript } from "../../utils/lazyLoad";
+import { useAppTheme } from "../../utils/useTheme";
 
 const wait = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
 
@@ -146,7 +147,7 @@ async function rawPixelsToCanvasJpeg(rawPixels, width, height, components, maxDi
 
 export default function CompressPage() {
   // Theme & Layout States
-  const [theme, setTheme] = useState("dark");
+  const { theme, toggleTheme } = useAppTheme();
   const [isToolsOpen, setIsToolsOpen] = useState(false);
   const [isScrolled, setIsScrolled] = useState(false);
   const [isDragOverDropzone, setIsDragOverDropzone] = useState(false);
@@ -190,14 +191,6 @@ export default function CompressPage() {
       });
   }, []);
 
-  // Theme Sync on load (without cascading setState warnings)
-  useEffect(() => {
-    const savedTheme = localStorage.getItem("mergeStudioTheme") || "dark";
-    document.body.classList.toggle("theme-light", savedTheme === "light");
-    const raf = requestAnimationFrame(() => setTheme(savedTheme));
-    return () => cancelAnimationFrame(raf);
-  }, []);
-
   // Check for shared file from merge/split page
   useEffect(() => {
     if (typeof window !== "undefined" && window.sharedPdfFile) {
@@ -236,13 +229,6 @@ export default function CompressPage() {
       if (compressedUrl) URL.revokeObjectURL(compressedUrl);
     };
   }, [compressedUrl]);
-
-  const toggleTheme = () => {
-    const nextTheme = theme === "light" ? "dark" : "light";
-    setTheme(nextTheme);
-    localStorage.setItem("mergeStudioTheme", nextTheme);
-    document.body.classList.toggle("theme-light", nextTheme === "light");
-  };
 
   const resetCompressState = () => {
     setCompressFile(null);
@@ -644,7 +630,7 @@ export default function CompressPage() {
         <main id="workspace" className="studio view active" style={{ minHeight: "100vh", display: "flex", flexDirection: "column" }}>
           <div style={{ flex: 1, display: "flex", alignItems: "center", justifyContent: "center", padding: "32px 20px" }}>
             <div className="compress-card">
-              <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", borderBottom: "1px solid rgba(248, 244, 235, 0.12)", paddingBottom: "16px", marginBottom: "24px", gap: "12px" }}>
+              <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", borderBottom: theme === "light" ? "1px solid rgba(16, 22, 36, 0.08)" : "1px solid rgba(248, 244, 235, 0.12)", paddingBottom: "16px", marginBottom: "24px", gap: "12px" }}>
                 <div style={{ minWidth: 0 }}>
                   <h3 style={{ margin: "0 0 4px", fontSize: "18px", whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }} title={compressFile.name}>
                     {compressFile.name}
@@ -798,7 +784,7 @@ export default function CompressPage() {
                   <p className="dropzone-subtitle">or drag and drop PDF here</p>
 
                   {loadingError ? (
-                    <p className="dropzone-loading" style={{ color: "#f87171" }}>Failed to load PDF engine. Please refresh.</p>
+                    <p className="dropzone-loading" style={{ color: theme === "light" ? "#dc2626" : "#f87171" }}>Failed to load PDF engine. Please refresh.</p>
                   ) : !libsLoaded ? (
                     <p className="dropzone-loading">Loading secure PDF engine...</p>
                   ) : (

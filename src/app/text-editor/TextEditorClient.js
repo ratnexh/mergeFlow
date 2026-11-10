@@ -4,6 +4,7 @@ import React, { useState, useEffect, useRef, useCallback } from "react";
 import Script from "next/script";
 import Header from "../../components/Header";
 import ConfirmModal from "../../components/ConfirmModal";
+import { useAppTheme } from "../../utils/useTheme";
 
 const DEFAULT_HTML = "<p><br></p>";
 
@@ -71,13 +72,13 @@ function normalizeMediaUrl(rawUrl) {
 
 export default function TextEditorClient() {
   // Navigation & Theme
-  const [theme, setTheme] = useState("dark");
+  const [paperTheme, setPaperTheme] = useState("dark");
+  const { theme, toggleTheme } = useAppTheme(setPaperTheme);
   const [isToolsOpen, setIsToolsOpen] = useState(false);
   const [isScrolled, setIsScrolled] = useState(false);
 
   // Editor Display Modes
   const [isFullscreen, setIsFullscreen] = useState(false);
-  const [paperTheme, setPaperTheme] = useState("dark");
   const [isSourceView, setIsSourceView] = useState(false);
   const [isPreviewMode, setIsPreviewMode] = useState(false);
   const [sourceCode, setSourceCode] = useState("");
@@ -175,21 +176,6 @@ export default function TextEditorClient() {
     const timer = setTimeout(() => setToastMessage(""), 2400);
     return () => clearTimeout(timer);
   }, [toastMessage]);
-
-  // Theme Init
-  useEffect(() => {
-    const saved = localStorage.getItem("mergeStudioTheme") || "dark";
-    document.body.classList.toggle("theme-light", saved === "light");
-    const raf = requestAnimationFrame(() => setTheme(saved));
-    return () => cancelAnimationFrame(raf);
-  }, []);
-
-  const toggleTheme = () => {
-    const next = theme === "light" ? "dark" : "light";
-    setTheme(next);
-    localStorage.setItem("mergeStudioTheme", next);
-    document.body.classList.toggle("theme-light", next === "light");
-  };
 
   // Scroll Nav Shrink
   useEffect(() => {
