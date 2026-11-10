@@ -3,7 +3,6 @@
 import React, { useState, useEffect, useRef } from "react";
 import Link from "next/link";
 import Header from "../../components/Header";
-import Footer from "../../components/Footer";
 import InfoModal from "../../components/InfoModal";
 import ConfirmModal from "../../components/ConfirmModal";
 import Script from "next/script";
@@ -491,100 +490,78 @@ export default function OcrClient() {
     p.text.toLowerCase().includes(searchText.toLowerCase())
   );
 
-  const relatedTools = [
-    {
-      title: "Text Editor",
-      desc: "Format case and edit text offline.",
-      href: "/text-editor",
-      icon: (
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={{ width: 18, height: 18 }}>
-          <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" />
-          <polyline points="14 2 14 8 20 8" />
-          <line x1="16" y1="13" x2="8" y2="13" />
-          <line x1="16" y1="17" x2="8" y2="17" />
-          <polyline points="10 9 9 9 8 9" />
-        </svg>
-      )
-    },
-    {
-      title: "Merge PDF",
-      desc: "Combine multiple PDFs into one.",
-      href: "/merge",
-      icon: (
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={{ width: 18, height: 18 }}>
-          <rect x="4" y="4" width="16" height="16" rx="2" />
-          <rect x="9" y="9" width="11" height="11" rx="2" />
-        </svg>
-      )
-    },
-    {
-      title: "Split PDF",
-      desc: "Extract pages from your PDF.",
-      href: "/split",
-      icon: (
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={{ width: 18, height: 18 }}>
-          <line x1="12" y1="3" x2="12" y2="21" />
-          <rect x="2" y="4" width="8" height="16" rx="2" />
-          <rect x="14" y="4" width="8" height="16" rx="2" />
-        </svg>
-      )
-    },
-    {
-      title: "Compress PDF",
-      desc: "Reduce PDF file size offline.",
-      href: "/compress",
-      icon: (
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={{ width: 18, height: 18 }}>
-          <rect x="4" y="14" width="6" height="6" rx="1" />
-          <rect x="14" y="4" width="6" height="6" rx="1" />
-          <path d="M20 14l-6 6M4 10l6-6" />
-        </svg>
-      )
-    }
-  ];
-
   return (
     <>
-      {view !== "workspace" && (
-        <>
-          <Header
-            isScrolled={isScrolled}
-            isToolsOpen={isToolsOpen}
-            setIsToolsOpen={setIsToolsOpen}
-            handleDropdownItemClick={() => setIsToolsOpen(false)}
-            theme={theme}
-            toggleTheme={toggleTheme}
-          />
-
-          <button id="themeToggle" className="theme-toggle" type="button" aria-pressed={theme === "light"} onClick={toggleTheme}>
-            <span className="theme-toggle-icon" aria-hidden="true" />
-            <span className="theme-toggle-text">{theme === "light" ? "Dark" : "Light"}</span>
-          </button>
-        </>
-      )}
+      <Header
+        isScrolled={isScrolled}
+        isToolsOpen={isToolsOpen}
+        setIsToolsOpen={setIsToolsOpen}
+        theme={theme}
+        toggleTheme={toggleTheme}
+        isWorkspace={view === "workspace"}
+        onBack={() => setIsConfirmOpen(true)}
+        workspaceTitle={pdfFile?.name || "OCR PDF"}
+        workspaceSubtitle={`${extractedPages.length} Pages Processed`}
+        workspaceActions={view === "workspace" ? (
+          <div className="header-ocr-actions">
+            <button className="workspace-action-btn copy-all" onClick={() => copyText(extractedPages.map(p => p.text).join("\n\n"))}>
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round" style={{ width: 14, height: 14 }}>
+                <rect x="9" y="9" width="13" height="13" rx="2" ry="2" />
+                <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1" />
+              </svg>
+              <span>Copy All</span>
+            </button>
+            <button className="workspace-action-btn download-txt" onClick={downloadTxt}>
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round" style={{ width: 14, height: 14 }}>
+                <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
+                <polyline points="7 10 12 15 17 10" />
+                <line x1="12" y1="15" x2="12" y2="3" />
+              </svg>
+              <span>Download .TXT</span>
+            </button>
+          </div>
+        ) : null}
+      />
 
       {view === "upload" && (
         <main id="ocr" className="landing view active">
           {/* Hero Section — full layout matching other tools */}
           <section className="hero">
-            <div className="hero-content">
-              <Link className="ghost-btn-back" href="/">
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-                  <line x1="19" y1="12" x2="5" y2="12" /><polyline points="12 19 5 12 12 5" />
-                </svg>
-                <span>Back to Tools</span>
-              </Link>
+            {/* Ambient Glowing Golden Ribbons in Background */}
+            <div className="bg-golden-ribbons" aria-hidden="true">
+              <svg viewBox="0 0 1440 900" fill="none" xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="none">
+                <defs>
+                  <linearGradient id="goldRibbonTopOcr" x1="0%" y1="50%" x2="100%" y2="50%">
+                    <stop offset="0%" stopColor="#e5a93c" stopOpacity="0" />
+                    <stop offset="15%" stopColor="#e5a93c" stopOpacity="0.75" />
+                    <stop offset="40%" stopColor="#ffe494" stopOpacity="0.95" />
+                    <stop offset="70%" stopColor="#f5c768" stopOpacity="0.8" />
+                    <stop offset="100%" stopColor="#e5a93c" stopOpacity="0" />
+                  </linearGradient>
+                  <linearGradient id="goldRibbonBottomOcr" x1="100%" y1="50%" x2="0%" y2="50%">
+                    <stop offset="0%" stopColor="#e5a93c" stopOpacity="0" />
+                    <stop offset="20%" stopColor="#e5a93c" stopOpacity="0.75" />
+                    <stop offset="50%" stopColor="#ffe494" stopOpacity="0.95" />
+                    <stop offset="80%" stopColor="#f5c768" stopOpacity="0.8" />
+                    <stop offset="100%" stopColor="#e5a93c" stopOpacity="0" />
+                  </linearGradient>
+                  <filter id="ribbonGlowSoftOcr" x="-40%" y="-40%" width="180%" height="180%">
+                    <feGaussianBlur stdDeviation="6" />
+                  </filter>
+                  <filter id="ribbonGlowWideOcr" x="-50%" y="-50%" width="200%" height="200%">
+                    <feGaussianBlur stdDeviation="16" />
+                  </filter>
+                </defs>
+                {/* Top-Left Ribbon: Graceful sweeping bezier curve across top quadrant */}
+                <path d="M -40,360 C 140,390 280,260 480,180 S 850,110 1200,125" stroke="url(#goldRibbonTopOcr)" strokeWidth="18" filter="url(#ribbonGlowWideOcr)" opacity="0.35" />
+                <path d="M -40,360 C 140,390 280,260 480,180 S 850,110 1200,125" stroke="url(#goldRibbonTopOcr)" strokeWidth="5" filter="url(#ribbonGlowSoftOcr)" opacity="0.85" />
+                <path d="M -40,360 C 140,390 280,260 480,180 S 850,110 1200,125" stroke="url(#goldRibbonTopOcr)" strokeWidth="2" opacity="1" />
 
-              <p className="eyebrow">
-                <svg className="shield-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
-                  <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" />
-                </svg>
-                Private PDF Studio
-              </p>
-              <h1>OCR PDF Text Extractor</h1>
-              <p className="hero-copy">
-                Convert scanned PDFs to editable text using WebAssembly — all processed locally in your browser.
-              </p>
+                {/* Bottom-Right Ribbon: Sweeping bezier curve across bottom quadrant */}
+                <path d="M 1480,620 C 1300,750 1140,840 900,870 S 500,880 280,840" stroke="url(#goldRibbonBottomOcr)" strokeWidth="18" filter="url(#ribbonGlowWideOcr)" opacity="0.35" />
+                <path d="M 1480,620 C 1300,750 1140,840 900,870 S 500,880 280,840" stroke="url(#goldRibbonBottomOcr)" strokeWidth="5" filter="url(#ribbonGlowSoftOcr)" opacity="0.85" />
+                <path d="M 1480,620 C 1300,750 1140,840 900,870 S 500,880 280,840" stroke="url(#goldRibbonBottomOcr)" strokeWidth="2" opacity="1" />
+              </svg>
             </div>
 
             <div
@@ -610,6 +587,7 @@ export default function OcrClient() {
                 }
               }}
             >
+              <div className="dropzone-bottom-glow" aria-hidden="true"></div>
               <input
                 ref={fileInputRef}
                 type="file"
@@ -621,24 +599,31 @@ export default function OcrClient() {
                 <div className="dropzone-cards" aria-hidden="true">
                   <div className="pdf-card-shadow card-left"></div>
                   <div className="pdf-card-shadow card-right"></div>
-                  <div className="pdf-card-front">OCR</div>
+                  <div className="pdf-card-front">
+                    <div className="pdf-card-dogear"></div>
+                    <span>OCR</span>
+                  </div>
                 </div>
+
+                <h2 className="dropzone-title">OCR PDF</h2>
+                <p className="dropzone-subtitle">or drag and drop PDFs here</p>
+
                 {!isLibLoaded ? (
-                  <p className="dropzone-text" style={{ padding: "20px 0" }}>Loading secure OCR engine...</p>
+                  <p className="dropzone-loading">Loading secure OCR engine...</p>
                 ) : (
-                  <>
-                    <button id="chooseBtn" className="choose-btn-gold" type="button" aria-label="Open file picker">
-                      <svg className="plus-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
-                        <path d="M12 5v14M5 12h14" />
-                      </svg>
-                      Choose PDF file
-                    </button>
-                    <p className="dropzone-text">or drag and drop PDFs here</p>
-                    <div style={{ fontSize: "13px", color: "var(--subtle)", marginTop: "8px" }}>
-                      Supported Format: <strong>PDF (.pdf)</strong> • Max Size: <strong>100MB per file</strong>
-                    </div>
-                  </>
+                  <button id="chooseBtn" className="choose-btn-gold" type="button" aria-label="Open file picker">
+                    <svg className="plus-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+                      <line x1="12" y1="5" x2="12" y2="19" />
+                      <line x1="5" y1="12" x2="19" y2="12" />
+                    </svg>
+                    <span>Choose PDF file</span>
+                  </button>
                 )}
+
+                <div className="dropzone-formats">
+                  Supported Format: <strong>PDF (.pdf)</strong> • Max Size: <strong>100MB per file</strong>
+                </div>
+
                 <div className="dropzone-security">
                   <svg className="lock-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
                     <rect x="3" y="11" width="18" height="11" rx="2" ry="2" />
@@ -650,195 +635,7 @@ export default function OcrClient() {
             </div>
           </section>
 
-          <section className="features-section">
-            <div className="section-header">
-              <p className="eyebrow-small">Built for</p>
-              <h2>Seamless text extraction</h2>
-            </div>
-            <div className="features-grid">
-              <div className="feature-card">
-                <div className="feature-icon-wrapper">
-                  <svg className="feature-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round">
-                    <rect x="3" y="3" width="18" height="18" rx="2" ry="2" />
-                    <line x1="9" y1="9" x2="15" y2="9" />
-                    <line x1="9" y1="13" x2="15" y2="13" />
-                    <line x1="9" y1="17" x2="13" y2="17" />
-                  </svg>
-                </div>
-                <h3>100% Client-Side OCR</h3>
-                <p>Processes documents locally via WebAssembly. Your files never touch a server.</p>
-              </div>
-
-              <div className="feature-card">
-                <div className="feature-icon-wrapper">
-                  <svg className="feature-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round">
-                    <rect x="3" y="11" width="18" height="11" rx="2" ry="2" />
-                    <path d="M7 11V7a5 5 0 0 1 10 0v4" />
-                  </svg>
-                </div>
-                <h3>Privacy-first parsing</h3>
-                <p>Secure browser-based extraction protects confidential or sensitive information.</p>
-              </div>
-
-              <div className="feature-card">
-                <div className="feature-icon-wrapper">
-                  <svg className="feature-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round">
-                    <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
-                    <polyline points="7 10 12 15 17 10" />
-                    <line x1="12" y1="15" x2="12" y2="3" />
-                  </svg>
-                </div>
-                <h3>Standard text export</h3>
-                <p>Export extracted text directly to a .txt file or copy it with a single click.</p>
-              </div>
-            </div>
-          </section>
-
-          <section className="how-it-works-section">
-            <p className="eyebrow-small">How it works</p>
-            <div className="how-it-works-container">
-              <div className="how-it-works-grid">
-
-                <div className="step-card">
-                  <div className="step-icon-container">
-                    <div className="step-icon-wrapper">
-                      <svg className="step-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round">
-                        <path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z" />
-                      </svg>
-                      <span className="step-number">1</span>
-                    </div>
-                    <div className="step-connector"></div>
-                  </div>
-                  <h4>Upload PDF</h4>
-                  <p>Select a scanned PDF file from your device.</p>
-                </div>
-
-                <div className="step-card">
-                  <div className="step-icon-container">
-                    <div className="step-icon-wrapper">
-                      <svg className="step-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round">
-                        <circle cx="12" cy="12" r="3" />
-                        <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z" />
-                      </svg>
-                      <span className="step-number">2</span>
-                    </div>
-                    <div className="step-connector"></div>
-                  </div>
-                  <h4>Extract text</h4>
-                  <p>Wait as WebAssembly OCR workers transcribe the pages.</p>
-                </div>
-
-                <div className="step-card">
-                  <div className="step-icon-container">
-                    <div className="step-icon-wrapper">
-                      <svg className="step-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round">
-                        <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7" />
-                        <path d="M18.5 2.5a2.121 2.121 0 1 1 3 3L12 15l-4 1 1-4 9.5-9.5z" />
-                      </svg>
-                      <span className="step-number">3</span>
-                    </div>
-                    <div className="step-connector"></div>
-                  </div>
-                  <h4>Review & Edit</h4>
-                  <p>Compare the scanned image with the extracted text side-by-side.</p>
-                </div>
-
-                <div className="step-card">
-                  <div className="step-icon-container">
-                    <div className="step-icon-wrapper">
-                      <svg className="step-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round">
-                        <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14" />
-                        <polyline points="22 4 12 14.01 9 11.01" />
-                      </svg>
-                      <span className="step-number">4</span>
-                    </div>
-                  </div>
-                  <h4>Download</h4>
-                  <p>Copy the text or download it as a .txt file.</p>
-                </div>
-
-              </div>
-            </div>
-          </section>
-
-          {/* Related Tools Links */}
-          <section className="related-tools-section">
-            <h3 style={{ fontSize: "20px", textAlign: "center", fontFamily: "'Space Grotesk', sans-serif", fontWeight: 700 }}>
-              Related PDF Utilities
-            </h3>
-            <div className="related-tools-grid">
-              {relatedTools.map((t) => (
-                <Link key={t.href} href={t.href} className="related-tool-card">
-                  <div className="related-tool-card-icon">
-                    {t.icon}
-                  </div>
-                  <h4>{t.title}</h4>
-                  <p>{t.desc}</p>
-                  <span className="related-tool-card-cta">
-                    Launch Tool
-                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" style={{ width: 10, height: 10 }}>
-                      <line x1="5" y1="12" x2="19" y2="12" />
-                      <polyline points="12 5 19 12 12 19" />
-                    </svg>
-                  </span>
-                </Link>
-              ))}
-            </div>
-          </section>
-
-          {/* SEO Content & FAQ Section */}
-          <section className="seo-faq-section">
-            <div style={{ maxWidth: "800px", margin: "0 auto", textAlign: "left" }}>
-              <h2 style={{ fontSize: "24px", fontFamily: "'Space Grotesk', sans-serif", marginBottom: "16px", fontWeight: 700 }}>
-                Extract Text from PDF with Local OCR Securely
-              </h2>
-              <p style={{ fontSize: "14.5px", lineHeight: "1.6", color: "var(--subtle)", marginBottom: "24px" }}>
-                Extract text from scanned PDFs or images using Tesseract WebAssembly directly inside your browser. With RawPDF, OCR is processed entirely client-side, ensuring your business documents, receipts, invoices, or legal records remain 100% confidential. No data is sent to external servers or API end-points.
-              </p>
-
-              <h3 style={{ fontSize: "18px", fontFamily: "'Space Grotesk', sans-serif", marginBottom: "12px", fontWeight: 700 }}>
-                How to Run OCR on PDF Offline
-              </h3>
-              <ol style={{ fontSize: "14.5px", lineHeight: "1.8", color: "var(--subtle)", paddingLeft: "20px", marginBottom: "24px" }}>
-                <li>Drop your scanned PDF document in the gold-outlined area above.</li>
-                <li>Our client-side engine automatically parses the document. If it lacks an embedded text layer, it spawns a local Tesseract.js worker to transcribe it.</li>
-                <li>Track real-time progress on each page as WebAssembly transcribes it.</li>
-                <li>Compare the original page scans side-by-side with the extracted text. You can edit text case and structure inside the workspace.</li>
-                <li>Click <strong>Download Text</strong> to export it as a <code>.txt</code> file, or copy specific pages directly.</li>
-              </ol>
-
-              <h3 style={{ fontSize: "18px", fontFamily: "'Space Grotesk', sans-serif", marginBottom: "12px", fontWeight: 700 }}>
-                Key Benefits of Browser-Based OCR
-              </h3>
-              <ul style={{ fontSize: "14.5px", lineHeight: "1.8", color: "var(--subtle)", paddingLeft: "20px", marginBottom: "32px" }}>
-                <li><strong>Uncompromised Privacy:</strong> No remote servers analyze your pages. Scanned tax returns or contracts remain entirely local.</li>
-                <li><strong>Hybrid Engine:</strong> Digital text streams are loaded instantly, while scanned images are fallback-routed to a local Tesseract worker automatically.</li>
-                <li><strong>In-Browser Editor:</strong> Fix spacings, remove lines, swap capitalization, and copy or save files instantly with no internet required.</li>
-              </ul>
-
-              <h3 style={{ fontSize: "22px", fontFamily: "'Space Grotesk', sans-serif", marginBottom: "20px", fontWeight: 700, borderBottom: "1px solid rgba(248, 244, 235, 0.08)", paddingBottom: "8px" }}>
-                Frequently Asked Questions
-              </h3>
-              <div className="seo-faq-grid">
-                <div className="seo-faq-item">
-                  <h4>Is PDF OCR free?</h4>
-                  <p>Yes. RawPDF provides unlimited text extraction and local OCR completely free of cost.</p>
-                </div>
-                <div className="seo-faq-item">
-                  <h4>Are my files stored or uploaded?</h4>
-                  <p>No. Tesseract.js runs inside your browser sandbox via WebAssembly. Your documents never leave your local system.</p>
-                </div>
-                <div className="seo-faq-item">
-                  <h4>Which languages are supported?</h4>
-                  <p>RawPDF currently supports high-accuracy English text recognition, with more language models planned in future updates.</p>
-                </div>
-                <div className="seo-faq-item">
-                  <h4>Can I search inside extracted pages?</h4>
-                  <p>Yes. The RawPDF OCR workspace has an active text filter that highlights and searches pages containing matching keywords.</p>
-                </div>
-              </div>
-            </div>
-          </section>
+          
 
           {/* SoftwareApplication Schema Markup */}
           <Script id="schema-ocr" type="application/ld+json" strategy="afterInteractive">
@@ -935,37 +732,6 @@ export default function OcrClient() {
 
       {view === "workspace" && (
         <main className="workspace-view active">
-          {/* Workspace top navigation bar */}
-          <div className="workspace-header">
-            <button className="ghost-btn workspace-back" onClick={() => setIsConfirmOpen(true)}>
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-                <path d="M19 12H5M12 19l-7-7 7-7" />
-              </svg>
-              <span>Back</span>
-            </button>
-            <div className="workspace-title-area">
-              <h3 className="workspace-title">{pdfFile?.name}</h3>
-              <p className="workspace-subtitle">{extractedPages.length} Pages Processed</p>
-            </div>
-            <div className="workspace-actions">
-              <button className="workspace-action-btn copy-all" onClick={() => copyText(extractedPages.map(p => p.text).join("\n\n"))}>
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round" style={{ width: 14, height: 14 }}>
-                  <rect x="9" y="9" width="13" height="13" rx="2" ry="2" />
-                  <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1" />
-                </svg>
-                Copy All Text
-              </button>
-              <button className="workspace-action-btn download-txt" onClick={downloadTxt}>
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round" style={{ width: 14, height: 14 }}>
-                  <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
-                  <polyline points="7 10 12 15 17 10" />
-                  <line x1="12" y1="15" x2="12" y2="3" />
-                </svg>
-                Download .TXT
-              </button>
-            </div>
-          </div>
-
           <div className="ocr-workspace-layout">
             {/* Sidebar list of thumbnails */}
             <aside className="ocr-sidebar">
@@ -1067,8 +833,6 @@ export default function OcrClient() {
         }}
         onCancel={() => setIsConfirmOpen(false)}
       />
-
-      {view !== "workspace" && <Footer />}
 
       {toastMessage && (
         <div className="ocr-toast">

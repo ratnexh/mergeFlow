@@ -7,7 +7,6 @@ import PreviewPanel from "../../components/PreviewPanel";
 import InfoModal from "../../components/InfoModal";
 import ConfirmModal from "../../components/ConfirmModal";
 import Header from "../../components/Header";
-import Footer from "../../components/Footer";
 import Script from "next/script";
 import { loadScript } from "../../utils/lazyLoad";
 
@@ -423,67 +422,6 @@ export default function MergePage() {
 
   const wait = (ms) => new Promise((res) => setTimeout(res, ms));
 
-  // Placeholder dropdown clicks
-  const handleDropdownItemClick = (name) => {
-    setIsToolsOpen(false);
-    setModal({
-      isOpen: true,
-      title: name,
-      body: "This tool is coming soon in a future update! All document processing stays completely local and secure.",
-    });
-  };
-
-  const relatedTools = [
-    {
-      title: "Split PDF",
-      desc: "Extract pages from your PDF.",
-      href: "/split",
-      icon: (
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={{ width: 18, height: 18 }}>
-          <line x1="12" y1="3" x2="12" y2="21" />
-          <rect x="2" y="4" width="8" height="16" rx="2" />
-          <rect x="14" y="4" width="8" height="16" rx="2" />
-        </svg>
-      )
-    },
-    {
-      title: "Compress PDF",
-      desc: "Reduce PDF file size offline.",
-      href: "/compress",
-      icon: (
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={{ width: 18, height: 18 }}>
-          <rect x="4" y="14" width="6" height="6" rx="1" />
-          <rect x="14" y="4" width="6" height="6" rx="1" />
-          <path d="M20 14l-6 6M4 10l6-6" />
-        </svg>
-      )
-    },
-    {
-      title: "Protect PDF",
-      desc: "Lock PDF with secure password.",
-      href: "/protect",
-      icon: (
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" style={{ width: 18, height: 18 }}>
-          <rect x="3" y="11" width="18" height="11" rx="2" ry="2" />
-          <path d="M7 11V7a5 5 0 0 1 10 0v4" />
-        </svg>
-      )
-    },
-    {
-      title: "OCR PDF",
-      desc: "Extract text from scanned PDFs.",
-      href: "/ocr",
-      icon: (
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={{ width: 18, height: 18 }}>
-          <rect x="3" y="3" width="18" height="18" rx="2" ry="2" />
-          <line x1="9" y1="9" x2="15" y2="9" />
-          <line x1="9" y1="13" x2="15" y2="13" />
-          <line x1="9" y1="17" x2="13" y2="17" />
-        </svg>
-      )
-    }
-  ];
-
   const activeFile = files.find((f) => f.id === activeId) || files[0];
 
   return (
@@ -501,46 +439,61 @@ export default function MergePage() {
         }}
       />
 
-      {view !== "workspace" && (
-        <>
-          <Header
-            isScrolled={isScrolled}
-            isToolsOpen={isToolsOpen}
-            setIsToolsOpen={setIsToolsOpen}
-            handleDropdownItemClick={handleDropdownItemClick}
-            theme={theme}
-            toggleTheme={toggleTheme}
-          />
-
-          <button id="themeToggle" className="theme-toggle" type="button" aria-pressed={theme === "light"} onClick={toggleTheme}>
-            <span className="theme-toggle-icon" aria-hidden="true" />
-            <span className="theme-toggle-text">{theme === "light" ? "Dark" : "Light"}</span>
-          </button>
-        </>
-      )}
+      <Header
+        isScrolled={isScrolled}
+        isToolsOpen={isToolsOpen}
+        setIsToolsOpen={setIsToolsOpen}
+        theme={theme}
+        toggleTheme={toggleTheme}
+        isWorkspace={view === "workspace" || view === "done" || view === "processing"}
+        onBack={view === "done" ? () => setView("workspace") : () => setIsConfirmOpen(true)}
+        workspaceTitle="Merge PDFs"
+        workspaceSubtitle={
+          view === "done"
+            ? "Export ready"
+            : `${files.length} ${files.length === 1 ? "file" : "files"} added`
+        }
+      />
 
       {/* 1. Landing / Upload Page View */}
       {view === "landing" && (
         <main id="landing" className="landing view active">
           <section className="hero">
-            <div className="hero-content">
-              <Link className="ghost-btn-back" href="/">
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-                  <line x1="19" y1="12" x2="5" y2="12" /><polyline points="12 19 5 12 12 5" />
-                </svg>
-                <span>Back to Tools</span>
-              </Link>
+            {/* Ambient Glowing Golden Ribbons in Background */}
+            <div className="bg-golden-ribbons" aria-hidden="true">
+              <svg viewBox="0 0 1440 900" fill="none" xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="none">
+                <defs>
+                  <linearGradient id="goldRibbonTop" x1="0%" y1="50%" x2="100%" y2="50%">
+                    <stop offset="0%" stopColor="#e5a93c" stopOpacity="0" />
+                    <stop offset="15%" stopColor="#e5a93c" stopOpacity="0.75" />
+                    <stop offset="40%" stopColor="#ffe494" stopOpacity="0.95" />
+                    <stop offset="70%" stopColor="#f5c768" stopOpacity="0.8" />
+                    <stop offset="100%" stopColor="#e5a93c" stopOpacity="0" />
+                  </linearGradient>
+                  <linearGradient id="goldRibbonBottom" x1="100%" y1="50%" x2="0%" y2="50%">
+                    <stop offset="0%" stopColor="#e5a93c" stopOpacity="0" />
+                    <stop offset="20%" stopColor="#e5a93c" stopOpacity="0.75" />
+                    <stop offset="50%" stopColor="#ffe494" stopOpacity="0.95" />
+                    <stop offset="80%" stopColor="#f5c768" stopOpacity="0.8" />
+                    <stop offset="100%" stopColor="#e5a93c" stopOpacity="0" />
+                  </linearGradient>
+                  <filter id="ribbonGlowSoft" x="-40%" y="-40%" width="180%" height="180%">
+                    <feGaussianBlur stdDeviation="6" />
+                  </filter>
+                  <filter id="ribbonGlowWide" x="-50%" y="-50%" width="200%" height="200%">
+                    <feGaussianBlur stdDeviation="16" />
+                  </filter>
+                </defs>
+                {/* Top-Left Ribbon: Graceful sweeping bezier curve across top quadrant */}
+                <path d="M -40,360 C 140,390 280,260 480,180 S 850,110 1200,125" stroke="url(#goldRibbonTop)" strokeWidth="18" filter="url(#ribbonGlowWide)" opacity="0.35" />
+                <path d="M -40,360 C 140,390 280,260 480,180 S 850,110 1200,125" stroke="url(#goldRibbonTop)" strokeWidth="5" filter="url(#ribbonGlowSoft)" opacity="0.85" />
+                <path d="M -40,360 C 140,390 280,260 480,180 S 850,110 1200,125" stroke="url(#goldRibbonTop)" strokeWidth="2" opacity="1" />
 
-              <p className="eyebrow" aria-label="Privacy protection guarantee">
-                <svg className="shield-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
-                  <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" />
-                </svg>
-                100% Client-Side Merging
-              </p>
-              <h1>Merge PDF Online Free</h1>
-              <p className="hero-copy">
-                Combine multiple PDF documents into a single file locally in your browser. No files are uploaded.
-              </p>
+                {/* Bottom-Right Ribbon: Sweeping bezier curve across bottom quadrant */}
+                <path d="M 1480,620 C 1300,750 1140,840 900,870 S 500,880 280,840" stroke="url(#goldRibbonBottom)" strokeWidth="18" filter="url(#ribbonGlowWide)" opacity="0.35" />
+                <path d="M 1480,620 C 1300,750 1140,840 900,870 S 500,880 280,840" stroke="url(#goldRibbonBottom)" strokeWidth="5" filter="url(#ribbonGlowSoft)" opacity="0.85" />
+                <path d="M 1480,620 C 1300,750 1140,840 900,870 S 500,880 280,840" stroke="url(#goldRibbonBottom)" strokeWidth="2" opacity="1" />
+              </svg>
             </div>
 
             <div
@@ -575,28 +528,43 @@ export default function MergePage() {
                 }
               }}
             >
+              <div className="dropzone-bottom-glow" aria-hidden="true"></div>
               <div className="dropzone-inner">
+                {/* 3 Angled Cards Illustration */}
                 <div className="dropzone-cards" aria-hidden="true">
                   <div className="pdf-card-shadow card-left"></div>
                   <div className="pdf-card-shadow card-right"></div>
-                  <div className="pdf-card-front">PDF</div>
+                  <div className="pdf-card-front">
+                    <div className="pdf-card-dogear"></div>
+                    <span>PDF</span>
+                  </div>
                 </div>
+
+                {/* Title */}
+                <h2 className="dropzone-title">Choose PDF files</h2>
+
+                {/* Subtitle */}
+                <p className="dropzone-subtitle">or drag and drop PDFs here</p>
+
+                {/* CTA Button */}
                 {!libsLoaded ? (
-                  <p className="dropzone-text" style={{ padding: "20px 0" }}>Loading secure PDF engine...</p>
+                  <p className="dropzone-loading">Loading secure PDF engine...</p>
                 ) : (
-                  <>
-                    <button id="chooseBtn" className="choose-btn-gold" type="button" aria-label="Open file picker">
-                      <svg className="plus-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
-                        <path d="M12 5v14M5 12h14" />
-                      </svg>
-                      Choose PDF files
-                    </button>
-                    <p className="dropzone-text">or drag and drop PDFs here</p>
-                    <div style={{ fontSize: "13px", color: "var(--subtle)", marginTop: "8px" }}>
-                      Supported Format: <strong>PDF (.pdf)</strong> • Max Size: <strong>100MB per file</strong>
-                    </div>
-                  </>
+                  <button id="chooseBtn" className="choose-btn-gold" type="button" aria-label="Open file picker">
+                    <svg className="plus-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+                      <line x1="12" y1="5" x2="12" y2="19" />
+                      <line x1="5" y1="12" x2="19" y2="12" />
+                    </svg>
+                    <span>Choose PDF files</span>
+                  </button>
                 )}
+
+                {/* Formats Info */}
+                <div className="dropzone-formats">
+                  Supported Format: <strong>PDF (.pdf)</strong> • Max Size: 100MB <strong>per file</strong>
+                </div>
+
+                {/* Security Message */}
                 <div className="dropzone-security">
                   <svg className="lock-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
                     <rect x="3" y="11" width="18" height="11" rx="2" ry="2" />
@@ -608,202 +576,10 @@ export default function MergePage() {
             </div>
           </section>
 
-          <section className="features-section">
-            <div className="section-header">
-              <p className="eyebrow-small">Built for</p>
-              <h2>Clean document delivery</h2>
-            </div>
-            <div className="features-grid">
-              <div className="feature-card">
-                <div className="feature-icon-wrapper">
-                  <svg className="feature-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round">
-                    <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" />
-                    <polyline points="14 2 14 8 20 8" />
-                    <line x1="16" y1="13" x2="8" y2="13" />
-                    <line x1="16" y1="17" x2="8" y2="17" />
-                    <polyline points="10 9 9 9 8 9" />
-                  </svg>
-                </div>
-                <h3>Preview every page</h3>
-                <p>See each page clearly before merging your documents.</p>
-              </div>
-
-              <div className="feature-card">
-                <div className="feature-icon-wrapper">
-                  <svg className="feature-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round">
-                    <rect x="4" y="4" width="12" height="12" rx="3" strokeDasharray="3 3" />
-                    <path d="M12 12l3 10 2.5-4.5 4.5 4.5 1.5-1.5-4.5-4.5 4.5-2.5Z" fill="currentColor" />
-                  </svg>
-                </div>
-                <h3>Drag to reorder</h3>
-                <p>Drag and drop files to get the exact order you want.</p>
-              </div>
-
-              <div className="feature-card">
-                <div className="feature-icon-wrapper">
-                  <svg className="feature-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round">
-                    <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
-                    <polyline points="7 10 12 15 17 10" />
-                    <line x1="12" y1="15" x2="12" y2="3" />
-                  </svg>
-                </div>
-                <h3>Export locally</h3>
-                <p>Export your merged PDF without any watermark.</p>
-              </div>
-            </div>
-          </section>
-
-          <section className="how-it-works-section">
-            <p className="eyebrow-small">How it works</p>
-            <div className="how-it-works-container">
-              <div className="how-it-works-grid">
-
-                <div className="step-card">
-                  <div className="step-icon-container">
-                    <div className="step-icon-wrapper">
-                      <svg className="step-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round">
-                        <path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z" />
-                      </svg>
-                      <span className="step-number">1</span>
-                    </div>
-                    <div className="step-connector"></div>
-                  </div>
-                  <h4>Add your PDFs</h4>
-                  <p>Upload or drag and drop your files.</p>
-                </div>
-
-                <div className="step-card">
-                  <div className="step-icon-container">
-                    <div className="step-icon-wrapper">
-                      <svg className="step-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round">
-                        <circle cx="12" cy="12" r="1" />
-                        <circle cx="12" cy="5" r="1" />
-                        <circle cx="12" cy="19" r="1" />
-                        <circle cx="5" cy="12" r="1" />
-                        <circle cx="5" cy="5" r="1" />
-                        <circle cx="5" cy="19" r="1" />
-                        <circle cx="19" cy="12" r="1" />
-                        <circle cx="19" cy="5" r="1" />
-                        <circle cx="19" cy="19" r="1" />
-                      </svg>
-                      <span className="step-number">2</span>
-                    </div>
-                    <div className="step-connector"></div>
-                  </div>
-                  <h4>Reorder pages</h4>
-                  <p>Arrange files in the order you need.</p>
-                </div>
-
-                <div className="step-card">
-                  <div className="step-icon-container">
-                    <div className="step-icon-wrapper">
-                      <svg className="step-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round">
-                        <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z" />
-                        <circle cx="12" cy="12" r="3" />
-                      </svg>
-                      <span className="step-number">3</span>
-                    </div>
-                    <div className="step-connector"></div>
-                  </div>
-                  <h4>Preview</h4>
-                  <p>Review everything before merging.</p>
-                </div>
-
-                <div className="step-card">
-                  <div className="step-icon-container">
-                    <div className="step-icon-wrapper">
-                      <svg className="step-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round">
-                        <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14" />
-                        <polyline points="22 4 12 14.01 9 11.01" />
-                      </svg>
-                      <span className="step-number">4</span>
-                    </div>
-                  </div>
-                  <h4>Export merged PDF</h4>
-                  <p>Download your clean, merged PDF locally.</p>
-                </div>
-
-              </div>
-            </div>
-          </section>
-
-          {/* Related Tools Links */}
-          <section className="related-tools-section">
-            <h3 style={{ fontSize: "20px", textAlign: "center", fontFamily: "'Space Grotesk', sans-serif", fontWeight: 700 }}>
-              Related PDF Utilities
-            </h3>
-            <div className="related-tools-grid">
-              {relatedTools.map((t) => (
-                <Link key={t.href} href={t.href} className="related-tool-card">
-                  <div className="related-tool-card-icon">
-                    {t.icon}
-                  </div>
-                  <h4>{t.title}</h4>
-                  <p>{t.desc}</p>
-                  <span className="related-tool-card-cta">
-                    Launch Tool
-                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" style={{ width: 10, height: 10 }}>
-                      <line x1="5" y1="12" x2="19" y2="12" />
-                      <polyline points="12 5 19 12 12 19" />
-                    </svg>
-                  </span>
-                </Link>
-              ))}
-            </div>
-          </section>
-
-          {/* SEO Content & FAQ Section */}
-          <section className="seo-faq-section">
-            <div style={{ maxWidth: "800px", margin: "0 auto", textAlign: "left" }}>
-              <h2 style={{ fontSize: "24px", fontFamily: "'Space Grotesk', sans-serif", marginBottom: "16px", fontWeight: 700 }}>
-                Merge PDF Online Locally & Securely
-              </h2>
-              <p style={{ fontSize: "14.5px", lineHeight: "1.6", color: "var(--subtle)", marginBottom: "24px" }}>
-                RawPDF offers a secure, offline alternative to third-party file converters. All operations run directly in browser memory using WebAssembly. Your documents are never uploaded to any remote server or stored anywhere, ensuring complete data privacy for legal documents, personal receipts, and business files.
-              </p>
-
-              <h3 style={{ fontSize: "18px", fontFamily: "'Space Grotesk', sans-serif", marginBottom: "12px", fontWeight: 700 }}>
-                How to Merge PDFs Offline
-              </h3>
-              <ol style={{ fontSize: "14.5px", lineHeight: "1.8", color: "var(--subtle)", paddingLeft: "20px", marginBottom: "24px" }}>
-                <li>Drop your PDF files inside the gold border drag-and-drop area above.</li>
-                <li>Arrange your files in the exact sequence you want to merge them by dragging or using move buttons.</li>
-                <li>Rotate individual pages or delete unwanted pages inside the workspace.</li>
-                <li>Click <strong>Merge PDFs</strong> to compile them and download your combined document instantly.</li>
-              </ol>
-
-              <h3 style={{ fontSize: "18px", fontFamily: "'Space Grotesk', sans-serif", marginBottom: "12px", fontWeight: 700 }}>
-                Key Benefits of Client-Side Merging
-              </h3>
-              <ul style={{ fontSize: "14.5px", lineHeight: "1.8", color: "var(--subtle)", paddingLeft: "20px", marginBottom: "32px" }}>
-                <li><strong>100% Secure:</strong> Document merging occurs inside browser sandboxed memory. Ideal for medical records and financial statements.</li>
-                <li><strong>No Network Delay:</strong> Since files do not upload to any remote api, merging completes instantly regardless of internet speed.</li>
-                <li><strong>Works Offline:</strong> Once the page is loaded, you can disconnect the internet and merge documents entirely offline.</li>
-              </ul>
-
-              <h3 style={{ fontSize: "22px", fontFamily: "'Space Grotesk', sans-serif", marginBottom: "20px", fontWeight: 700, borderBottom: "1px solid rgba(248, 244, 235, 0.08)", paddingBottom: "8px" }}>
-                Frequently Asked Questions
-              </h3>
-              <div className="seo-faq-grid">
-                <div className="seo-faq-item">
-                  <h4>Is Merge PDF free?</h4>
-                  <p>Yes. RawPDF is completely free, and there are no file count or page limits on merging.</p>
-                </div>
-                <div className="seo-faq-item">
-                  <h4>Are my files uploaded anywhere?</h4>
-                  <p>No. We do not run any back-end servers for document processing. All logic runs inside your local browser sandbox.</p>
-                </div>
-                <div className="seo-faq-item">
-                  <h4>What is the maximum file size?</h4>
-                  <p>Each file can be up to 100MB, which accommodates very large documents and books easily.</p>
-                </div>
-                <div className="seo-faq-item">
-                  <h4>Can I rotate and delete specific pages?</h4>
-                  <p>Yes. Once files are loaded, you enter the workspace where you can rotate specific pages, reorder them, or delete them before exporting.</p>
-                </div>
-              </div>
-            </div>
-          </section>
+          {/* Bottom-left badge matching reference design */}
+          <div className="watermark-badge" aria-hidden="true">
+            <span>N</span>
+          </div>
 
           {/* SoftwareApplication Schema Markup */}
           <Script id="schema-merge" type="application/ld+json" strategy="afterInteractive">
@@ -834,49 +610,8 @@ export default function MergePage() {
             onClick={() => setIsPreviewMobileActive(false)}
           ></div>
 
-          {/* Workspace top navigation bar */}
-          <div className="workspace-header">
-            <button className="ghost-btn workspace-back" onClick={() => setIsConfirmOpen(true)}>
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-                <path d="M19 12H5M12 19l-7-7 7-7" />
-              </svg>
-              <span>Back</span>
-            </button>
-            <div className="workspace-title-area">
-              <h3 className="workspace-title">Merge PDFs</h3>
-              <p className="workspace-subtitle">{files.length} {files.length === 1 ? "file" : "files"} added</p>
-            </div>
-            <div className="workspace-actions" />
-          </div>
-
           <section className="studio-layout" style={{ flex: 1 }}>
             <aside id="controlsPanel" className={`controls-panel${isControlsOpen ? " open" : ""}`}>
-              <div className="controls-header">
-                <div className="tabs single-tab" role="tablist">
-                  <button
-                    id="filesTab"
-                    className="tab active"
-                    type="button"
-                  >
-                    <svg className="tab-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
-                      <rect x="4" y="4" width="16" height="16" rx="2" />
-                      <rect x="9" y="9" width="11" height="11" rx="2" />
-                    </svg>
-                    Merge PDFs
-                  </button>
-                </div>
-                <button
-                  id="toggleControlsBtn"
-                  className="toggle-controls-btn"
-                  type="button"
-                  aria-expanded={isControlsOpen}
-                  onClick={() => setIsControlsOpen(!isControlsOpen)}
-                  aria-label="Toggle workspace tools"
-                >
-                  Tools
-                </button>
-              </div>
-
               <div id="controlsContent" className="controls-content">
                 <button
                   id="addBtn"
@@ -1112,7 +847,7 @@ export default function MergePage() {
         <main id="done" className="result view active">
           <section className="result-layout">
             <div className="result-preview">
-              <PreviewPanel url={mergedUrl} target="result" />
+              <PreviewPanel url={mergedUrl} title={mergedName} target="result" />
             </div>
             <aside className="result-panel">
               <div className="result-title-block">
@@ -1205,8 +940,6 @@ export default function MergePage() {
         }}
         onCancel={() => setIsConfirmOpen(false)}
       />
-
-      {view !== "workspace" && <Footer />}
     </>
   );
 }

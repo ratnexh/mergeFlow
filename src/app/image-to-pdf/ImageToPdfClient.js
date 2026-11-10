@@ -4,7 +4,6 @@ import React, { useState, useEffect, useRef } from "react";
 import Link from "next/link";
 import InfoModal from "../../components/InfoModal";
 import Header from "../../components/Header";
-import Footer from "../../components/Footer";
 import Script from "next/script";
 import { loadScript } from "../../utils/lazyLoad";
 
@@ -218,17 +217,6 @@ export default function ImageToPdfClient() {
     document.body.classList.toggle("theme-light", nextTheme === "light");
   };
 
-  const handleDropdownItemClick = (name) => {
-    setIsToolsOpen(false);
-    setModal({
-      isOpen: true,
-      title: name,
-      body: "This tool is coming soon in a future update! All document processing stays completely local and secure.",
-    });
-  };
-
-
-
   const deleteImage = (id) => {
     const item = files.find((f) => f.id === id);
     if (item) {
@@ -433,56 +421,6 @@ export default function ImageToPdfClient() {
     link.remove();
   };
 
-  const relatedTools = [
-    {
-      title: "PDF to Image",
-      desc: "Convert PDF pages to JPEG/PNG.",
-      href: "/pdf-to-image",
-      icon: (
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={{ width: 18, height: 18 }}>
-          <rect x="3" y="3" width="18" height="18" rx="2" ry="2" />
-          <circle cx="8.5" cy="8.5" r="1.5" />
-          <polyline points="21 15 16 10 5 21" />
-        </svg>
-      )
-    },
-    {
-      title: "Merge PDF",
-      desc: "Combine multiple PDFs into one.",
-      href: "/merge",
-      icon: (
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={{ width: 18, height: 18 }}>
-          <rect x="4" y="4" width="16" height="16" rx="2" />
-          <rect x="9" y="9" width="11" height="11" rx="2" />
-        </svg>
-      )
-    },
-    {
-      title: "Split PDF",
-      desc: "Extract pages from your PDF.",
-      href: "/split",
-      icon: (
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={{ width: 18, height: 18 }}>
-          <line x1="12" y1="3" x2="12" y2="21" />
-          <rect x="2" y="4" width="8" height="16" rx="2" />
-          <rect x="14" y="4" width="8" height="16" rx="2" />
-        </svg>
-      )
-    },
-    {
-      title: "Compress PDF",
-      desc: "Reduce PDF file size offline.",
-      href: "/compress",
-      icon: (
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={{ width: 18, height: 18 }}>
-          <rect x="4" y="14" width="6" height="6" rx="1" />
-          <rect x="14" y="4" width="6" height="6" rx="1" />
-          <path d="M20 14l-6 6M4 10l6-6" />
-        </svg>
-      )
-    }
-  ];
-
   return (
     <>
       <input
@@ -498,46 +436,57 @@ export default function ImageToPdfClient() {
         }}
       />
 
-      {view !== "workspace" && (
-        <>
-          <Header
-            isScrolled={isScrolled}
-            isToolsOpen={isToolsOpen}
-            setIsToolsOpen={setIsToolsOpen}
-            handleDropdownItemClick={handleDropdownItemClick}
-            theme={theme}
-            toggleTheme={toggleTheme}
-          />
-
-          <button id="themeToggle" className="theme-toggle" type="button" aria-pressed={theme === "light"} onClick={toggleTheme}>
-            <span className="theme-toggle-icon" aria-hidden="true" />
-            <span className="theme-toggle-text">{theme === "light" ? "Dark" : "Light"}</span>
-          </button>
-        </>
-      )}
+      <Header
+        isScrolled={isScrolled}
+        isToolsOpen={isToolsOpen}
+        setIsToolsOpen={setIsToolsOpen}
+        theme={theme}
+        toggleTheme={toggleTheme}
+        isWorkspace={view !== "landing"}
+        onBack={resetApp}
+        workspaceTitle="Image to PDF"
+        workspaceSubtitle={view === "done" ? "PDF Ready" : `${files.length} ${files.length === 1 ? "image" : "images"} loaded`}
+      />
 
       {/* 1. Landing View */}
       {view === "landing" && (
         <main id="landing" className="landing view active" style={{ minHeight: "100vh", display: "flex", flexDirection: "column" }}>
           <section className="hero" style={{ flex: 1 }}>
-            <div className="hero-content">
-              <Link className="ghost-btn-back" href="/">
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-                  <line x1="19" y1="12" x2="5" y2="12" /><polyline points="12 19 5 12 12 5" />
-                </svg>
-                <span>Back to Tools</span>
-              </Link>
+            {/* Ambient Glowing Golden Ribbons in Background */}
+            <div className="bg-golden-ribbons" aria-hidden="true">
+              <svg viewBox="0 0 1440 900" fill="none" xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="none">
+                <defs>
+                  <linearGradient id="goldRibbonTopImgPdf" x1="0%" y1="50%" x2="100%" y2="50%">
+                    <stop offset="0%" stopColor="#e5a93c" stopOpacity="0" />
+                    <stop offset="15%" stopColor="#e5a93c" stopOpacity="0.75" />
+                    <stop offset="40%" stopColor="#ffe494" stopOpacity="0.95" />
+                    <stop offset="70%" stopColor="#f5c768" stopOpacity="0.8" />
+                    <stop offset="100%" stopColor="#e5a93c" stopOpacity="0" />
+                  </linearGradient>
+                  <linearGradient id="goldRibbonBottomImgPdf" x1="100%" y1="50%" x2="0%" y2="50%">
+                    <stop offset="0%" stopColor="#e5a93c" stopOpacity="0" />
+                    <stop offset="20%" stopColor="#e5a93c" stopOpacity="0.75" />
+                    <stop offset="50%" stopColor="#ffe494" stopOpacity="0.95" />
+                    <stop offset="80%" stopColor="#f5c768" stopOpacity="0.8" />
+                    <stop offset="100%" stopColor="#e5a93c" stopOpacity="0" />
+                  </linearGradient>
+                  <filter id="ribbonGlowSoftImgPdf" x="-40%" y="-40%" width="180%" height="180%">
+                    <feGaussianBlur stdDeviation="6" />
+                  </filter>
+                  <filter id="ribbonGlowWideImgPdf" x="-50%" y="-50%" width="200%" height="200%">
+                    <feGaussianBlur stdDeviation="16" />
+                  </filter>
+                </defs>
+                {/* Top-Left Ribbon: Graceful sweeping bezier curve across top quadrant */}
+                <path d="M -40,360 C 140,390 280,260 480,180 S 850,110 1200,125" stroke="url(#goldRibbonTopImgPdf)" strokeWidth="18" filter="url(#ribbonGlowWideImgPdf)" opacity="0.35" />
+                <path d="M -40,360 C 140,390 280,260 480,180 S 850,110 1200,125" stroke="url(#goldRibbonTopImgPdf)" strokeWidth="5" filter="url(#ribbonGlowSoftImgPdf)" opacity="0.85" />
+                <path d="M -40,360 C 140,390 280,260 480,180 S 850,110 1200,125" stroke="url(#goldRibbonTopImgPdf)" strokeWidth="2" opacity="1" />
 
-              <p className="eyebrow" aria-label="Privacy protection guarantee">
-                <svg className="shield-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
-                  <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" />
-                </svg>
-                100% Local Conversion
-              </p>
-              <h1>Image to PDF</h1>
-              <p className="hero-copy">
-                Convert your JPG, PNG, and WebP image collections into a clean, compiled PDF document directly in your browser.
-              </p>
+                {/* Bottom-Right Ribbon: Sweeping bezier curve across bottom quadrant */}
+                <path d="M 1480,620 C 1300,750 1140,840 900,870 S 500,880 280,840" stroke="url(#goldRibbonBottomImgPdf)" strokeWidth="18" filter="url(#ribbonGlowWideImgPdf)" opacity="0.35" />
+                <path d="M 1480,620 C 1300,750 1140,840 900,870 S 500,880 280,840" stroke="url(#goldRibbonBottomImgPdf)" strokeWidth="5" filter="url(#ribbonGlowSoftImgPdf)" opacity="0.85" />
+                <path d="M 1480,620 C 1300,750 1140,840 900,870 S 500,880 280,840" stroke="url(#goldRibbonBottomImgPdf)" strokeWidth="2" opacity="1" />
+              </svg>
             </div>
 
             <div
@@ -546,7 +495,7 @@ export default function ImageToPdfClient() {
               tabIndex="0"
               role="button"
               aria-label="Choose image files or drop them here"
-              onClick={() => {
+              onClick={(e) => {
                 if (libsLoaded) fileInputRef.current.click();
               }}
               onDragEnter={(e) => { e.preventDefault(); setIsDragOverDropzone(true); }}
@@ -563,28 +512,36 @@ export default function ImageToPdfClient() {
                 }
               }}
             >
+              <div className="dropzone-bottom-glow" aria-hidden="true"></div>
               <div className="dropzone-inner">
                 <div className="dropzone-cards" aria-hidden="true">
                   <div className="pdf-card-shadow card-left"></div>
                   <div className="pdf-card-shadow card-right"></div>
-                  <div className="pdf-card-front" style={{ background: "linear-gradient(135deg, #0f8176, #095952)" }}>PDF</div>
+                  <div className="pdf-card-front">
+                    <div className="pdf-card-dogear"></div>
+                    <span>PDF</span>
+                  </div>
                 </div>
+
+                <h2 className="dropzone-title">Image to PDF</h2>
+                <p className="dropzone-subtitle">or drag and drop images here</p>
+
                 {!libsLoaded ? (
-                  <p className="dropzone-text" style={{ padding: "20px 0" }}>Loading secure PDF engine...</p>
+                  <p className="dropzone-loading">Loading secure PDF engine...</p>
                 ) : (
-                  <>
-                    <button id="chooseBtn" className="choose-btn-gold" type="button" aria-label="Open file picker">
-                      <svg className="plus-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
-                        <path d="M12 5v14M5 12h14" />
-                      </svg>
-                      Choose Images
-                    </button>
-                    <p className="dropzone-text">or drag and drop images here</p>
-                    <div style={{ fontSize: "13px", color: "var(--subtle)", marginTop: "8px" }}>
-                      Supported Formats: <strong>PNG, JPG, JPEG, WebP, GIF</strong> • Max Size: <strong>100MB per file</strong>
-                    </div>
-                  </>
+                  <button id="chooseBtn" className="choose-btn-gold" type="button" aria-label="Open file picker">
+                    <svg className="plus-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+                      <line x1="12" y1="5" x2="12" y2="19" />
+                      <line x1="5" y1="12" x2="19" y2="12" />
+                    </svg>
+                    <span>Choose Images</span>
+                  </button>
                 )}
+
+                <div className="dropzone-formats">
+                  Supported Formats: <strong>PNG, JPG, JPEG, WebP, GIF</strong> • Max Size: <strong>100MB per file</strong>
+                </div>
+
                 <div className="dropzone-security">
                   <svg className="lock-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
                     <rect x="3" y="11" width="18" height="11" rx="2" ry="2" />
@@ -596,198 +553,7 @@ export default function ImageToPdfClient() {
             </div>
           </section>
 
-          <section className="features-section">
-            <div className="section-header">
-              <p className="eyebrow-small">Built for</p>
-              <h2>High-fidelity compilation</h2>
-            </div>
-            <div className="features-grid">
-              <div className="feature-card">
-                <div className="feature-icon-wrapper">
-                  <svg className="feature-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round">
-                    <rect x="3" y="3" width="18" height="18" rx="2" ry="2" />
-                    <circle cx="8.5" cy="8.5" r="1.5" />
-                    <polyline points="21 15 16 10 5 21" />
-                  </svg>
-                </div>
-                <h3>PNG, JPG, WebP & GIF</h3>
-                <p>Supports all major browser image formats and compiles them cleanly.</p>
-              </div>
-
-              <div className="feature-card">
-                <div className="feature-icon-wrapper">
-                  <svg className="feature-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round">
-                    <path d="M4 15s1-1 4-1 5 2 8 2 4-1 4-1V3s-1 1-4 1-5-2-8-2-4 1-4 1z" />
-                    <line x1="4" y1="22" x2="4" y2="15" />
-                  </svg>
-                </div>
-                <h3>Custom Page Formats</h3>
-                <p>Fit to image aspect ratio automatically, or force standard A4 and Letter pages.</p>
-              </div>
-
-              <div className="feature-card">
-                <div className="feature-icon-wrapper">
-                  <svg className="feature-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round">
-                    <rect x="3" y="11" width="18" height="11" rx="2" ry="2" />
-                    <path d="M7 11V7a5 5 0 0 1 10 0v4" />
-                  </svg>
-                </div>
-                <h3>100% Client-Side</h3>
-                <p>No remote uploads. Files are generated instantly and securely in your browser.</p>
-              </div>
-            </div>
-          </section>
-
-          <section className="how-it-works-section">
-            <p className="eyebrow-small">How it works</p>
-            <div className="how-it-works-container">
-              <div className="how-it-works-grid">
-                <div className="step-card">
-                  <div className="step-icon-container">
-                    <div className="step-icon-wrapper">
-                      <svg className="step-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round">
-                        <rect x="3" y="3" width="18" height="18" rx="2" ry="2" />
-                        <circle cx="8.5" cy="8.5" r="1.5" />
-                        <polyline points="21 15 16 10 5 21" />
-                      </svg>
-                      <span className="step-number">1</span>
-                    </div>
-                    <div className="step-connector"></div>
-                  </div>
-                  <h4>Choose Images</h4>
-                  <p>Select images from your device.</p>
-                </div>
-
-                <div className="step-card">
-                  <div className="step-icon-container">
-                    <div className="step-icon-wrapper">
-                      <svg className="step-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round">
-                        <line x1="8" y1="6" x2="21" y2="6" />
-                        <line x1="8" y1="12" x2="21" y2="12" />
-                        <line x1="8" y1="18" x2="21" y2="18" />
-                        <line x1="3" y1="6" x2="3.01" y2="6" />
-                        <line x1="3" y1="12" x2="3.01" y2="12" />
-                        <line x1="3" y1="18" x2="3.01" y2="18" />
-                      </svg>
-                      <span className="step-number">2</span>
-                    </div>
-                    <div className="step-connector"></div>
-                  </div>
-                  <h4>Arrange / Rotate</h4>
-                  <p>Order slides left-to-right, rotate specific pages 90° as needed.</p>
-                </div>
-
-                <div className="step-card">
-                  <div className="step-icon-container">
-                    <div className="step-icon-wrapper">
-                      <svg className="step-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round">
-                        <path d="M12.22 2h-.44a2 2 0 0 0-2 2v.18a2 2 0 0 1-1 1.73l-.43.25a2 2 0 0 1-2 0l-.15-.08a2 2 0 0 0-2.73.73l-.22.38a2 2 0 0 0 .73 2.73l.15.1a2 2 0 0 1 1 1.72v.51a2 2 0 0 1-1 1.74l-.15.09a2 2 0 0 0-.73 2.73l.22.38a2 2 0 0 0 2.73.73l.15-.08a2 2 0 0 1 2 0l.43.25a2 2 0 0 1 1 1.73V20a2 2 0 0 0 2 2h.44a2 2 0 0 0 2-2v-.18a2 2 0 0 1 1-1.73l.43-.25a2 2 0 0 1 2 0l.15.08a2 2 0 0 0 2.73-.73l.22-.39a2 2 0 0 0-.73-2.73l-.15-.08a2 2 0 0 1-1-1.74v-.5a2 2 0 0 1 1-1.74l.15-.1a2 2 0 0 0 .73-2.73l-.22-.38a2 2 0 0 0-2.73-.73l-.15.08a2 2 0 0 1-2 0l-.43-.25a2 2 0 0 1-1-1.73V4a2 2 0 0 0-2-2z" />
-                        <circle cx="12" cy="12" r="3" />
-                      </svg>
-                      <span className="step-number">3</span>
-                    </div>
-                    <div className="step-connector"></div>
-                  </div>
-                  <h4>Configure Layout</h4>
-                  <p>Choose page margins, custom sizes, orientation, and image quality.</p>
-                </div>
-
-                <div className="step-card">
-                  <div className="step-icon-container">
-                    <div className="step-icon-wrapper">
-                      <svg className="step-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round">
-                        <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
-                        <polyline points="7 10 12 15 17 10" />
-                        <line x1="12" y1="15" x2="12" y2="3" />
-                      </svg>
-                      <span className="step-number">4</span>
-                    </div>
-                  </div>
-                  <h4>Export PDF</h4>
-                  <p>Compile and download your clean PDF locally.</p>
-                </div>
-              </div>
-            </div>
-          </section>
-
-          {/* Related Tools Links */}
-          <section className="related-tools-section">
-            <h3 style={{ fontSize: "20px", textAlign: "center", fontFamily: "'Space Grotesk', sans-serif", fontWeight: 700 }}>
-              Related PDF Utilities
-            </h3>
-            <div className="related-tools-grid">
-              {relatedTools.map((t) => (
-                <Link key={t.href} href={t.href} className="related-tool-card">
-                  <div className="related-tool-card-icon">
-                    {t.icon}
-                  </div>
-                  <h4>{t.title}</h4>
-                  <p>{t.desc}</p>
-                  <span className="related-tool-card-cta">
-                    Launch Tool
-                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" style={{ width: 10, height: 10 }}>
-                      <line x1="5" y1="12" x2="19" y2="12" />
-                      <polyline points="12 5 19 12 12 19" />
-                    </svg>
-                  </span>
-                </Link>
-              ))}
-            </div>
-          </section>
-
-          {/* SEO Content & FAQ Section */}
-          <section className="seo-faq-section">
-            <div style={{ maxWidth: "800px", margin: "0 auto", textAlign: "left" }}>
-              <h2 style={{ fontSize: "24px", fontFamily: "'Space Grotesk', sans-serif", marginBottom: "16px", fontWeight: 700 }}>
-                Convert Images to PDF Online Locally & Securely
-              </h2>
-              <p style={{ fontSize: "14.5px", lineHeight: "1.6", color: "var(--subtle)", marginBottom: "24px" }}>
-                RawPDF provides a clean, private interface to convert images (PNG, JPEG, WebP, GIF) into standard PDF documents. Running 100% locally in your browser sandbox using Javascript libraries, your images never leave your computer. This makes RawPDF ideal for assembling photos of IDs, receipts, drawings, or documents into secure PDFs.
-              </p>
-
-              <h3 style={{ fontSize: "18px", fontFamily: "'Space Grotesk', sans-serif", marginBottom: "12px", fontWeight: 700 }}>
-                How to Convert JPG & PNG Images to PDF Offline
-              </h3>
-              <ol style={{ fontSize: "14.5px", lineHeight: "1.8", color: "var(--subtle)", paddingLeft: "20px", marginBottom: "24px" }}>
-                <li>Drag and drop your images into the dropzone box above, or choose files from your file manager.</li>
-                <li>In the workspace, drag to arrange your images into the desired sequence. Use the rotation buttons to adjust orient.</li>
-                <li>Set page sizes to <strong>Fit to Image</strong>, <strong>A4</strong>, or <strong>US Letter</strong> page templates.</li>
-                <li>Configure custom margins, background color, and output compression quality to optimize file size.</li>
-                <li>Click <strong>Convert Images</strong> to generate and download your compiled PDF file instantly.</li>
-              </ol>
-
-              <h3 style={{ fontSize: "18px", fontFamily: "'Space Grotesk', sans-serif", marginBottom: "12px", fontWeight: 700 }}>
-                Key Benefits of Browser-Based Conversion
-              </h3>
-              <ul style={{ fontSize: "14.5px", lineHeight: "1.8", color: "var(--subtle)", paddingLeft: "20px", marginBottom: "32px" }}>
-                <li><strong>Private & Safe:</strong> All processing is done locally. Your photos and sensitive scans are never uploaded to any remote server.</li>
-                <li><strong>Fast Performance:</strong> With no network upload or download bottlenecks, files compile instantly in your browser memory.</li>
-                <li><strong>Custom Design Options:</strong> Control orientation, page colors, compression density, and spacing borders for professional looking PDF decks.</li>
-              </ul>
-
-              <h3 style={{ fontSize: "22px", fontFamily: "'Space Grotesk', sans-serif", marginBottom: "20px", fontWeight: 700, borderBottom: "1px solid rgba(248, 244, 235, 0.08)", paddingBottom: "8px" }}>
-                Frequently Asked Questions
-              </h3>
-              <div className="seo-faq-grid">
-                <div className="seo-faq-item">
-                  <h4>Is Image to PDF conversion free?</h4>
-                  <p>Yes. RawPDF is completely free to use. There are no registration forms, watermarks, or daily conversion quotas.</p>
-                </div>
-                <div className="seo-faq-item">
-                  <h4>Which image formats are supported?</h4>
-                  <p>We support all common image file types, including PNG, JPG, JPEG, WebP, and non-animated GIFs.</p>
-                </div>
-                <div className="seo-faq-item">
-                  <h4>Can I adjust page layouts and margins?</h4>
-                  <p>Yes. You can select custom margins (0pt, 10pt, 24pt), choose custom background colors, and set page sizes (Fit to image, A4, or Letter) in the editor sidebar.</p>
-                </div>
-                <div className="seo-faq-item">
-                  <h4>Is there a file size limit?</h4>
-                  <p>Each uploaded image can be up to 100MB, letting you compile extremely high-resolution image sets and scanned photo sheets easily.</p>
-                </div>
-              </div>
-            </div>
-          </section>
+          
 
           {/* SoftwareApplication Schema Markup */}
           <Script id="schema-image-to-pdf" type="application/ld+json" strategy="afterInteractive">
@@ -812,45 +578,9 @@ export default function ImageToPdfClient() {
       {/* 2. Workspace View */}
       {view === "workspace" && (
         <main id="workspace" className="studio view active" style={{ minHeight: "100vh", display: "flex", flexDirection: "column" }}>
-          {/* Workspace top navigation bar */}
-          <div className="workspace-header">
-            <button className="ghost-btn workspace-back" onClick={resetApp}>
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-                <path d="M19 12H5M12 19l-7-7 7-7" />
-              </svg>
-              <span>Back</span>
-            </button>
-            <div className="workspace-title-area">
-              <h3 className="workspace-title">Image to PDF</h3>
-              <p className="workspace-subtitle">{files.length} {files.length === 1 ? "image" : "images"} loaded</p>
-            </div>
-            <div className="workspace-actions" />
-          </div>
-
           <section className="studio-layout two-col-studio" style={{ flex: 1 }}>
             {/* Left Sidebar */}
             <aside className={`controls-panel${isControlsOpen ? " open" : ""}`}>
-              <div className="controls-header">
-                <div className="tabs single-tab" role="tablist">
-                  <button className="tab active" type="button">
-                    <svg className="tab-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2">
-                      <rect x="3" y="3" width="18" height="18" rx="2" ry="2" />
-                      <circle cx="8.5" cy="8.5" r="1.5" />
-                      <polyline points="21 15 16 10 5 21" />
-                    </svg>
-                    PDF settings
-                  </button>
-                </div>
-                <button
-                  className="toggle-controls-btn"
-                  type="button"
-                  aria-expanded={isControlsOpen}
-                  onClick={() => setIsControlsOpen(!isControlsOpen)}
-                >
-                  Tools
-                </button>
-              </div>
-
               <div className="controls-content">
                 <button
                   className="wide-btn-gold"
@@ -1171,8 +901,6 @@ export default function ImageToPdfClient() {
           </div>
         </main>
       )}
-
-      {view !== "workspace" && <Footer />}
 
       <InfoModal
         isOpen={modal.isOpen}

@@ -1,7 +1,19 @@
 import React, { useEffect, useRef, useState } from "react";
 
+function isCancelledError(err) {
+  const name = err?.name || "";
+  const msg = String(err?.message || err || "");
+  return (
+    name === "RenderingCancelledException" ||
+    msg.includes("Rendering cancelled") ||
+    msg.includes("Worker was destroyed") ||
+    msg.includes("Transport destroyed")
+  );
+}
+
 function ThumbnailCanvas({ pdfDoc, pageNumber }) {
   const canvasRef = useRef(null);
+  const renderTaskRef = useRef(null);
 
   useEffect(() => {
     let active = true;
@@ -9,29 +21,45 @@ function ThumbnailCanvas({ pdfDoc, pageNumber }) {
 
     const renderThumbnail = async () => {
       try {
+        if (renderTaskRef.current) {
+          try {
+            renderTaskRef.current.cancel();
+            await renderTaskRef.current.promise;
+          } catch {
+            // Expected cancellation
+          }
+          renderTaskRef.current = null;
+        }
+        if (!active) return;
+
         const page = await pdfDoc.getPage(pageNumber);
         if (!active) return;
 
-        // Scale tiny for the thumbnail slider
         const viewport = page.getViewport({ scale: 0.15 });
         const canvas = canvasRef.current;
         if (!canvas) return;
 
         const context = canvas.getContext("2d");
         const dpr = window.devicePixelRatio || 1;
-        canvas.width = Math.floor(viewport.width * dpr);
-        canvas.height = Math.floor(viewport.height * dpr);
+        canvas.width = Math.max(1, Math.floor(viewport.width * dpr));
+        canvas.height = Math.max(1, Math.floor(viewport.height * dpr));
         canvas.style.width = `${Math.floor(viewport.width)}px`;
         canvas.style.height = `${Math.floor(viewport.height)}px`;
 
         const renderContext = {
           canvasContext: context,
-          viewport: viewport,
+          viewport,
           transform: dpr !== 1 ? [dpr, 0, 0, dpr, 0, 0] : null,
         };
 
-        await page.render(renderContext).promise;
+        const task = page.render(renderContext);
+        renderTaskRef.current = task;
+        await task.promise;
+        if (renderTaskRef.current === task) {
+          renderTaskRef.current = null;
+        }
       } catch (e) {
+        if (!active || isCancelledError(e)) return;
         console.error("Failed to render thumbnail page " + pageNumber, e);
       }
     };
@@ -40,6 +68,13 @@ function ThumbnailCanvas({ pdfDoc, pageNumber }) {
 
     return () => {
       active = false;
+      if (renderTaskRef.current) {
+        try {
+          renderTaskRef.current.cancel();
+        } catch {
+          // Ignore cancel cleanup errors
+        }
+      }
     };
   }, [pdfDoc, pageNumber]);
 
@@ -56,46 +91,68 @@ export default function PreviewPanel({
   mobileActive,
 }) {
   const containerRef = useRef(null);
-  const [status, setStatus] = useState("Select a PDF to view it here.");
-  const [pdfDoc, setPdfDoc] = useState(null);
-  const [currentPage, setCurrentPage] = useState(1);
-  const [zoom, setZoom] = useState(100);
+  const mainRenderTaskRef = useRef(null);
 
   const isSplitPage = Number.isInteger(pageIndex);
+  const pageStateKey = `${url || ""}::${isSplitPage ? pageIndex : "doc"}`;
 
-  // Load PDF when URL changes
+  // Derive loading/document status cleanly per URL without cascading setState-in-effect
+  const [docState, setDocState] = useState({ forUrl: null, doc: null, error: null });
+  const [pageState, setPageState] = useState({ key: pageStateKey, page: isSplitPage ? pageIndex + 1 : 1 });
+  const [zoom, setZoom] = useState(100);
+
+  const pdfDoc = docState.forUrl === url ? docState.doc : null;
+  const currentPage = isSplitPage
+    ? pageIndex + 1
+    : pageState.key === pageStateKey
+      ? pageState.page
+      : 1;
+
+  const setCurrentPage = (nextOrUpdater) => {
+    setPageState((prev) => {
+      const basePage = prev.key === pageStateKey ? prev.page : 1;
+      const nextVal = typeof nextOrUpdater === "function" ? nextOrUpdater(basePage) : nextOrUpdater;
+      return { key: pageStateKey, page: nextVal };
+    });
+  };
+
+  let status = "";
+  if (!url) {
+    status = "Select a PDF to view it here.";
+  } else if (!window.pdfjsLib) {
+    status = "Preview renderer could not load. Download still works.";
+  } else if (docState.forUrl !== url) {
+    status = "Loading preview...";
+  } else if (docState.error) {
+    status = docState.error;
+  }
+
+  // Load PDF document when URL changes
   useEffect(() => {
+    if (!url || !window.pdfjsLib) return;
+
     let active = true;
-    setPdfDoc(null);
-    setCurrentPage(isSplitPage ? pageIndex + 1 : 1);
-
-    if (!url) {
-      setStatus("Select a PDF to view it here.");
-      return;
-    }
-
-    if (!window.pdfjsLib) {
-      setStatus("Preview renderer could not load. Download still works.");
-      return;
-    }
-
-    setStatus("Loading preview...");
+    let loadingTask = null;
+    let loadedDoc = null;
 
     const loadDoc = async () => {
       try {
-        const loadingTask = window.pdfjsLib.getDocument(url);
+        loadingTask = window.pdfjsLib.getDocument(url);
         const doc = await loadingTask.promise;
+        loadedDoc = doc;
         if (!active) {
           doc.destroy();
           return;
         }
-        setPdfDoc(doc);
-        setStatus("");
+        setDocState({ forUrl: url, doc, error: null });
       } catch (err) {
+        if (!active || isCancelledError(err)) return;
         console.error("Failed to load PDF:", err);
-        if (active) {
-          setStatus("This PDF cannot be previewed here, but download still works.");
-        }
+        setDocState({
+          forUrl: url,
+          doc: null,
+          error: "This PDF cannot be previewed here, but download still works.",
+        });
       }
     };
 
@@ -103,44 +160,55 @@ export default function PreviewPanel({
 
     return () => {
       active = false;
-    };
-  }, [url, pageIndex, isSplitPage]);
-
-  // Clean up PDF.js document on change or unmount
-  useEffect(() => {
-    return () => {
-      if (pdfDoc) {
-        pdfDoc.destroy();
+      if (loadingTask && typeof loadingTask.destroy === "function" && !loadedDoc) {
+        try {
+          loadingTask.destroy();
+        } catch {
+          // Ignore abort cleanup
+        }
+      }
+      if (loadedDoc) {
+        try {
+          loadedDoc.destroy();
+        } catch {
+          // Ignore destroy cleanup
+        }
       }
     };
-  }, [pdfDoc]);
+  }, [url]);
 
-  // Adjust page index when pageIndex changes on card selection
-  useEffect(() => {
-    if (isSplitPage) {
-      setCurrentPage(pageIndex + 1);
-    }
-  }, [pageIndex, isSplitPage]);
-
-  // Render main page when page index or zoom changes
+  // Render main page when pdfDoc, currentPage, or zoom changes
   useEffect(() => {
     let active = true;
+    let currentTask = null;
     const container = containerRef.current;
     if (!container) return;
 
-    container.innerHTML = "";
-
-    if (!pdfDoc) return;
+    if (!pdfDoc) {
+      container.innerHTML = "";
+      return;
+    }
 
     const renderMainPage = async () => {
       try {
-        const page = await pdfDoc.getPage(currentPage);
+        if (mainRenderTaskRef.current) {
+          try {
+            mainRenderTaskRef.current.cancel();
+            await mainRenderTaskRef.current.promise;
+          } catch {
+            // Expected cancellation of previous render
+          }
+          mainRenderTaskRef.current = null;
+        }
+        if (!active) return;
+
+        const safePage = Math.max(1, Math.min(currentPage, pdfDoc.numPages || 1));
+        const page = await pdfDoc.getPage(safePage);
         if (!active) return;
 
         const baseViewport = page.getViewport({ scale: 1 });
         const availableWidth = Math.max(260, container.clientWidth - 32);
-        
-        // Apply zoom scale
+
         const zoomScale = zoom / 100;
         const scale = Math.min(2.0, (availableWidth / baseViewport.width) * zoomScale);
         const viewport = page.getViewport({ scale });
@@ -149,22 +217,30 @@ export default function PreviewPanel({
         const context = canvas.getContext("2d");
 
         const dpr = window.devicePixelRatio || 1;
-        canvas.width = Math.floor(viewport.width * dpr);
-        canvas.height = Math.floor(viewport.height * dpr);
+        canvas.width = Math.max(1, Math.floor(viewport.width * dpr));
+        canvas.height = Math.max(1, Math.floor(viewport.height * dpr));
         canvas.style.width = `${Math.floor(viewport.width)}px`;
         canvas.style.height = `${Math.floor(viewport.height)}px`;
 
         const renderContext = {
           canvasContext: context,
-          viewport: viewport,
+          viewport,
           transform: dpr !== 1 ? [dpr, 0, 0, dpr, 0, 0] : null,
         };
 
-        await page.render(renderContext).promise;
+        currentTask = page.render(renderContext);
+        mainRenderTaskRef.current = currentTask;
+        await currentTask.promise;
+
+        if (mainRenderTaskRef.current === currentTask) {
+          mainRenderTaskRef.current = null;
+        }
         if (!active) return;
 
+        container.innerHTML = "";
         container.appendChild(canvas);
       } catch (err) {
+        if (!active || isCancelledError(err)) return;
         console.error("Failed to render main page:", err);
       }
     };
@@ -173,10 +249,17 @@ export default function PreviewPanel({
 
     return () => {
       active = false;
+      if (currentTask) {
+        try {
+          currentTask.cancel();
+        } catch {
+          // Expected cancellation on unmount/re-render
+        }
+      }
     };
   }, [pdfDoc, currentPage, zoom]);
 
-  const totalPages = isSplitPage ? 1 : (pdfDoc ? pdfDoc.numPages : 0);
+  const totalPages = isSplitPage ? 1 : (pdfDoc ? pdfDoc.numPages : pages || 0);
 
   const prevPage = () => {
     setCurrentPage((prev) => Math.max(1, prev - 1));
@@ -198,32 +281,23 @@ export default function PreviewPanel({
     return (
       <div className="simple-preview" style={{ width: "100%" }}>
         {status && <div className="render-note">{status}</div>}
-        <div 
-          ref={containerRef} 
-          className="pdf-canvas-viewer active" 
-          style={{ 
-            height: "auto", 
-            overflow: "visible", 
-            display: "flex", 
-            flexDirection: "column", 
-            alignItems: "center", 
+        <div
+          ref={containerRef}
+          className="pdf-canvas-viewer active"
+          style={{
+            height: "auto",
+            overflow: "visible",
+            display: "flex",
+            flexDirection: "column",
+            alignItems: "center",
             gap: "12px",
             background: "transparent",
             border: "none",
             padding: 0,
             minHeight: "auto",
-            boxShadow: "none"
+            boxShadow: "none",
           }}
         ></div>
-      </div>
-    );
-  }
-
-  if (target === "result") {
-    return (
-      <div className="result-preview active">
-        {status && <div className="render-note">{status}</div>}
-        <div ref={containerRef} className="pdf-canvas-viewer active"></div>
       </div>
     );
   }
@@ -231,32 +305,34 @@ export default function PreviewPanel({
   return (
     <aside
       id="previewPanel"
-      className={`preview-panel${mobileActive ? " mobile-active" : ""}`}
+      className={`preview-panel target-${target || "default"}${mobileActive ? " mobile-active" : ""}`}
     >
       <div className="preview-head-new">
         <div className="preview-head-left">
-          <span className="preview-label">PREVIEW</span>
+          <span className="preview-label">{target === "result" ? "EXPORT PREVIEW" : "PREVIEW"}</span>
           <h3 className="preview-title" title={title || "No PDF selected"}>
             {title
               ? title.length > 28
                 ? `${title.slice(0, 25)}...`
                 : title
-              : "No PDF selected"}
+              : target === "result" ? "Merged Document" : "No PDF selected"}
           </h3>
         </div>
         <div className="preview-head-right">
           <span className="page-count-badge">
             {totalPages} {totalPages === 1 ? "page" : "pages"}
           </span>
-          <button
-            id="closePreviewBtn"
-            className="close-preview-btn-new"
-            type="button"
-            aria-label="Close preview"
-            onClick={onClose}
-          >
-            &times;
-          </button>
+          {onClose && (
+            <button
+              id="closePreviewBtn"
+              className="close-preview-btn-new"
+              type="button"
+              aria-label="Close preview"
+              onClick={onClose}
+            >
+              &times;
+            </button>
+          )}
         </div>
       </div>
 
@@ -310,8 +386,8 @@ export default function PreviewPanel({
           {Array.from({ length: totalPages }, (_, i) => {
             const pageNum = i + 1;
             return (
-              <div 
-                key={pageNum} 
+              <div
+                key={pageNum}
                 className={`thumbnail-card${pageNum === currentPage ? " active" : ""}`}
                 onClick={() => setCurrentPage(pageNum)}
               >

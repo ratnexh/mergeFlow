@@ -1,6 +1,5 @@
 import Script from "next/script";
 import "./globals.css";
-import CookieBanner from "../components/CookieBanner";
 import BackToTop from "../components/BackToTop";
 
 export const metadata = {
@@ -50,7 +49,6 @@ export default function RootLayout({ children }) {
       </head>
       <body>
         {children}
-        <CookieBanner />
         <BackToTop />
       </body>
     </html>

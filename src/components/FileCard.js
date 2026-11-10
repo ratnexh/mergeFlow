@@ -1,64 +1,62 @@
 import React, { useState, useEffect, useRef } from "react";
+import {
+  cancelActiveRenderTask,
+  isPdfRenderCancelled,
+  renderPdfPageToCanvas,
+} from "../utils/pdfRender";
 
 function CardThumbnail({ url, pageIndex }) {
   const canvasRef = useRef(null);
-  const [loading, setLoading] = useState(true);
+  const renderTaskRef = useRef(null);
+  const thumbKey = url ? `${url}::${pageIndex ?? 0}` : null;
+  const [loadedKey, setLoadedKey] = useState(null);
+  const loading = Boolean(thumbKey) && loadedKey !== thumbKey;
 
   useEffect(() => {
     let active = true;
-    if (!url || !window.pdfjsLib) {
-      setLoading(false);
-      return;
+    let loadingTask = null;
+    let localPdf = null;
+
+    if (!thumbKey) return undefined;
+
+    if (typeof window === "undefined" || !window.pdfjsLib) {
+      Promise.resolve().then(() => {
+        if (active) setLoadedKey(thumbKey);
+      });
+      return () => {
+        active = false;
+      };
     }
 
     const renderThumb = async () => {
-      let pdf = null;
       try {
-        const loadingTask = window.pdfjsLib.getDocument(url);
-        pdf = await loadingTask.promise;
-        if (!active) {
-          pdf.destroy();
-          return;
-        }
+        loadingTask = window.pdfjsLib.getDocument(url);
+        localPdf = await loadingTask.promise;
+        if (!active) return;
 
         const targetPage = Number.isInteger(pageIndex) ? pageIndex + 1 : 1;
-        const page = await pdf.getPage(targetPage);
-        if (!active) {
-          pdf.destroy();
-          return;
-        }
+        const page = await localPdf.getPage(targetPage);
+        if (!active) return;
 
-        const canvas = canvasRef.current;
-        if (!canvas) {
-          pdf.destroy();
-          return;
-        }
-
-        const context = canvas.getContext("2d");
-        
-        // Scale to fit card preview height (around 180px)
-        const viewport = page.getViewport({ scale: 0.35 });
-        const dpr = window.devicePixelRatio || 1;
-        
-        canvas.width = Math.floor(viewport.width * dpr);
-        canvas.height = Math.floor(viewport.height * dpr);
-        canvas.style.width = "100%";
-        canvas.style.height = "100%";
-
-        const renderContext = {
-          canvasContext: context,
-          viewport: viewport,
-          transform: dpr !== 1 ? [dpr, 0, 0, dpr, 0, 0] : null,
-        };
-
-        await page.render(renderContext).promise;
-        if (active) setLoading(false);
+        const completed = await renderPdfPageToCanvas({
+          page,
+          canvas: canvasRef.current,
+          scale: 0.35,
+          renderTaskRef,
+          isCancelled: () => !active,
+        });
+        if (active && completed) setLoadedKey(thumbKey);
       } catch (err) {
+        if (!active || isPdfRenderCancelled(err)) return;
         console.error("Failed to render card thumbnail:", err);
-        if (active) setLoading(false);
+        if (active) setLoadedKey(thumbKey);
       } finally {
-        if (pdf) {
-          pdf.destroy();
+        if (localPdf) {
+          try {
+            localPdf.destroy();
+          } catch {
+            // Ignore cleanup errors on destroyed document
+          }
         }
       }
     };
@@ -67,8 +65,16 @@ function CardThumbnail({ url, pageIndex }) {
 
     return () => {
       active = false;
+      cancelActiveRenderTask(renderTaskRef);
+      if (loadingTask) {
+        try {
+          loadingTask.destroy();
+        } catch {
+          // Ignore cleanup errors on destroyed loading tasks
+        }
+      }
     };
-  }, [url, pageIndex]);
+  }, [url, pageIndex, thumbKey]);
 
   return (
     <div className="card-thumb-container">
