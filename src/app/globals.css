@@ -866,28 +866,6 @@ body.theme-light .dropdown-menu li a.active .dropdown-item-icon {
   stroke: currentColor !important;
 }
 
-/* Watermark Badge (bottom-left N) */
-.watermark-badge {
-  position: fixed;
-  bottom: 24px;
-  left: 24px;
-  z-index: 50;
-  width: 32px;
-  height: 32px;
-  border-radius: 50%;
-  background: #11151e;
-  border: 1px solid rgba(255, 255, 255, 0.15);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  color: #ffffff;
-  font-size: 13px;
-  font-weight: 700;
-  font-family: "Space Grotesk", sans-serif;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.5);
-  pointer-events: none;
-}
-
 body.theme-light .dropzone {
   border: 1px solid rgba(16, 22, 36, 0.1);
   border-bottom: 1.5px solid rgba(184, 122, 20, 0.55);
@@ -942,13 +920,6 @@ body.theme-light .dropzone-formats strong {
 
 body.theme-light .dropzone-security {
   color: #8f621e !important;
-}
-
-body.theme-light .watermark-badge {
-  background: #ffffff;
-  border-color: rgba(16, 22, 36, 0.12);
-  color: #101624;
-  box-shadow: 0 4px 12px rgba(16, 22, 36, 0.08);
 }
 
 body.theme-light .card-left {
@@ -4955,6 +4926,7 @@ body.theme-light .table-grid-cell.highlighted {
     opacity: 0;
     transform: translateY(-8px);
   }
+
   to {
     opacity: 1;
     transform: translateY(0);
@@ -5359,7 +5331,7 @@ body.theme-light .doc-source-textarea {
   margin: 6px 0;
 }
 
-.doc-checklist input[type="checkbox"]:checked + span {
+.doc-checklist input[type="checkbox"]:checked+span {
   text-decoration: line-through;
   opacity: 0.6;
 }
@@ -5707,9 +5679,9 @@ body.theme-light .btn-primary-close {
 }
 
 @media print {
+
   .site-nav,
   .bg-golden-ribbons,
-  .watermark-badge,
   .rich-editor-menubar,
   .rich-editor-toolbar,
   .rich-fr-drawer,
@@ -6589,12 +6561,12 @@ body.theme-light .card-index-badge {
   transform-origin: center;
 }
 
-.card-check input[type="checkbox"]:checked + .card-check-custom {
+.card-check input[type="checkbox"]:checked+.card-check-custom {
   background: #e5a93c;
   border-color: #e5a93c;
 }
 
-.card-check input[type="checkbox"]:checked + .card-check-custom::after {
+.card-check input[type="checkbox"]:checked+.card-check-custom::after {
   transform: rotate(45deg) scale(1);
 }
 
@@ -6604,12 +6576,12 @@ body.theme-light .card-check-custom {
   box-shadow: 0 2px 6px rgba(16, 22, 36, 0.1);
 }
 
-body.theme-light .card-check input[type="checkbox"]:checked + .card-check-custom {
+body.theme-light .card-check input[type="checkbox"]:checked+.card-check-custom {
   background: #b87a14;
   border-color: #b87a14;
 }
 
-body.theme-light .card-check input[type="checkbox"]:checked + .card-check-custom::after {
+body.theme-light .card-check input[type="checkbox"]:checked+.card-check-custom::after {
   border-color: #ffffff;
 }
 
@@ -7432,6 +7404,7 @@ body.theme-light .est-size {
   .preview-panel {
     display: none;
   }
+
   .preview-panel.mobile-active {
     display: flex;
     position: fixed;
@@ -7447,21 +7420,26 @@ body.theme-light .est-size {
   .header-workspace-center {
     display: none;
   }
+
   .studio-layout {
     flex-direction: column;
     padding: 16px;
   }
+
   .controls-panel {
     width: 100%;
     position: static;
   }
+
   .file-area-header-new {
     flex-direction: column;
     align-items: stretch;
   }
+
   .file-area-merge-block {
     align-items: stretch;
   }
+
   .merge-btn-gold {
     justify-content: center;
   }
@@ -7905,11 +7883,15 @@ body.theme-light .process-icon span:nth-child(2) {
 }
 
 @keyframes spin {
-  to { transform: rotate(360deg); }
+  to {
+    transform: rotate(360deg);
+  }
 }
 
 @keyframes spinReverse {
-  to { transform: rotate(-360deg); }
+  to {
+    transform: rotate(-360deg);
+  }
 }
 
 .processing-card h2 {
@@ -8076,6 +8058,7 @@ body.theme-light .modal {
     opacity: 0;
     transform: scale(0.92) translateY(12px);
   }
+
   to {
     opacity: 1;
     transform: scale(1) translateY(0);
@@ -8176,11 +8159,13 @@ body.theme-light .modal-content p {
     flex-direction: column;
     padding: 16px;
   }
+
   .result-preview {
     width: 100%;
     height: 440px;
     min-height: 380px;
   }
+
   .result-panel {
     width: 100%;
     position: static;

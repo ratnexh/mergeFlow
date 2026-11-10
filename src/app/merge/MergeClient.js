@@ -563,11 +563,6 @@ export default function MergePage() {
             </div>
           </section>
 
-          {/* Bottom-left badge matching reference design */}
-          <div className="watermark-badge" aria-hidden="true">
-            <span>N</span>
-          </div>
-
           {/* SoftwareApplication Schema Markup */}
           <Script id="schema-merge" type="application/ld+json" strategy="afterInteractive">
             {JSON.stringify({

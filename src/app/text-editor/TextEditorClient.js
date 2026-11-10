@@ -2812,10 +2812,6 @@ export default function TextEditorClient() {
             </div>
           </div>
         </section>
-
-        <div className="watermark-badge" aria-hidden="true">
-          <span>N</span>
-        </div>
       </main>
 
       {/* Confirmation Modal (New / Clear) */}

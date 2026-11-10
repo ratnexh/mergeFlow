@@ -579,11 +579,6 @@ export default function SplitPage() {
             </div>
           </section>
 
-          {/* Bottom-left badge */}
-          <div className="watermark-badge" aria-hidden="true">
-            <span>N</span>
-          </div>
-
           {/* SoftwareApplication Schema Markup */}
           <Script id="schema-split" type="application/ld+json" strategy="afterInteractive">
             {JSON.stringify({
